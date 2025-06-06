@@ -1,24 +1,50 @@
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
 *.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
 *.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Jupyter
+.ipynb_checkpoints
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ComfyUI
+*.ckpt
+*.safetensors
+*.pth
+*.pt
+*.onnx
+*.npz
+*.npz
+*.log
+*.tmp
+
+# Node
+node_modules/
+
+# Others
+*.swp
+*.bak
+*.tmp
+*.old
+*.orig
+
+# Custom
+web/__pycache__/
 
 # Virtual Environment
 venv/
