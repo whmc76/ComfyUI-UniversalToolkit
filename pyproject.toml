@@ -1,0 +1,16 @@
+[project]
+name = "universaltoolkit"
+description = "This plugin provides general-purpose utility nodes for ComfyUI. Currently, it implements a 'Blank Cell Generator' node, which can batch-generate images, masks, and latents with specified resolution and color."
+version = "1.0.0"
+license = {file = "LICENSE"}
+dependencies = ["Pillow", "numpy>=1.24.0", "torch>=2.0.0"]
+
+[project.urls]
+Repository = "https://github.com/whmc76/ComfyUI-UniversalToolkit"
+#  Used by Comfy Registry https://registry.comfy.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "ComfyUI-UniversalToolkit"
+Icon = ""
+includes = []
