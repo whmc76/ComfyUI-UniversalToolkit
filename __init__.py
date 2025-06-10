@@ -6,6 +6,9 @@ from .nodes import (
     ShowList_UTK,
     ShowText_UTK,
     PreviewMask_UTK,
+    DepthMapBlur_UTK,
+    ImageConcatenate_UTK,
+    ImageConcatenateMulti_UTK,
 )
 
 NODE_CLASS_MAPPINGS = {
@@ -16,6 +19,9 @@ NODE_CLASS_MAPPINGS = {
     "ShowList_UTK": ShowList_UTK,
     "ShowText_UTK": ShowText_UTK,
     "PreviewMask_UTK": PreviewMask_UTK,
+    "DepthMapBlur_UTK": DepthMapBlur_UTK,
+    "ImageConcatenate_UTK": ImageConcatenate_UTK,
+    "ImageConcatenateMulti_UTK": ImageConcatenateMulti_UTK,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -26,6 +32,9 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ShowList_UTK": "Show List (UTK)",
     "ShowText_UTK": "Show Text (UTK)",
     "PreviewMask_UTK": "Preview Mask (UTK)",
+    "DepthMapBlur_UTK": "Depth Map Blur (UTK)",
+    "ImageConcatenate_UTK": "Image Concatenate (UTK)",
+    "ImageConcatenateMulti_UTK": "Image Concatenate Multi (UTK)",
 }
 
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"] 
