@@ -1,3 +1,5 @@
 Pillow
-numpy>=1.24.0
-torch>=2.0.0 
+numpy
+torch
+librosa
+torchaudio 

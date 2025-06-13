@@ -2,6 +2,8 @@ import torch
 import numpy as np
 import re
 import math
+from comfy.utils import ProgressBar, common_upscale
+from PIL import Image
 
 class EmptyUnitGenerator_UTK:
     CATEGORY = "UniversalToolkit"
@@ -225,82 +227,200 @@ class ImageConcatenate_UTK:
             "required": {
                 "image1": ("IMAGE",),
                 "image2": ("IMAGE",),
-                "direction": (["right", "left", "up", "down", "auto"], {"default": "auto"}),
-                "align": (["start", "center", "end"], {"default": "center"}),
-                "spacing": ("INT", {"default": 0, "min": 0, "max": 1024, "step": 1}),
+                "direction": (
+                    [   'right',
+                        'down',
+                        'left',
+                        'up',
+                        'auto',
+                    ],
+                    {
+                    "default": 'auto'
+                    }),
+                "match_image_size": ("BOOLEAN", {"default": True}),
+                "max_size": ("INT", {"default": 4096, "min": 64, "max": 8192, "step": 64}),
+                "background_color": (["black", "white", "gray", "transparent"], {"default": "black"}),
             }
         }
     
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "concatenate"
     
-    def concatenate(self, image1, image2, direction, align, spacing):
-        # 获取图像尺寸
-        b1, c1, h1, w1 = image1.shape
-        b2, c2, h2, w2 = image2.shape
-        
-        # 确保通道数相同
-        if c1 != c2:
-            raise ValueError("输入图像的通道数必须相同")
-        
-        # 如果是自动模式，根据图像尺寸决定拼接方向
-        if direction == "auto":
-            # 计算水平拼接和垂直拼接后的宽高比
-            horizontal_ratio = (w1 + w2 + spacing) / max(h1, h2)
-            vertical_ratio = max(w1, w2) / (h1 + h2 + spacing)
+    def concatenate(self, image1, image2, direction, match_image_size, max_size, background_color):
+        # Check if the batch sizes are different
+        batch_size1 = image1.shape[0]
+        batch_size2 = image2.shape[0]
+
+        if batch_size1 != batch_size2:
+            # Calculate the number of repetitions needed
+            max_batch_size = max(batch_size1, batch_size2)
+            repeats1 = max_batch_size - batch_size1
+            repeats2 = max_batch_size - batch_size2
             
-            # 选择更接近1:1比例的拼接方式
-            direction = "right" if abs(horizontal_ratio - 1) <= abs(vertical_ratio - 1) else "down"
-        
-        # 计算输出尺寸
-        if direction in ["right", "left"]:
-            out_h = max(h1, h2)
-            out_w = w1 + w2 + spacing
+            # Repeat the last image to match the largest batch size
+            if repeats1 > 0:
+                last_image1 = image1[-1].unsqueeze(0).repeat(repeats1, 1, 1, 1)
+                image1 = torch.cat([image1.clone(), last_image1], dim=0)
+            if repeats2 > 0:
+                last_image2 = image2[-1].unsqueeze(0).repeat(repeats2, 1, 1, 1)
+                image2 = torch.cat([image2.clone(), last_image2], dim=0)
+
+        # Get original dimensions
+        h1, w1 = image1.shape[1:3]
+        h2, w2 = image2.shape[1:3]
+
+        # If direction is auto, determine the best direction based on image dimensions
+        if direction == 'auto':
+            # Calculate aspect ratios for both directions
+            horizontal_ratio = (w1 + w2) / max(h1, h2)
+            vertical_ratio = max(w1, w2) / (h1 + h2)
+            
+            # Choose the direction that results in an aspect ratio closer to 1:1
+            direction = 'right' if abs(horizontal_ratio - 1) <= abs(vertical_ratio - 1) else 'down'
+
+        # Match image sizes if requested
+        if match_image_size:
+            if direction in ['right', 'left', 'auto']:
+                # Match heights
+                target_height = max(h1, h2)
+                # Scale image1 if needed
+                if h1 < target_height:
+                    scale = target_height / h1
+                    new_width = int(w1 * scale)
+                    image1 = torch.nn.functional.interpolate(
+                        image1.permute(0, 3, 1, 2),
+                        size=(target_height, new_width),
+                        mode='bilinear',
+                        align_corners=False
+                    ).permute(0, 2, 3, 1)
+                # Scale image2 if needed
+                if h2 < target_height:
+                    scale = target_height / h2
+                    new_width = int(w2 * scale)
+                    image2 = torch.nn.functional.interpolate(
+                        image2.permute(0, 3, 1, 2),
+                        size=(target_height, new_width),
+                        mode='bilinear',
+                        align_corners=False
+                    ).permute(0, 2, 3, 1)
+            else:  # up, down
+                # Match widths
+                target_width = max(w1, w2)
+                # Scale image1 if needed
+                if w1 < target_width:
+                    scale = target_width / w1
+                    new_height = int(h1 * scale)
+                    image1 = torch.nn.functional.interpolate(
+                        image1.permute(0, 3, 1, 2),
+                        size=(new_height, target_width),
+                        mode='bilinear',
+                        align_corners=False
+                    ).permute(0, 2, 3, 1)
+                # Scale image2 if needed
+                if w2 < target_width:
+                    scale = target_width / w2
+                    new_height = int(h2 * scale)
+                    image2 = torch.nn.functional.interpolate(
+                        image2.permute(0, 3, 1, 2),
+                        size=(new_height, target_width),
+                        mode='bilinear',
+                        align_corners=False
+                    ).permute(0, 2, 3, 1)
+
+        # Update dimensions after scaling
+        h1, w1 = image1.shape[1:3]
+        h2, w2 = image2.shape[1:3]
+
+        # Calculate final dimensions
+        if direction in ['right', 'left']:
+            final_height = max(h1, h2)
+            final_width = w1 + w2
         else:  # up, down
-            out_h = h1 + h2 + spacing
-            out_w = max(w1, w2)
-        
-        # 创建输出张量
-        output = torch.zeros((b1, c1, out_h, out_w), dtype=image1.dtype, device=image1.device)
-        
-        # 计算对齐位置
-        if direction in ["right", "left"]:
-            if align == "start":
-                y1 = y2 = 0
-            elif align == "center":
-                y1 = (out_h - h1) // 2
-                y2 = (out_h - h2) // 2
-            else:  # end
-                y1 = out_h - h1
-                y2 = out_h - h2
+            final_height = h1 + h2
+            final_width = max(w1, w2)
+
+        # Check if we need to scale down
+        if max(final_height, final_width) > max_size:
+            scale = max_size / max(final_height, final_width)
+            new_h1 = int(h1 * scale)
+            new_w1 = int(w1 * scale)
+            new_h2 = int(h2 * scale)
+            new_w2 = int(w2 * scale)
             
-            if direction == "right":
-                x1 = 0
-                x2 = w1 + spacing
-            else:  # left
-                x1 = w2 + spacing
-                x2 = 0
-        else:  # up, down
-            if align == "start":
-                x1 = x2 = 0
-            elif align == "center":
-                x1 = (out_w - w1) // 2
-                x2 = (out_w - w2) // 2
-            else:  # end
-                x1 = out_w - w1
-                x2 = out_w - w2
+            # Scale both images
+            image1 = torch.nn.functional.interpolate(
+                image1.permute(0, 3, 1, 2),
+                size=(new_h1, new_w1),
+                mode='bilinear',
+                align_corners=False
+            ).permute(0, 2, 3, 1)
             
-            if direction == "down":
-                y1 = 0
-                y2 = h1 + spacing
-            else:  # up
-                y1 = h2 + spacing
-                y2 = 0
-        
-        # 复制图像数据
-        output[:, :, y1:y1+h1, x1:x1+w1] = image1
-        output[:, :, y2:y2+h2, x2:x2+w2] = image2
-        
+            image2 = torch.nn.functional.interpolate(
+                image2.permute(0, 3, 1, 2),
+                size=(new_h2, new_w2),
+                mode='bilinear',
+                align_corners=False
+            ).permute(0, 2, 3, 1)
+            
+            # Update dimensions after scaling
+            h1, w1 = image1.shape[1:3]
+            h2, w2 = image2.shape[1:3]
+            
+            # Recalculate final dimensions
+            if direction in ['right', 'left']:
+                final_height = max(h1, h2)
+                final_width = w1 + w2
+            else:  # up, down
+                final_height = h1 + h2
+                final_width = max(w1, w2)
+
+        # Ensure both images have the same number of channels
+        channels_image1 = image1.shape[-1]
+        channels_image2 = image2.shape[-1]
+
+        if channels_image1 != channels_image2:
+            if channels_image1 < channels_image2:
+                # Add alpha channel to image1 if image2 has it
+                alpha_channel = torch.ones((*image1.shape[:-1], channels_image2 - channels_image1), device=image1.device)
+                image1 = torch.cat((image1, alpha_channel), dim=-1)
+            else:
+                # Add alpha channel to image2 if image1 has it
+                alpha_channel = torch.ones((*image2.shape[:-1], channels_image1 - channels_image2), device=image2.device)
+                image2 = torch.cat((image2, alpha_channel), dim=-1)
+
+        # Create output tensor with background color
+        if background_color == "transparent":
+            output = torch.zeros((batch_size1, final_height, final_width, channels_image1), dtype=image1.dtype, device=image1.device)
+        else:
+            color_value = 1.0 if background_color == "white" else 0.0 if background_color == "black" else 0.5
+            output = torch.full((batch_size1, final_height, final_width, channels_image1), color_value, dtype=image1.dtype, device=image1.device)
+
+        # Calculate positions for image placement
+        if direction == 'right':
+            x1 = 0
+            x2 = w1
+            y1 = (final_height - h1) // 2
+            y2 = (final_height - h2) // 2
+        elif direction == 'left':
+            x1 = w2
+            x2 = 0
+            y1 = (final_height - h1) // 2
+            y2 = (final_height - h2) // 2
+        elif direction == 'down':
+            x1 = (final_width - w1) // 2
+            x2 = (final_width - w2) // 2
+            y1 = 0
+            y2 = h1
+        else:  # up
+            x1 = (final_width - w1) // 2
+            x2 = (final_width - w2) // 2
+            y1 = h2
+            y2 = 0
+
+        # Place images in the output tensor
+        output[:, y1:y1+h1, x1:x1+w1] = image1
+        output[:, y2:y2+h2, x2:x2+w2] = image2
+
         return (output,)
 
 class ImageConcatenateMulti_UTK:
@@ -311,51 +431,173 @@ class ImageConcatenateMulti_UTK:
         return {
             "required": {
                 "images": ("IMAGE",),
-                "direction": (["horizontal", "vertical"], {"default": "horizontal"}),
-                "align": (["start", "center", "end"], {"default": "center"}),
-                "spacing": ("INT", {"default": 0, "min": 0, "max": 1024, "step": 1}),
+                "direction": (
+                    [   'right',
+                        'down',
+                        'left',
+                        'up',
+                        'auto',
+                    ],
+                    {
+                    "default": 'auto'
+                    }),
+                "match_image_size": ("BOOLEAN", {"default": True}),
+                "max_size": ("INT", {"default": 4096, "min": 64, "max": 8192, "step": 64}),
+                "background_color": (["black", "white", "gray", "transparent"], {"default": "black"}),
+                "grid_size": (["auto", "1x1", "2x2", "3x3", "4x4"], {"default": "auto"}),
             }
         }
     
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "concatenate_multi"
     
-    def concatenate_multi(self, images, direction, align, spacing):
+    def concatenate_multi(self, images, direction, match_image_size, max_size, background_color, grid_size):
         if len(images.shape) != 4:
-            raise ValueError("输入必须是4D张量 [batch, channels, height, width]")
+            raise ValueError("输入必须是4D张量 [batch, height, width, channels]")
         
-        b, c, h, w = images.shape
+        batch_size = images.shape[0]
         
-        # 计算输出尺寸
-        if direction == "horizontal":
-            out_h = h
-            out_w = w * b + spacing * (b - 1)
-        else:  # vertical
-            out_h = h * b + spacing * (b - 1)
-            out_w = w
-        
+        # 处理网格布局
+        if grid_size != "auto":
+            rows, cols = map(int, grid_size.split("x"))
+            if batch_size > rows * cols:
+                raise ValueError(f"图像数量 ({batch_size}) 超过网格大小 ({grid_size})")
+            # 填充到网格大小
+            if batch_size < rows * cols:
+                padding = torch.zeros((rows * cols - batch_size, *images.shape[1:]), dtype=images.dtype, device=images.device)
+                images = torch.cat([images, padding], dim=0)
+                batch_size = rows * cols
+        else:
+            # 自动计算网格大小
+            if direction in ['right', 'left', 'auto']:
+                rows = 1
+                cols = batch_size
+            else:  # up, down
+                rows = batch_size
+                cols = 1
+
+        # 获取所有图像的尺寸
+        heights = []
+        widths = []
+        for i in range(batch_size):
+            h, w = images[i].shape[:2]
+            heights.append(h)
+            widths.append(w)
+
+        # 如果方向是auto，计算最佳方向
+        if direction == 'auto':
+            # 计算水平和垂直拼接的宽高比
+            total_width = sum(widths)
+            max_height = max(heights)
+            horizontal_ratio = total_width / max_height
+
+            total_height = sum(heights)
+            max_width = max(widths)
+            vertical_ratio = max_width / total_height
+
+            # 选择更接近1:1的方向
+            direction = 'right' if abs(horizontal_ratio - 1) <= abs(vertical_ratio - 1) else 'down'
+
+        # 如果需要匹配图像尺寸
+        if match_image_size:
+            if direction in ['right', 'left', 'auto']:
+                # 匹配高度
+                target_height = max(heights)
+                for i in range(batch_size):
+                    if heights[i] < target_height:
+                        scale = target_height / heights[i]
+                        new_width = int(widths[i] * scale)
+                        images[i] = torch.nn.functional.interpolate(
+                            images[i].unsqueeze(0).permute(0, 3, 1, 2),
+                            size=(target_height, new_width),
+                            mode='bilinear',
+                            align_corners=False
+                        ).permute(0, 2, 3, 1).squeeze(0)
+            else:  # up, down
+                # 匹配宽度
+                target_width = max(widths)
+                for i in range(batch_size):
+                    if widths[i] < target_width:
+                        scale = target_width / widths[i]
+                        new_height = int(heights[i] * scale)
+                        images[i] = torch.nn.functional.interpolate(
+                            images[i].unsqueeze(0).permute(0, 3, 1, 2),
+                            size=(new_height, target_width),
+                            mode='bilinear',
+                            align_corners=False
+                        ).permute(0, 2, 3, 1).squeeze(0)
+
+        # 更新尺寸
+        heights = []
+        widths = []
+        for i in range(batch_size):
+            h, w = images[i].shape[:2]
+            heights.append(h)
+            widths.append(w)
+
+        # 计算最终输出尺寸
+        if direction in ['right', 'left', 'auto']:
+            final_height = max(heights)
+            final_width = sum(widths)
+        else:  # up, down
+            final_height = sum(heights)
+            final_width = max(widths)
+
+        # 检查是否需要缩放
+        if max(final_height, final_width) > max_size:
+            scale = max_size / max(final_height, final_width)
+            for i in range(batch_size):
+                new_height = int(heights[i] * scale)
+                new_width = int(widths[i] * scale)
+                images[i] = torch.nn.functional.interpolate(
+                    images[i].unsqueeze(0).permute(0, 3, 1, 2),
+                    size=(new_height, new_width),
+                    mode='bilinear',
+                    align_corners=False
+                ).permute(0, 2, 3, 1).squeeze(0)
+
+        # 更新最终尺寸
+        heights = []
+        widths = []
+        for i in range(batch_size):
+            h, w = images[i].shape[:2]
+            heights.append(h)
+            widths.append(w)
+
+        if direction in ['right', 'left', 'auto']:
+            final_height = max(heights)
+            final_width = sum(widths)
+        else:  # up, down
+            final_height = sum(heights)
+            final_width = max(widths)
+
         # 创建输出张量
-        output = torch.zeros((1, c, out_h, out_w), dtype=images.dtype, device=images.device)
-        
-        # 复制图像数据
-        for i in range(b):
-            if direction == "horizontal":
-                if align == "start":
-                    y = 0
-                elif align == "center":
-                    y = (out_h - h) // 2
-                else:  # end
-                    y = out_h - h
-                x = i * (w + spacing)
-            else:  # vertical
-                if align == "start":
-                    x = 0
-                elif align == "center":
-                    x = (out_w - w) // 2
-                else:  # end
-                    x = out_w - w
-                y = i * (h + spacing)
-            
-            output[0, :, y:y+h, x:x+w] = images[i]
-        
+        if background_color == "transparent":
+            output = torch.zeros((1, final_height, final_width, images.shape[-1]), dtype=images.dtype, device=images.device)
+        else:
+            color_value = 1.0 if background_color == "white" else 0.0 if background_color == "black" else 0.5
+            output = torch.full((1, final_height, final_width, images.shape[-1]), color_value, dtype=images.dtype, device=images.device)
+
+        # 放置图像
+        if direction in ['right', 'left', 'auto']:
+            x_offset = 0
+            for i in range(batch_size):
+                h, w = images[i].shape[:2]
+                y_offset = (final_height - h) // 2
+                if direction == 'left':
+                    x_offset = final_width - sum(widths[i:])
+                output[0, y_offset:y_offset+h, x_offset:x_offset+w] = images[i]
+                if direction != 'left':
+                    x_offset += w
+        else:  # up, down
+            y_offset = 0
+            for i in range(batch_size):
+                h, w = images[i].shape[:2]
+                x_offset = (final_width - w) // 2
+                if direction == 'up':
+                    y_offset = final_height - sum(heights[i:])
+                output[0, y_offset:y_offset+h, x_offset:x_offset+w] = images[i]
+                if direction != 'up':
+                    y_offset += h
+
         return (output,) 
