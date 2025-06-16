@@ -8,13 +8,17 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.0.3": [
+        "新增 MaskAnd_UTK、MaskSub_UTK、MaskAdd_UTK 三个mask像素级运算节点 (UTK)",
+        "修正节点注册与显示名风格统一，完善导入路径"
+    ],
     "1.0.2": [
         "删除无用节点 Load Audio Plus Upload (UTK)",
         "新增 Audio Crop Process (UTK) 支持原生音频上传",
@@ -44,6 +48,7 @@ CHANGELOG = {
 from .nodes.image_nodes_utk import EmptyUnitGenerator_UTK, ImageRatioDetector_UTK, DepthMapBlur_UTK, ImageConcatenate_UTK, ImageConcatenateMulti_UTK
 from .nodes.tool_nodes_utk import ShowInt_UTK, ShowFloat_UTK, ShowList_UTK, ShowText_UTK, PreviewMask_UTK
 from .nodes.audio_nodes_utk import LoadAudioPlusFromPath_UTK, AudioCropProcessUTK
+from .nodes.mask_nodes_utk import MaskAnd_UTK, MaskSub_UTK, MaskAdd_UTK
 
 NODE_CLASS_MAPPINGS = {
     "EmptyUnitGenerator_UTK": EmptyUnitGenerator_UTK,
@@ -58,6 +63,9 @@ NODE_CLASS_MAPPINGS = {
     "ImageConcatenateMulti_UTK": ImageConcatenateMulti_UTK,
     "LoadAudioPlusFromPath_UTK": LoadAudioPlusFromPath_UTK,
     "AudioCropProcessUTK": AudioCropProcessUTK,
+    "MaskAnd_UTK": MaskAnd_UTK,
+    "MaskSub_UTK": MaskSub_UTK,
+    "MaskAdd_UTK": MaskAdd_UTK,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -73,6 +81,9 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ImageConcatenateMulti_UTK": "Image Concatenate Multi",
     "LoadAudioPlusFromPath_UTK": "Load Audio Plus From Path (UTK)",
     "AudioCropProcessUTK": "Audio Crop Process (UTK)",
+    "MaskAnd_UTK": "Mask And (UTK)",
+    "MaskSub_UTK": "Mask Sub (UTK)",
+    "MaskAdd_UTK": "Mask Add (UTK)",
 }
 
 NODE_CATEGORIES = {
@@ -84,6 +95,9 @@ NODE_CATEGORIES = {
         "ImageConcatenateMulti_UTK",
         "LoadAudioPlusFromPath_UTK",
         "AudioCropProcessUTK",
+        "MaskAnd_UTK",
+        "MaskSub_UTK",
+        "MaskAdd_UTK",
     ]
 }
 

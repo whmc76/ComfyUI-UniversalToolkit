@@ -2,9 +2,15 @@
 
 ## 版本
 
-- 当前版本：**v0.1**
+- 当前版本：**v1.0.2**
 
 ## 更新日志
+
+### v1.0.2
+- 删除无用节点 Load Audio Plus Upload (UTK)
+- 新增 Audio Crop Process (UTK) 支持原生音频上传
+- 修复音频处理相关bug，完善依赖
+- 作者信息、邮箱、GitHub 地址全部更新
 
 ### v0.1
 - 项目结构模块化重构，所有节点分为 image_nodes、tool_nodes 两大类，便于维护和扩展。
@@ -15,7 +21,7 @@
 - 完善空输入兜底逻辑，所有节点均支持安全桥接。
 
 ## 简介
-本插件为 ComfyUI 提供通用工具节点，当前实现了"空白单元生成"节点，可批量生成指定分辨率、颜色的 image、mask、latent。
+本插件为 ComfyUI 提供通用工具节点，当前实现了丰富的图像与音频处理节点，支持批量生成、裁剪、拼接、分析等多种功能。
 
 ## 安装
 1. 将本插件文件夹放入 ComfyUI 的 `custom_nodes/` 目录下。
@@ -24,40 +30,36 @@
    pip install -r requirements.txt
    ```
 
+### 依赖列表
+- Pillow
+- numpy
+- torch
+- librosa
+- torchaudio
+
 ## 节点说明
 
-### Universal Blank Unit
-- **output_type**: 选择输出类型（image/mask/latent）
-- **ratio_type**: 分辨率类型（standard/social_media）
-- **ratio**: 具体分辨率
-- **batch**: 批量数
-- **image_color**: 颜色（仅 image/mask 有效）
+### 音频相关节点
+- **Load Audio Plus From Path (UTK)**：从本地路径加载音频，支持采样率、声道、裁剪、增益、立体声等参数。
+- **Audio Crop Process (UTK)**：对AUDIO类型音频进行裁剪、重采样、增益、声道处理，支持与原生上传节点无缝对接。
 
-#### 分辨率预设
-- **Standard**:
-  - 1:1 (512x512)
-  - 16:9 (896x512)
-  - 4:5 (512x640)
-  - 3:2 (768x512)
-  - 2:3 (512x768)
+### 图像与工具节点
+- Empty Unit Generator
+- Image Ratio Detector
+- Depth Map Blur
+- Image Concatenate
+- Image Concatenate Multi
+- Show Int/Float/List/Text/Mask (UTK)
 
-- **Social Media**:
-  - Instagram Post (1080x1080)
-  - Instagram Story (1080x1920)
-  - Twitter Post (1600x900)
-  - Facebook Cover (820x312)
-
-#### 颜色预设
-- White
-- Black
-- Gray
-- Red
-- Green
-- Blue
+## 作者信息
+- 作者：CyberDickLang
+- 邮箱：286878701@qq.com
+- GitHub：[https://github.com/whmc76](https://github.com/whmc76)
 
 ## 兼容性
 - 结构与 ComfyUI 官方插件规范兼容。
 - 支持多分辨率、批量输出，参数面板友好。
+- 音频节点兼容多格式、原生上传体验。
 
 ## 许可证
 MIT
