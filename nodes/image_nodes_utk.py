@@ -251,19 +251,15 @@ class ImageConcatenate_UTK:
         batch_size1 = image1.shape[0]
         batch_size2 = image2.shape[0]
 
+        # 保证batch维度一致，补齐到最大batch
         if batch_size1 != batch_size2:
-            # Calculate the number of repetitions needed
             max_batch_size = max(batch_size1, batch_size2)
-            repeats1 = max_batch_size - batch_size1
-            repeats2 = max_batch_size - batch_size2
-            
-            # Repeat the last image to match the largest batch size
-            if repeats1 > 0:
-                last_image1 = image1[-1].unsqueeze(0).repeat(repeats1, 1, 1, 1)
-                image1 = torch.cat([image1.clone(), last_image1], dim=0)
-            if repeats2 > 0:
-                last_image2 = image2[-1].unsqueeze(0).repeat(repeats2, 1, 1, 1)
-                image2 = torch.cat([image2.clone(), last_image2], dim=0)
+            if batch_size1 < max_batch_size:
+                last_image1 = image1[-1].unsqueeze(0).repeat(max_batch_size - batch_size1, 1, 1, 1)
+                image1 = torch.cat([image1, last_image1], dim=0)
+            if batch_size2 < max_batch_size:
+                last_image2 = image2[-1].unsqueeze(0).repeat(max_batch_size - batch_size2, 1, 1, 1)
+                image2 = torch.cat([image2, last_image2], dim=0)
 
         # Get original dimensions
         h1, w1 = image1.shape[1:3]
@@ -271,19 +267,14 @@ class ImageConcatenate_UTK:
 
         # If direction is auto, determine the best direction based on image dimensions
         if direction == 'auto':
-            # Calculate aspect ratios for both directions
             horizontal_ratio = (w1 + w2) / max(h1, h2)
             vertical_ratio = max(w1, w2) / (h1 + h2)
-            
-            # Choose the direction that results in an aspect ratio closer to 1:1
             direction = 'right' if abs(horizontal_ratio - 1) <= abs(vertical_ratio - 1) else 'down'
 
         # Match image sizes if requested
         if match_image_size:
             if direction in ['right', 'left', 'auto']:
-                # Match heights
                 target_height = max(h1, h2)
-                # Scale image1 if needed
                 if h1 < target_height:
                     scale = target_height / h1
                     new_width = int(w1 * scale)
@@ -293,7 +284,6 @@ class ImageConcatenate_UTK:
                         mode='bilinear',
                         align_corners=False
                     ).permute(0, 2, 3, 1)
-                # Scale image2 if needed
                 if h2 < target_height:
                     scale = target_height / h2
                     new_width = int(w2 * scale)
@@ -304,9 +294,7 @@ class ImageConcatenate_UTK:
                         align_corners=False
                     ).permute(0, 2, 3, 1)
             else:  # up, down
-                # Match widths
                 target_width = max(w1, w2)
-                # Scale image1 if needed
                 if w1 < target_width:
                     scale = target_width / w1
                     new_height = int(h1 * scale)
@@ -316,7 +304,6 @@ class ImageConcatenate_UTK:
                         mode='bilinear',
                         align_corners=False
                     ).permute(0, 2, 3, 1)
-                # Scale image2 if needed
                 if w2 < target_width:
                     scale = target_width / w2
                     new_height = int(h2 * scale)
@@ -346,56 +333,47 @@ class ImageConcatenate_UTK:
             new_w1 = int(w1 * scale)
             new_h2 = int(h2 * scale)
             new_w2 = int(w2 * scale)
-            
-            # Scale both images
             image1 = torch.nn.functional.interpolate(
                 image1.permute(0, 3, 1, 2),
                 size=(new_h1, new_w1),
                 mode='bilinear',
                 align_corners=False
             ).permute(0, 2, 3, 1)
-            
             image2 = torch.nn.functional.interpolate(
                 image2.permute(0, 3, 1, 2),
                 size=(new_h2, new_w2),
                 mode='bilinear',
                 align_corners=False
             ).permute(0, 2, 3, 1)
-            
-            # Update dimensions after scaling
             h1, w1 = image1.shape[1:3]
             h2, w2 = image2.shape[1:3]
-            
-            # Recalculate final dimensions
             if direction in ['right', 'left']:
                 final_height = max(h1, h2)
                 final_width = w1 + w2
-            else:  # up, down
+            else:
                 final_height = h1 + h2
                 final_width = max(w1, w2)
 
         # Ensure both images have the same number of channels
         channels_image1 = image1.shape[-1]
         channels_image2 = image2.shape[-1]
-
         if channels_image1 != channels_image2:
             if channels_image1 < channels_image2:
-                # Add alpha channel to image1 if image2 has it
                 alpha_channel = torch.ones((*image1.shape[:-1], channels_image2 - channels_image1), device=image1.device)
                 image1 = torch.cat((image1, alpha_channel), dim=-1)
             else:
-                # Add alpha channel to image2 if image1 has it
                 alpha_channel = torch.ones((*image2.shape[:-1], channels_image1 - channels_image2), device=image2.device)
                 image2 = torch.cat((image2, alpha_channel), dim=-1)
 
-        # Create output tensor with background color
+        # 创建输出张量，batch维度与输入一致
+        batch_size = image1.shape[0]
         if background_color == "transparent":
-            output = torch.zeros((batch_size1, final_height, final_width, channels_image1), dtype=image1.dtype, device=image1.device)
+            output = torch.zeros((batch_size, final_height, final_width, image1.shape[-1]), dtype=image1.dtype, device=image1.device)
         else:
             color_value = 1.0 if background_color == "white" else 0.0 if background_color == "black" else 0.5
-            output = torch.full((batch_size1, final_height, final_width, channels_image1), color_value, dtype=image1.dtype, device=image1.device)
+            output = torch.full((batch_size, final_height, final_width, image1.shape[-1]), color_value, dtype=image1.dtype, device=image1.device)
 
-        # Calculate positions for image placement
+        # 计算放置位置
         if direction == 'right':
             x1 = 0
             x2 = w1
@@ -417,7 +395,7 @@ class ImageConcatenate_UTK:
             y1 = h2
             y2 = 0
 
-        # Place images in the output tensor
+        # 批量放置图片
         output[:, y1:y1+h1, x1:x1+w1] = image1
         output[:, y2:y2+h2, x2:x2+w2] = image2
 
