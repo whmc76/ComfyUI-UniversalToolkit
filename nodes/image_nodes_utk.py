@@ -1,9 +1,41 @@
 import torch
+import torch.nn.functional as F
 import numpy as np
 import re
 import math
+import random
+import os
+import json
 from comfy.utils import ProgressBar, common_upscale
 from PIL import Image
+from PIL.PngImagePlugin import PngInfo
+
+# Import ComfyUI modules with fallbacks
+MAX_RESOLUTION = 8192
+SaveImage = None
+ImageCompositeMasked = None
+args = None
+folder_paths = None
+
+try:
+    from nodes import MAX_RESOLUTION, SaveImage
+except ImportError:
+    pass
+
+try:
+    from comfy_extras.nodes_mask import ImageCompositeMasked
+except ImportError:
+    pass
+
+try:
+    from comfy.cli_args import args
+except ImportError:
+    pass
+
+try:
+    import folder_paths
+except ImportError:
+    pass
 
 class EmptyUnitGenerator_UTK:
     CATEGORY = "UniversalToolkit"
@@ -579,3 +611,147 @@ class ImageConcatenateMulti_UTK:
                     y_offset += h
 
         return (output,) 
+
+class ImagePadForOutpaintMasked_UTK:
+    CATEGORY = "UniversalToolkit"
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        color_options = ["gray", "white", "black", "red", "green", "blue", "yellow", "cyan", "magenta"]
+        return {
+            "required": {
+                "image": ("IMAGE",),
+                "data_mode": (["pixel", "percent"], {"default": "pixel"}),
+                "left": ("INT", {"default": 0, "min": 0, "max": 1000, "step": 1}),
+                "top": ("INT", {"default": 0, "min": 0, "max": 1000, "step": 1}),
+                "right": ("INT", {"default": 0, "min": 0, "max": 1000, "step": 1}),
+                "bottom": ("INT", {"default": 0, "min": 0, "max": 1000, "step": 1}),
+                "feathering": ("INT", {"default": 0, "min": 0, "max": MAX_RESOLUTION, "step": 1}),
+                "background_color": (color_options, {"default": "gray"}),
+            },
+            "optional": {
+                "mask": ("MASK",),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE", "MASK")
+    FUNCTION = "expand_image"
+
+    def expand_image(self, image, data_mode, left, top, right, bottom, feathering, background_color, mask=None):
+        B, H, W, C = image.size()
+        # 处理 pad 参数
+        if data_mode == "percent":
+            left = int(W * left / 100)
+            right = int(W * right / 100)
+            top = int(H * top / 100)
+            bottom = int(H * bottom / 100)
+        # 背景色映射
+        color_map = {
+            "gray": [0.5, 0.5, 0.5],
+            "white": [1.0, 1.0, 1.0],
+            "black": [0.0, 0.0, 0.0],
+            "red": [1.0, 0.0, 0.0],
+            "green": [0.0, 1.0, 0.0],
+            "blue": [0.0, 0.0, 1.0],
+            "yellow": [1.0, 1.0, 0.0],
+            "cyan": [0.0, 1.0, 1.0],
+            "magenta": [1.0, 0.0, 1.0],
+        }
+        bg_rgb = color_map.get(background_color, [0.5, 0.5, 0.5])
+        # 新图像
+        new_image = torch.ones((B, H + top + bottom, W + left + right, C), dtype=torch.float32) 
+        for i in range(C):
+            new_image[:, :, :, i] = bg_rgb[i]
+        new_image[:, top:top + H, left:left + W, :] = image
+        # 掩码逻辑与原实现一致
+        if mask is not None:
+            if torch.allclose(mask, torch.zeros_like(mask)):
+                print("Warning: The incoming mask is fully black. Handling it as None.")
+                mask = None
+        if mask is None:
+            new_mask = torch.ones((B, H + top + bottom, W + left + right), dtype=torch.float32)
+            t = torch.zeros((B, H, W), dtype=torch.float32)
+        else:
+            mask = F.pad(mask, (left, right, top, bottom), mode='constant', value=0)
+            mask = 1 - mask
+            t = torch.zeros_like(mask)
+        if feathering > 0 and feathering * 2 < H and feathering * 2 < W:
+            for i in range(H):
+                for j in range(W):
+                    dt = i if top != 0 else H
+                    db = H - i if bottom != 0 else H
+                    dl = j if left != 0 else W
+                    dr = W - j if right != 0 else W
+                    d = min(dt, db, dl, dr)
+                    if d >= feathering:
+                        continue
+                    v = (feathering - d) / feathering
+                    if mask is None:
+                        t[:, i, j] = v * v
+                    else:
+                        t[:, top + i, left + j] = v * v
+        if mask is None:
+            new_mask[:, top:top + H, left:left + W] = t
+            return (new_image, new_mask,)
+        else:
+            return (new_image, mask,)
+
+class ImageAndMaskPreview_UTK(SaveImage):
+    def __init__(self):
+        self.output_dir = folder_paths.get_temp_directory()
+        self.type = "temp"
+        self.prefix_append = "_temp_" + ''.join(random.choice("abcdefghijklmnopqrstupvxyz") for x in range(5))
+        self.compress_level = 4
+
+    @classmethod
+    def INPUT_TYPES(s):
+        colors = ["red", "green", "blue", "yellow", "cyan", "magenta", "white", "black"]
+        return {
+            "required": {
+                "mask_opacity": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
+                "mask_color": (colors, {"default": "red"}),
+                "pass_through": ("BOOLEAN", {"default": False}),
+             },
+            "optional": {
+                "image": ("IMAGE",),
+                "mask": ("MASK",),                
+            },
+            "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},
+        }
+    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("composite",)
+    FUNCTION = "execute"
+    CATEGORY = "UniversalToolkit"
+    DESCRIPTION = """
+Preview an image or a mask, when both inputs are used  
+composites the mask on top of the image.
+with pass_through on the preview is disabled and the  
+composite is returned from the composite slot instead,  
+this allows for the preview to be passed for video combine  
+nodes for example.
+"""
+
+    def execute(self, mask_opacity, mask_color, pass_through, filename_prefix="ComfyUI", image=None, mask=None, prompt=None, extra_pnginfo=None):
+        if mask is not None and image is None:
+            preview = mask.reshape((-1, 1, mask.shape[-2], mask.shape[-1])).movedim(1, -1).expand(-1, -1, -1, 3)
+        elif mask is None and image is not None:
+            preview = image
+        elif mask is not None and image is not None:
+            mask_adjusted = mask * mask_opacity
+            mask_image = mask.reshape((-1, 1, mask.shape[-2], mask.shape[-1])).movedim(1, -1).expand(-1, -1, -1, 3).clone()
+
+            color_map = {
+                "red": [255, 0, 0], "green": [0, 255, 0], "blue": [0, 0, 255],
+                "yellow": [255, 255, 0], "cyan": [0, 255, 255], "magenta": [255, 0, 255],
+                "white": [255, 255, 255], "black": [0, 0, 0]
+            }
+            color_list = color_map.get(mask_color, [255, 0, 0])
+            
+            mask_image[:, :, :, 0] = color_list[0] / 255 # Red channel
+            mask_image[:, :, :, 1] = color_list[1] / 255 # Green channel
+            mask_image[:, :, :, 2] = color_list[2] / 255 # Blue channel
+            
+            preview, = ImageCompositeMasked.composite(self, image, mask_image, 0, 0, True, mask_adjusted)
+        if pass_through:
+            return (preview, )
+        return(self.save_images(preview, filename_prefix, prompt, extra_pnginfo)) 
