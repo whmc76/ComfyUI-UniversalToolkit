@@ -8,13 +8,23 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.0.7"
+__version__ = "1.0.8"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.0.8": [
+        "新增 ImitationHueNode_UTK 节点（追色节点）:",
+        "- 基于 ComfyUI-MingNodes 项目集成",
+        "- 支持图像色彩迁移和追色功能",
+        "- 支持皮肤保护参数，避免肤色失真",
+        "- 支持自动亮度、对比度、饱和度调节",
+        "- 支持影调模仿功能",
+        "- 支持区域色彩迁移（通过掩码）",
+        "- 添加 opencv-python 依赖支持",
+    ],
     "1.0.7": [
         "改进 ImagePadForOutpaintMasked (UTK) 节点:",
         "- 新增数据模式（data_mode）参数，支持 'pixel' 和 'percent' 两种模式",
@@ -74,7 +84,7 @@ CHANGELOG = {
     ]
 }
 
-from .nodes.image_nodes_utk import EmptyUnitGenerator_UTK, ImageRatioDetector_UTK, DepthMapBlur_UTK, ImageConcatenate_UTK, ImageConcatenateMulti_UTK, ImagePadForOutpaintMasked_UTK, ImageAndMaskPreview_UTK
+from .nodes.image_nodes_utk import EmptyUnitGenerator_UTK, ImageRatioDetector_UTK, DepthMapBlur_UTK, ImageConcatenate_UTK, ImageConcatenateMulti_UTK, ImagePadForOutpaintMasked_UTK, ImageAndMaskPreview_UTK, ImitationHueNode_UTK
 from .nodes.tool_nodes_utk import ShowInt_UTK, ShowFloat_UTK, ShowList_UTK, ShowText_UTK, PreviewMask_UTK, FillMaskedArea_UTK
 from .nodes.audio_nodes_utk import LoadAudioPlusFromPath_UTK, AudioCropProcessUTK
 from .nodes.mask_nodes_utk import MaskAnd_UTK, MaskSub_UTK, MaskAdd_UTK
@@ -98,6 +108,7 @@ NODE_CLASS_MAPPINGS = {
     "MaskAnd_UTK": MaskAnd_UTK,
     "MaskSub_UTK": MaskSub_UTK,
     "MaskAdd_UTK": MaskAdd_UTK,
+    "ImitationHueNode_UTK": ImitationHueNode_UTK,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -119,6 +130,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "MaskAnd_UTK": "Mask And (UTK)",
     "MaskSub_UTK": "Mask Sub (UTK)",
     "MaskAdd_UTK": "Mask Add (UTK)",
+    "ImitationHueNode_UTK": "Imitation Hue Node (UTK)",
 }
 
 NODE_CATEGORIES = {
@@ -136,6 +148,7 @@ NODE_CATEGORIES = {
         "MaskAnd_UTK",
         "MaskSub_UTK",
         "MaskAdd_UTK",
+        "ImitationHueNode_UTK",
     ]
 }
 
