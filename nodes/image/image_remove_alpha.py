@@ -13,7 +13,7 @@ from PIL import Image
 from ...common_utils import log, tensor2pil, pil2tensor
 
 class ImageRemoveAlpha_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Image"
     
     @classmethod
     def INPUT_TYPES(cls):

@@ -11,7 +11,7 @@ Performs logical operations on masks.
 import torch
 
 class MaskAnd_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Mask"
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {"mask1": ("MASK",), "mask2": ("MASK",)}}
@@ -25,7 +25,7 @@ class MaskAnd_UTK:
         return (mask1 * mask2,)
 
 class MaskSub_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Mask"
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {"mask1": ("MASK",), "mask2": ("MASK",)}}
@@ -39,7 +39,7 @@ class MaskSub_UTK:
         return (torch.clamp(mask1 - mask2, 0, 1),)
 
 class MaskAdd_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Mask"
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {"mask1": ("MASK",), "mask2": ("MASK",)}}

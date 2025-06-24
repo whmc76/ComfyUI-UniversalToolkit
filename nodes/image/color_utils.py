@@ -1,133 +1,29 @@
 """
-ComfyUI Universal Toolkit - Common Utilities
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Color Utilities for UniversalToolkit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Common utility functions and constants used across all nodes.
+Color processing utilities for UniversalToolkit.
 
 :copyright: (c) 2024 by May
 :license: MIT, see LICENSE for more details.
 """
 
-import torch
-import torch.nn.functional as F
 import numpy as np
-import re
-import math
-import random
-import os
-import json
 import cv2
-from comfy.utils import ProgressBar, common_upscale
-from PIL import Image
-from PIL.PngImagePlugin import PngInfo
 
-# Import ComfyUI modules with fallbacks
-MAX_RESOLUTION = 8192
-SaveImage = None
-ImageCompositeMasked = None
-args = None
-folder_paths = None
-
-try:
-    from nodes import MAX_RESOLUTION, SaveImage
-except ImportError:
-    pass
-
-try:
-    from comfy_extras.nodes_mask import ImageCompositeMasked
-except ImportError:
-    pass
-
-try:
-    from comfy.cli_args import args
-except ImportError:
-    pass
-
-try:
-    import folder_paths
-except ImportError:
-    pass
-
-def log(message, message_type='info'):
-    """简单的日志函数"""
-    if message_type == 'error':
-        print(f"❌ Error: {message}")
-    elif message_type == 'warning':
-        print(f"⚠️ Warning: {message}")
-    elif message_type == 'finish':
-        print(f"✅ {message}")
-    else:
-        print(f"ℹ️ {message}")
-
-def tensor2pil(image):
-    """将torch张量转换为PIL图像"""
-    if image.dim() == 4:
-        image = image.squeeze(0)
-    if image.dim() == 3:
-        if image.shape[0] == 1:  # 灰度图
-            image = image.squeeze(0)
-            image = (image * 255).clamp(0, 255).to(torch.uint8)
-            return Image.fromarray(image.cpu().numpy(), mode='L')
-        else:  # RGB图
-            image = image.permute(1, 2, 0)
-            image = (image * 255).clamp(0, 255).to(torch.uint8)
-            return Image.fromarray(image.cpu().numpy(), mode='RGB')
-    return None
-
-def pil2tensor(image):
-    """将PIL图像转换为torch张量"""
-    if image.mode == 'L':
-        image = image.convert('RGB')
-    image = np.array(image).astype(np.float32) / 255.0
-    image = torch.from_numpy(image)
-    if image.dim() == 3:
-        image = image.permute(2, 0, 1)
-    return image
-
-def image2mask(image):
-    """将PIL图像转换为掩码张量"""
-    if image.mode == 'L':
-        return torch.tensor([pil2tensor(image)[0, :, :].tolist()])
-    else:
-        image = image.convert('RGB').split()[0]
-        return torch.tensor([pil2tensor(image)[0, :, :].tolist()])
-
-def tensor2cv2(image: torch.Tensor) -> np.array:
-    """将torch张量转换为OpenCV格式"""
-    if image.dim() == 4:
-        image = image.squeeze()
-    npimage = image.numpy()
-    cv2image = np.uint8(npimage * 255 / npimage.max())
-    return cv2.cvtColor(cv2image, cv2.COLOR_RGB2BGR)
-
-def pil2cv2(pil_img):
-    """将PIL图像转换为OpenCV格式"""
-    np_img_array = np.asarray(pil_img)
-    return cv2.cvtColor(np_img_array, cv2.COLOR_RGB2BGR)
-
-def cv22pil(cv2_img):
-    """将OpenCV图像转换为PIL图像"""
-    cv2_img = cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB)
-    return Image.fromarray(cv2_img)
-
-def tensor2np(tensor):
-    """将torch张量转换为numpy数组"""
-    if len(tensor.shape) == 3:  # Single image
-        return np.clip(255.0 * tensor.cpu().numpy(), 0, 255).astype(np.uint8)
-    else:  # Batch of images
-        return [np.clip(255.0 * t.cpu().numpy(), 0, 255).astype(np.uint8) for t in tensor]
-
-# Color transfer functions for ImitationHueNode
 def image_stats(image):
+    """计算图像的统计信息"""
     return np.mean(image[:, :, 1:], axis=(0, 1)), np.std(image[:, :, 1:], axis=(0, 1))
 
 def is_skin_or_lips(lab_image):
+    """检测皮肤和嘴唇区域"""
     l, a, b = lab_image[:, :, 0], lab_image[:, :, 1], lab_image[:, :, 2]
     skin = (l > 20) & (l < 250) & (a > 120) & (a < 180) & (b > 120) & (b < 190)
     lips = (l > 20) & (l < 200) & (a > 150) & (b > 140)
     return (skin | lips).astype(np.float32)
 
 def adjust_brightness(image, factor, mask=None):
+    """调整图像亮度"""
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     v = hsv[:, :, 2].astype(np.float32)
     if mask is not None:
@@ -139,6 +35,7 @@ def adjust_brightness(image, factor, mask=None):
     return cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
 
 def adjust_saturation(image, factor, mask=None):
+    """调整图像饱和度"""
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     s = hsv[:, :, 1].astype(np.float32)
     if mask is not None:
@@ -150,6 +47,7 @@ def adjust_saturation(image, factor, mask=None):
     return cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
 
 def adjust_contrast(image, factor, mask=None):
+    """调整图像对比度"""
     mean = np.mean(image)
     adjusted = image.astype(np.float32)
     if mask is not None:
@@ -161,6 +59,7 @@ def adjust_contrast(image, factor, mask=None):
     return adjusted.astype(np.uint8)
 
 def adjust_tone(source, target, tone_strength=0.7, mask=None):
+    """调整图像影调"""
     h, w = target.shape[:2]
     source = cv2.resize(source, (w, h))
     lab_image = cv2.cvtColor(target, cv2.COLOR_BGR2LAB).astype(np.float32)
@@ -206,6 +105,7 @@ def adjust_tone(source, target, tone_strength=0.7, mask=None):
 def color_transfer(source, target, mask=None, strength=1.0, skin_protection=0.2, auto_brightness=True,
                    brightness_range=0.5, auto_contrast=False, contrast_range=0.5,
                    auto_saturation=False, saturation_range=0.5, auto_tone=False, tone_strength=0.7):
+    """色彩迁移函数"""
     source_lab = cv2.cvtColor(source, cv2.COLOR_BGR2LAB).astype(np.float32)
     target_lab = cv2.cvtColor(target, cv2.COLOR_BGR2LAB).astype(np.float32)
 

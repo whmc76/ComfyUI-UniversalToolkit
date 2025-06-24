@@ -13,7 +13,7 @@ import torch.nn.functional as F
 from ..common_utils import log
 
 class ImageConcatenate_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Image"
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -201,5 +201,5 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "ImageConcatenate_UTK": "Image Concatenate",
+    "ImageConcatenate_UTK": "Image Concatenate (UTK)",
 } 

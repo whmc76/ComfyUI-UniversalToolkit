@@ -52,7 +52,7 @@ def fit_resize_image(image, target_width, target_height, fit_mode, resize_sample
         return image.resize((target_width, target_height), resize_sampler)
 
 class ImageMaskScaleAs_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Image"
     
     @classmethod
     def INPUT_TYPES(cls):

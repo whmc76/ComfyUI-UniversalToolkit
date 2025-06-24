@@ -8,13 +8,29 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.1.2"
+__version__ = "1.1.3"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.1.3": [
+        "修复 PurgeVRAM_UTK 节点类型不匹配问题：",
+        "- 创建 AnyType 类实现，参考 ComfyUI-LayerStyle 项目",
+        "- 解决 'received_type(IMAGE) mismatch input_type(*)' 错误",
+        "- 支持接受任何类型输入并正确返回",
+        "修复 CheckMask_UTK 节点 NoneType 错误：",
+        "- 添加空值检查，防止 mask 为 None 时出错",
+        "- 改进 tensor2pil 转换失败的处理",
+        "- 增强错误处理和日志输出",
+        "完成模块化重构：",
+        "- 将 common_utils.py 功能拆分到不同目录",
+        "- 创建 image_converters.py、color_utils.py、logging_utils.py、any_type.py",
+        "- 删除 common_utils.py，避免依赖冲突",
+        "- 更新所有相关文件的导入语句",
+        "- 提高代码可维护性和模块化程度"
+    ],
     "1.1.2": [
         "修复 DepthMapBlur_UTK 节点 kernel size 类型和 OpenCV 奇数断言问题，保证所有模糊核为正奇数，完全兼容 ComfyUI 规范。",
         "修正 EmptyUnitGenerator_UTK 输出 shape，所有节点输入输出严格遵循 ComfyUI 官方规范。",
@@ -133,29 +149,22 @@ CHANGELOG = {
 # 导入节点模块
 try:
     # 工具类节点
-    from .nodes.tools.show_nodes import NODE_CLASS_MAPPINGS as SHOW_NODES_MAPPINGS
-    from .nodes.tools.show_nodes import NODE_DISPLAY_NAME_MAPPINGS as SHOW_NODES_DISPLAY_MAPPINGS
+    from .nodes.tools.show_nodes import NODE_CLASS_MAPPINGS as SHOW_NODES_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as SHOW_NODES_DISPLAY_MAPPINGS
     
     # 音频节点
-    from .nodes.audio.audio_crop_process import NODE_CLASS_MAPPINGS as AUDIO_CROP_MAPPINGS
-    from .nodes.audio.audio_crop_process import NODE_DISPLAY_NAME_MAPPINGS as AUDIO_CROP_DISPLAY_MAPPINGS
+    from .nodes.audio.audio_crop_process import NODE_CLASS_MAPPINGS as AUDIO_CROP_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as AUDIO_CROP_DISPLAY_MAPPINGS
     
     # 掩码节点
-    from .nodes.mask.mask_operations import NODE_CLASS_MAPPINGS as MASK_OPERATIONS_MAPPINGS
-    from .nodes.mask.mask_operations import NODE_DISPLAY_NAME_MAPPINGS as MASK_OPERATIONS_DISPLAY_MAPPINGS
+    from .nodes.mask.mask_operations import NODE_CLASS_MAPPINGS as MASK_OPERATIONS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as MASK_OPERATIONS_DISPLAY_MAPPINGS
     
     # 图像节点
-    from .nodes.image.image_concatenate_multi import NODE_CLASS_MAPPINGS as CONCATENATE_MULTI_MAPPINGS
-    from .nodes.image.image_concatenate_multi import NODE_DISPLAY_NAME_MAPPINGS as CONCATENATE_MULTI_DISPLAY_MAPPINGS
+    from .nodes.image.image_concatenate_multi import NODE_CLASS_MAPPINGS as CONCATENATE_MULTI_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as CONCATENATE_MULTI_DISPLAY_MAPPINGS
     
-    from .nodes.image.image_pad_for_outpaint_masked import NODE_CLASS_MAPPINGS as PAD_OUTPAINT_MAPPINGS
-    from .nodes.image.image_pad_for_outpaint_masked import NODE_DISPLAY_NAME_MAPPINGS as PAD_OUTPAINT_DISPLAY_MAPPINGS
+    from .nodes.image.image_pad_for_outpaint_masked import NODE_CLASS_MAPPINGS as PAD_OUTPAINT_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as PAD_OUTPAINT_DISPLAY_MAPPINGS
     
-    from .nodes.image.image_and_mask_preview import NODE_CLASS_MAPPINGS as AND_MASK_PREVIEW_MAPPINGS
-    from .nodes.image.image_and_mask_preview import NODE_DISPLAY_NAME_MAPPINGS as AND_MASK_PREVIEW_DISPLAY_MAPPINGS
+    from .nodes.image.image_and_mask_preview import NODE_CLASS_MAPPINGS as AND_MASK_PREVIEW_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as AND_MASK_PREVIEW_DISPLAY_MAPPINGS
     
-    from .nodes.image.imitation_hue_node import NODE_CLASS_MAPPINGS as IMITATION_HUE_MAPPINGS
-    from .nodes.image.imitation_hue_node import NODE_DISPLAY_NAME_MAPPINGS as IMITATION_HUE_DISPLAY_MAPPINGS
+    from .nodes.image.imitation_hue_node import NODE_CLASS_MAPPINGS as IMITATION_HUE_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as IMITATION_HUE_DISPLAY_MAPPINGS
 
 except ImportError as e:
     print(f"导入错误: {e}")
@@ -177,116 +186,101 @@ except ImportError as e:
 
 # 尝试导入其他可能有依赖的节点
 try:
-    from .nodes.tools.fill_masked_area import NODE_CLASS_MAPPINGS as FILL_MASKED_MAPPINGS
-    from .nodes.tools.fill_masked_area import NODE_DISPLAY_NAME_MAPPINGS as FILL_MASKED_DISPLAY_MAPPINGS
+    from .nodes.tools.fill_masked_area import NODE_CLASS_MAPPINGS as FILL_MASKED_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as FILL_MASKED_DISPLAY_MAPPINGS
 except ImportError:
     FILL_MASKED_MAPPINGS = {}
     FILL_MASKED_DISPLAY_MAPPINGS = {}
 
 try:
-    from .nodes.audio.load_audio import NODE_CLASS_MAPPINGS as LOAD_AUDIO_MAPPINGS
-    from .nodes.audio.load_audio import NODE_DISPLAY_NAME_MAPPINGS as LOAD_AUDIO_DISPLAY_MAPPINGS
+    from .nodes.audio.load_audio import NODE_CLASS_MAPPINGS as LOAD_AUDIO_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as LOAD_AUDIO_DISPLAY_MAPPINGS
 except ImportError:
     LOAD_AUDIO_MAPPINGS = {}
     LOAD_AUDIO_DISPLAY_MAPPINGS = {}
 
 try:
-    from .nodes.image.empty_unit_generator import NODE_CLASS_MAPPINGS as IMAGE_GENERATOR_MAPPINGS
-    from .nodes.image.empty_unit_generator import NODE_DISPLAY_NAME_MAPPINGS as IMAGE_GENERATOR_DISPLAY_MAPPINGS
+    from .nodes.image.empty_unit_generator import NODE_CLASS_MAPPINGS as EMPTY_UNIT_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as EMPTY_UNIT_DISPLAY
 except ImportError:
-    IMAGE_GENERATOR_MAPPINGS = {}
-    IMAGE_GENERATOR_DISPLAY_MAPPINGS = {}
+    EMPTY_UNIT_MAPPINGS = {}
+    EMPTY_UNIT_DISPLAY = {}
 
 try:
-    from .nodes.image.image_ratio_detector import NODE_CLASS_MAPPINGS as IMAGE_DETECTOR_MAPPINGS
-    from .nodes.image.image_ratio_detector import NODE_DISPLAY_NAME_MAPPINGS as IMAGE_DETECTOR_DISPLAY_MAPPINGS
+    from .nodes.image.image_ratio_detector import NODE_CLASS_MAPPINGS as RATIO_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as RATIO_DISPLAY
 except ImportError:
-    IMAGE_DETECTOR_MAPPINGS = {}
-    IMAGE_DETECTOR_DISPLAY_MAPPINGS = {}
+    RATIO_MAPPINGS = {}
+    RATIO_DISPLAY = {}
 
 try:
-    from .nodes.image.depth_map_blur import NODE_CLASS_MAPPINGS as DEPTH_BLUR_MAPPINGS
-    from .nodes.image.depth_map_blur import NODE_DISPLAY_NAME_MAPPINGS as DEPTH_BLUR_DISPLAY_MAPPINGS
+    from .nodes.image.depth_map_blur import NODE_CLASS_MAPPINGS as DEPTH_BLUR_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as DEPTH_BLUR_DISPLAY
 except ImportError:
     DEPTH_BLUR_MAPPINGS = {}
-    DEPTH_BLUR_DISPLAY_MAPPINGS = {}
+    DEPTH_BLUR_DISPLAY = {}
 
 try:
-    from .nodes.image.image_concatenate import NODE_CLASS_MAPPINGS as CONCATENATE_MAPPINGS
-    from .nodes.image.image_concatenate import NODE_DISPLAY_NAME_MAPPINGS as CONCATENATE_DISPLAY_MAPPINGS
+    from .nodes.image.image_concatenate import NODE_CLASS_MAPPINGS as CONCAT_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as CONCAT_DISPLAY
 except ImportError:
-    CONCATENATE_MAPPINGS = {}
-    CONCATENATE_DISPLAY_MAPPINGS = {}
+    CONCAT_MAPPINGS = {}
+    CONCAT_DISPLAY = {}
 
 try:
-    from .nodes.image.image_scale_by_aspect_ratio import NODE_CLASS_MAPPINGS as SCALE_ASPECT_MAPPINGS
-    from .nodes.image.image_scale_by_aspect_ratio import NODE_DISPLAY_NAME_MAPPINGS as SCALE_ASPECT_DISPLAY_MAPPINGS
+    from .nodes.image.image_scale_by_aspect_ratio import NODE_CLASS_MAPPINGS as SCALE_ASPECT_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as SCALE_ASPECT_DISPLAY
 except ImportError:
     SCALE_ASPECT_MAPPINGS = {}
-    SCALE_ASPECT_DISPLAY_MAPPINGS = {}
+    SCALE_ASPECT_DISPLAY = {}
 
 try:
-    from .nodes.image.image_mask_scale_as import NODE_CLASS_MAPPINGS as MASK_SCALE_MAPPINGS
-    from .nodes.image.image_mask_scale_as import NODE_DISPLAY_NAME_MAPPINGS as MASK_SCALE_DISPLAY_MAPPINGS
+    from .nodes.image.image_mask_scale_as import NODE_CLASS_MAPPINGS as MASK_SCALE_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as MASK_SCALE_DISPLAY
 except ImportError:
     MASK_SCALE_MAPPINGS = {}
-    MASK_SCALE_DISPLAY_MAPPINGS = {}
+    MASK_SCALE_DISPLAY = {}
 
 try:
-    from .nodes.image.image_scale_restore import NODE_CLASS_MAPPINGS as SCALE_RESTORE_MAPPINGS
-    from .nodes.image.image_scale_restore import NODE_DISPLAY_NAME_MAPPINGS as SCALE_RESTORE_DISPLAY_MAPPINGS
+    from .nodes.image.image_scale_restore import NODE_CLASS_MAPPINGS as SCALE_RESTORE_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as SCALE_RESTORE_DISPLAY
 except ImportError:
     SCALE_RESTORE_MAPPINGS = {}
-    SCALE_RESTORE_DISPLAY_MAPPINGS = {}
+    SCALE_RESTORE_DISPLAY = {}
 
 try:
-    from .nodes.image.image_remove_alpha import NODE_CLASS_MAPPINGS as REMOVE_ALPHA_MAPPINGS
-    from .nodes.image.image_remove_alpha import NODE_DISPLAY_NAME_MAPPINGS as REMOVE_ALPHA_DISPLAY_MAPPINGS
+    from .nodes.image.image_remove_alpha import NODE_CLASS_MAPPINGS as REMOVE_ALPHA_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as REMOVE_ALPHA_DISPLAY
 except ImportError:
     REMOVE_ALPHA_MAPPINGS = {}
-    REMOVE_ALPHA_DISPLAY_MAPPINGS = {}
+    REMOVE_ALPHA_DISPLAY = {}
 
 try:
-    from .nodes.image.image_combine_alpha import NODE_CLASS_MAPPINGS as COMBINE_ALPHA_MAPPINGS
-    from .nodes.image.image_combine_alpha import NODE_DISPLAY_NAME_MAPPINGS as COMBINE_ALPHA_DISPLAY_MAPPINGS
+    from .nodes.image.image_combine_alpha import NODE_CLASS_MAPPINGS as COMBINE_ALPHA_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as COMBINE_ALPHA_DISPLAY
 except ImportError:
     COMBINE_ALPHA_MAPPINGS = {}
-    COMBINE_ALPHA_DISPLAY_MAPPINGS = {}
+    COMBINE_ALPHA_DISPLAY = {}
 
 try:
-    from .nodes.image.check_mask import NODE_CLASS_MAPPINGS as CHECK_MASK_MAPPINGS
-    from .nodes.image.check_mask import NODE_DISPLAY_NAME_MAPPINGS as CHECK_MASK_DISPLAY_MAPPINGS
+    from .nodes.image.check_mask import NODE_CLASS_MAPPINGS as CHECK_MASK_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as CHECK_MASK_DISPLAY
 except ImportError:
     CHECK_MASK_MAPPINGS = {}
-    CHECK_MASK_DISPLAY_MAPPINGS = {}
+    CHECK_MASK_DISPLAY = {}
 
 try:
-    from .nodes.image.purge_vram import NODE_CLASS_MAPPINGS as PURGE_VRAM_MAPPINGS
-    from .nodes.image.purge_vram import NODE_DISPLAY_NAME_MAPPINGS as PURGE_VRAM_DISPLAY_MAPPINGS
+    from .nodes.image.purge_vram import NODE_CLASS_MAPPINGS as PURGE_VRAM_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as PURGE_VRAM_DISPLAY
 except ImportError:
     PURGE_VRAM_MAPPINGS = {}
-    PURGE_VRAM_DISPLAY_MAPPINGS = {}
+    PURGE_VRAM_DISPLAY = {}
 
 try:
-    from .nodes.image.crop_by_mask import NODE_CLASS_MAPPINGS as CROP_MASK_MAPPINGS
-    from .nodes.image.crop_by_mask import NODE_DISPLAY_NAME_MAPPINGS as CROP_MASK_DISPLAY_MAPPINGS
+    from .nodes.image.crop_by_mask import NODE_CLASS_MAPPINGS as CROP_MASK_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as CROP_MASK_DISPLAY
 except ImportError:
     CROP_MASK_MAPPINGS = {}
-    CROP_MASK_DISPLAY_MAPPINGS = {}
+    CROP_MASK_DISPLAY = {}
 
 try:
-    from .nodes.image.restore_crop_box import NODE_CLASS_MAPPINGS as RESTORE_CROP_MAPPINGS
-    from .nodes.image.restore_crop_box import NODE_DISPLAY_NAME_MAPPINGS as RESTORE_CROP_DISPLAY_MAPPINGS
+    from .nodes.image.restore_crop_box import NODE_CLASS_MAPPINGS as RESTORE_CROP_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as RESTORE_CROP_DISPLAY
 except ImportError:
     RESTORE_CROP_MAPPINGS = {}
-    RESTORE_CROP_DISPLAY_MAPPINGS = {}
+    RESTORE_CROP_DISPLAY = {}
 
 # 合并所有节点映射
 NODE_CLASS_MAPPINGS = {}
-NODE_CLASS_MAPPINGS.update(IMAGE_GENERATOR_MAPPINGS)
-NODE_CLASS_MAPPINGS.update(IMAGE_DETECTOR_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(EMPTY_UNIT_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(RATIO_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(DEPTH_BLUR_MAPPINGS)
-NODE_CLASS_MAPPINGS.update(CONCATENATE_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(CONCAT_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(CONCATENATE_MULTI_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(PAD_OUTPAINT_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(AND_MASK_PREVIEW_MAPPINGS)
@@ -302,29 +296,29 @@ NODE_CLASS_MAPPINGS.update(CROP_MASK_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(RESTORE_CROP_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(SHOW_NODES_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(FILL_MASKED_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(MASK_OPERATIONS_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(LOAD_AUDIO_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(AUDIO_CROP_MAPPINGS)
-NODE_CLASS_MAPPINGS.update(MASK_OPERATIONS_MAPPINGS)
 
 # 合并显示名称映射
 NODE_DISPLAY_NAME_MAPPINGS = {}
-NODE_DISPLAY_NAME_MAPPINGS.update(IMAGE_GENERATOR_DISPLAY_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(IMAGE_DETECTOR_DISPLAY_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(DEPTH_BLUR_DISPLAY_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(CONCATENATE_DISPLAY_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update(EMPTY_UNIT_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(RATIO_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(DEPTH_BLUR_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(CONCAT_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(CONCATENATE_MULTI_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(PAD_OUTPAINT_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(AND_MASK_PREVIEW_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(IMITATION_HUE_DISPLAY_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(SCALE_ASPECT_DISPLAY_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(MASK_SCALE_DISPLAY_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(SCALE_RESTORE_DISPLAY_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(REMOVE_ALPHA_DISPLAY_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(COMBINE_ALPHA_DISPLAY_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(CHECK_MASK_DISPLAY_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(PURGE_VRAM_DISPLAY_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(CROP_MASK_DISPLAY_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(RESTORE_CROP_DISPLAY_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update(SCALE_ASPECT_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(MASK_SCALE_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(SCALE_RESTORE_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(REMOVE_ALPHA_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(COMBINE_ALPHA_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(CHECK_MASK_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(PURGE_VRAM_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(CROP_MASK_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(RESTORE_CROP_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(SHOW_NODES_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(FILL_MASKED_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(LOAD_AUDIO_DISPLAY_MAPPINGS)
@@ -371,4 +365,13 @@ __all__ = [
     "__email__",
     "__url__",
     "CHANGELOG",
-] 
+]
+
+# 调试：输出所有注册节点的分组属性
+if __name__ == "__main__":
+    with open("node_category_report.txt", "w", encoding="utf-8") as f:
+        f.write("=== UniversalToolkit 节点分组属性清单 ===\n")
+        for k, v in NODE_CLASS_MAPPINGS.items():
+            cat = getattr(v, 'CATEGORY', '无CATEGORY')
+            f.write(f"{k}: CATEGORY = {cat}\n")
+    print("节点分组清单已导出到 node_category_report.txt") 

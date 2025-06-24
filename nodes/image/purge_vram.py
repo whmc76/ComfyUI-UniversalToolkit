@@ -2,15 +2,20 @@
 Purge VRAM Node
 ~~~~~~~~~~~~~~
 
-Purges GPU memory and optionally unloads models.
+Purge GPU memory to free up VRAM.
 
 :copyright: (c) 2024 by May
 :license: MIT, see LICENSE for more details.
 """
 
-import torch.cuda
+import torch
 import gc
-from ...common_utils import log
+
+from ..tools.logging_utils import log
+from ..tools.any_type import AnyType
+
+# 创建 AnyType 实例
+any = AnyType("*")
 
 def clear_memory():
     """Clear GPU memory"""
@@ -19,13 +24,13 @@ def clear_memory():
     gc.collect()
 
 class PurgeVRAM_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Image"
     
     @classmethod
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "anything": ("*", {}),
+                "anything": (any, {}),
                 "purge_cache": ("BOOLEAN", {"default": True}),
                 "purge_models": ("BOOLEAN", {"default": True}),
             },
@@ -33,7 +38,7 @@ class PurgeVRAM_UTK:
             }
         }
 
-    RETURN_TYPES = ("*",)
+    RETURN_TYPES = (any,)
     RETURN_NAMES = ("anything",)
     FUNCTION = "purge_vram"
     OUTPUT_NODE = True

@@ -32,7 +32,7 @@ def mask_blur(mask, feathering):
     return mask
 
 class FillMaskedArea_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Tools"
     @classmethod
     def INPUT_TYPES(cls):
         return {

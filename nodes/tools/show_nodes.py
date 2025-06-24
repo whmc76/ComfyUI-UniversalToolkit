@@ -11,7 +11,7 @@ Display and preview nodes for various data types.
 import torch
 
 class Show_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Tools"
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {"input": ("STRING", "INT", "FLOAT", "LIST", "MASK", "IMAGE", "LATENT")}}
@@ -39,7 +39,7 @@ class Show_UTK:
         return tuple(outs)
 
 class ShowInt_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Tools"
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {"int_val": ("INT",)}}
@@ -53,7 +53,7 @@ class ShowInt_UTK:
         return (int_val,)
 
 class ShowFloat_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Tools"
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {"float_val": ("FLOAT",)}}
@@ -67,7 +67,7 @@ class ShowFloat_UTK:
         return (float_val,)
 
 class ShowList_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Tools"
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {"list_val": ("LIST",)}}
@@ -81,7 +81,7 @@ class ShowList_UTK:
         return (list_val,)
 
 class ShowText_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Tools"
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {"text": ("STRING",)}}
@@ -95,7 +95,7 @@ class ShowText_UTK:
         return (text,)
 
 class PreviewMask_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Tools"
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {"mask": ("MASK",)}}

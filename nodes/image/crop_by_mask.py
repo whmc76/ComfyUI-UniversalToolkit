@@ -54,7 +54,7 @@ def draw_rect(image, x, y, width, height, line_color="#FF0000", line_width=2):
     return image
 
 class CropByMask_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Image"
     
     @classmethod
     def INPUT_TYPES(cls):

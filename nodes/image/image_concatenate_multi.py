@@ -11,7 +11,7 @@ Concatenates multiple images in various directions and layouts.
 import torch
 
 class ImageConcatenateMulti_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Image"
     
     @classmethod
     def INPUT_TYPES(cls):

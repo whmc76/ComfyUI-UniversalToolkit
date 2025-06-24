@@ -9,8 +9,11 @@ Preview an image or a mask, when both inputs are used composites the mask on top
 """
 
 import random
-from nodes import SaveImage, ImageCompositeMasked
+from nodes import SaveImage
 import folder_paths
+
+# 导入本地的 ImageCompositeMasked 实现
+from .image_composite_masked import ImageCompositeMasked
 
 class ImageAndMaskPreview_UTK(SaveImage):
     def __init__(self):
@@ -37,7 +40,7 @@ class ImageAndMaskPreview_UTK(SaveImage):
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("composite",)
     FUNCTION = "execute"
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Image"
     DESCRIPTION = """
 Preview an image or a mask, when both inputs are used  
 composites the mask on top of the image.

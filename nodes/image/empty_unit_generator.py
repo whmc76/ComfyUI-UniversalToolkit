@@ -2,7 +2,7 @@
 Empty Unit Generator Node
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Generates empty images, masks, and latents with various preset ratios and configurations.
+Generate empty units for testing and development.
 
 :copyright: (c) 2024 by May
 :license: MIT, see LICENSE for more details.
@@ -12,10 +12,12 @@ import torch
 import numpy as np
 import re
 from PIL import Image
-from ..common_utils import log
+import cv2
+
+from ..tools.logging_utils import log
 
 class EmptyUnitGenerator_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Image"
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -108,5 +110,5 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "EmptyUnitGenerator_UTK": "Empty Unit Generator",
+    "EmptyUnitGenerator_UTK": "Empty Unit Generator (UTK)",
 } 

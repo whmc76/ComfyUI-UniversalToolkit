@@ -13,7 +13,7 @@ import torch
 FLOAT_MAX = 99999999999999999.0
 
 class AudioCropProcessUTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Audio"
     @classmethod
     def INPUT_TYPES(cls):
         return {

@@ -2,26 +2,31 @@
 Check Mask Node
 ~~~~~~~~~~~~~~
 
-Checks if a mask is valid based on white area percentage.
+Check if a mask is valid and provide information about it.
 
 :copyright: (c) 2024 by May
 :license: MIT, see LICENSE for more details.
 """
 
 import torch
-from PIL import Image
 import numpy as np
-from ...common_utils import log, tensor2pil, pil2tensor
+from PIL import Image
+import cv2
+
+from ..tools.logging_utils import log
+from .image_converters import tensor2pil, pil2tensor
 
 def mask_white_area(mask, white_point):
     """Calculate the percentage of white area in mask"""
+    if mask is None:
+        return 0.0
     mask_array = np.array(mask)
     white_pixels = np.sum(mask_array > white_point)
     total_pixels = mask_array.size
     return white_pixels / total_pixels if total_pixels > 0 else 0
 
 class CheckMask_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Image"
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -41,14 +46,24 @@ class CheckMask_UTK:
 
     def check_mask(self, mask, white_point, area_percent,):
 
+        if mask is None:
+            log("CheckMask_UTK: mask is None", message_type="warning")
+            return (False,)
+
         if mask.dim() == 2:
             mask = torch.unsqueeze(mask, 0)
-        mask = tensor2pil(mask[0])
-        if mask.width * mask.height > 262144:
+        
+        mask_pil = tensor2pil(mask[0])
+        if mask_pil is None:
+            log("CheckMask_UTK: Failed to convert mask to PIL", message_type="warning")
+            return (False,)
+            
+        if mask_pil.width * mask_pil.height > 262144:
             target_width = 512
-            target_height = int(target_width * mask.height / mask.width)
-            mask = mask.resize((target_width, target_height), Image.LANCZOS)
-        ret = mask_white_area(mask, white_point) * 100 > area_percent
+            target_height = int(target_width * mask_pil.height / mask_pil.width)
+            mask_pil = mask_pil.resize((target_width, target_height), Image.LANCZOS)
+        
+        ret = mask_white_area(mask_pil, white_point) * 100 > area_percent
         log(f"CheckMask_UTK:{ret}", message_type="finish")
         return (ret,)
 

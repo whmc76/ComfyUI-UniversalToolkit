@@ -14,7 +14,7 @@ import torch.nn.functional as F
 MAX_RESOLUTION = 8192
 
 class ImagePadForOutpaintMasked_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Image"
 
     @classmethod
     def INPUT_TYPES(cls):

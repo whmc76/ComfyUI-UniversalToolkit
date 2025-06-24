@@ -54,4 +54,45 @@
 - 不要自动拉取外部仓库或依赖。
 - 不要更改用户未授权的文件。
 - 不要随意更改项目结构。
-- 不要在 requirements.txt/pyproject.toml 中写死所有依赖的精确版本号。 
+- 不要在 requirements.txt/pyproject.toml 中写死所有依赖的精确版本号。
+
+# ComfyUI-UniversalToolkit 开发规范（AI_CODING_RULES）
+
+## 2024-07-13 重要改进与规则
+
+### 1. 节点注册与导入（ComfyUI v3官方规范）
+- 每个节点文件只导出自己的 `NODE_CLASS_MAPPINGS` 和 `NODE_DISPLAY_NAME_MAPPINGS`。
+- `__init__.py` 必须静态导入所有节点注册字典，禁止动态try/except导入和动态合并。
+- 只导出 `NODE_CLASS_MAPPINGS`、`NODE_DISPLAY_NAME_MAPPINGS`，对齐官方插件加载机制。
+- 节点注册顺序清晰，所有节点都必须被静态合并进主注册字典。
+
+### 2. 节点分组与命名
+- 每个节点类必须有唯一且规范的 `CATEGORY` 属性，分组如 `UniversalToolkit/Image`、`UniversalToolkit/Mask`、`UniversalToolkit/Audio`、`UniversalToolkit/Tools`。
+- 节点类名、注册名、显示名必须唯一，全部带 `_UTK` 后缀，禁止与原生节点或其它插件重名。
+- 节点显示名统一加 `(UTK)` 后缀，保证界面分组风格一致。
+
+### 3. pyproject.toml 规范
+- 必须包含 `[project]` 和 `[tool.comfy]` 两大段，字段严格对齐官方文档：
+  - `name`、`description`、`version`、`license`、`dependencies`、`Repository`
+  - `[tool.comfy]` 下 `PublisherId`、`DisplayName`、`Icon` 必填
+- `PublisherId` 必须与Registry注册一致，`DisplayName`为插件在ComfyUI-Manager/Registry中的显示名
+
+### 4. 目录结构与分层
+- 按功能分为 `nodes/image`、`nodes/mask`、`nodes/audio`、`nodes/tools` 四大目录，每个节点独立py文件
+- 禁止使用绝对导入和跨目录utils模块，所有依赖应在本插件目录下
+
+### 5. 节点输入输出与兼容性
+- 所有节点输入输出shape、类型、参数名、返回名必须严格遵循ComfyUI官方节点开发规范
+- 禁止随意更改节点实现、参数、shape，所有节点必须与ComfyUI原生节点和其它插件100%兼容
+- 任何涉及shape、类型、参数的修正，必须优先保证与ComfyUI主程序和主流插件生态兼容
+
+### 6. 其它重要约定
+- 禁止在`__init__.py`中做复杂逻辑或动态注册，推荐静态声明所有节点映射
+- 禁止用旧版的`register_node`、`register_nodes`等动态注册API
+- 所有节点分组、命名、注册、导入、依赖、pyproject.toml等必须随时对齐ComfyUI官方最新规范
+
+---
+
+**本规范为ComfyUI-UniversalToolkit插件开发的最高准则，所有贡献者和维护者必须严格遵守。**
+
+（如有新规范或官方更新，须第一时间同步修订本文件） 

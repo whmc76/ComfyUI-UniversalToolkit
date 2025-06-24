@@ -31,7 +31,7 @@ def image_channel_merge(channels, mode):
         return Image.merge(mode, channels)
 
 class ImageCombineAlpha_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Image"
     
     @classmethod
     def INPUT_TYPES(cls):

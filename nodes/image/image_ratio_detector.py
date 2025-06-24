@@ -1,18 +1,20 @@
 """
 Image Ratio Detector Node
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-Detects and analyzes image aspect ratios and dimensions.
+Detect the aspect ratio of an image.
 
 :copyright: (c) 2024 by May
 :license: MIT, see LICENSE for more details.
 """
 
+import torch
 import math
-from ..common_utils import log
+
+from ..tools.logging_utils import log
 
 class ImageRatioDetector_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Image"
     
     @classmethod
     def INPUT_TYPES(cls):
@@ -73,5 +75,5 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "ImageRatioDetector_UTK": "Image Ratio Detector",
+    "ImageRatioDetector_UTK": "Image Ratio Detector (UTK)",
 } 

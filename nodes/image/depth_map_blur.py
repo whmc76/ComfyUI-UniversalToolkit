@@ -15,7 +15,7 @@ import numpy as np
 import folder_paths
 
 class DepthMapBlur_UTK:
-    CATEGORY = "UniversalToolkit"
+    CATEGORY = "UniversalToolkit/Image"
     
     @classmethod
     def INPUT_TYPES(s):
