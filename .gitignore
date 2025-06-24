@@ -69,4 +69,7 @@ env/
 
 # OS specific
 .DS_Store
-Thumbs.db 
+Thumbs.db
+
+# Reference code directory - ignore updates
+reference_code/ 
