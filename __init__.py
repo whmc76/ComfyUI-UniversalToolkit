@@ -258,7 +258,7 @@ except ImportError:
     CHECK_MASK_DISPLAY = {}
 
 try:
-    from .nodes.image.purge_vram import NODE_CLASS_MAPPINGS as PURGE_VRAM_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as PURGE_VRAM_DISPLAY
+    from .nodes.tools.purge_vram import NODE_CLASS_MAPPINGS as PURGE_VRAM_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as PURGE_VRAM_DISPLAY
 except ImportError:
     PURGE_VRAM_MAPPINGS = {}
     PURGE_VRAM_DISPLAY = {}

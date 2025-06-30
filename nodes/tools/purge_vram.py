@@ -10,9 +10,8 @@ Purge GPU memory to free up VRAM.
 
 import torch
 import gc
-
-from ..tools.logging_utils import log
-from ..tools.any_type import AnyType
+from .logging_utils import log
+from .any_type import AnyType
 
 # 创建 AnyType 实例
 any = AnyType("*")
@@ -24,7 +23,7 @@ def clear_memory():
     gc.collect()
 
 class PurgeVRAM_UTK:
-    CATEGORY = "UniversalToolkit/Image"
+    CATEGORY = "UniversalToolkit/Tools"
     
     @classmethod
     def INPUT_TYPES(cls):

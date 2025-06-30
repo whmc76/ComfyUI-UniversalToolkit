@@ -10,7 +10,18 @@ Restores images to original size or scales them with specified parameters.
 
 import torch
 from PIL import Image
-from ...common_utils import log, tensor2pil, pil2tensor, image2mask
+from ..image_utils import tensor2pil, pil2tensor, image2mask
+
+def log(message, message_type='info'):
+    """简单的日志函数"""
+    if message_type == 'error':
+        print(f"❌ Error: {message}")
+    elif message_type == 'warning':
+        print(f"⚠️ Warning: {message}")
+    elif message_type == 'finish':
+        print(f"✅ {message}")
+    else:
+        print(f"ℹ️ {message}")
 
 class ImageScaleRestore_UTK:
     CATEGORY = "UniversalToolkit/Image"

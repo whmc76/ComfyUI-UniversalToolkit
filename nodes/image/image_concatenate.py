@@ -10,7 +10,6 @@ Concatenates two images side by side or vertically with various options.
 
 import torch
 import torch.nn.functional as F
-from ..common_utils import log
 
 class ImageConcatenate_UTK:
     CATEGORY = "UniversalToolkit/Image"

@@ -72,4 +72,29 @@ env/
 Thumbs.db
 
 # Reference code directory - ignore updates
-reference_code/ 
+reference_code/
+
+# 临时目录
+temp_*/
+temp_mingnodes/
+
+# 测试文件
+test_nodes.py
+
+# Python缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# IDE文件
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db 

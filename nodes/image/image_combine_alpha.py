@@ -10,7 +10,18 @@ Combines RGB image with mask to create RGBA image.
 
 import torch
 from PIL import Image
-from ...common_utils import log, tensor2pil, pil2tensor
+from ..image_utils import tensor2pil, pil2tensor
+
+def log(message, message_type='info'):
+    """简单的日志函数"""
+    if message_type == 'error':
+        print(f"❌ Error: {message}")
+    elif message_type == 'warning':
+        print(f"⚠️ Warning: {message}")
+    elif message_type == 'finish':
+        print(f"✅ {message}")
+    else:
+        print(f"ℹ️ {message}")
 
 def image_channel_split(image, mode):
     """Split image into channels"""

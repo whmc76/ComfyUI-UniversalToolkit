@@ -9,9 +9,20 @@ Crops images based on mask detection with various detection modes.
 """
 
 import torch
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 import numpy as np
-from ...common_utils import log, tensor2pil, pil2tensor, image2mask
+from ..image_utils import tensor2pil, pil2tensor, image2mask
+
+def log(message, message_type='info'):
+    """简单的日志函数"""
+    if message_type == 'error':
+        print(f"❌ Error: {message}")
+    elif message_type == 'warning':
+        print(f"⚠️ Warning: {message}")
+    elif message_type == 'finish':
+        print(f"✅ {message}")
+    else:
+        print(f"ℹ️ {message}")
 
 def mask2image(mask):
     """Convert mask tensor to PIL image"""
@@ -101,7 +112,6 @@ class CropByMask_UTK:
 
         _mask = mask2image(mask_for_crop)
         try:
-            from PIL import ImageFilter
             bluredmask = gaussian_blur(_mask, 20).convert('L')
         except ImportError:
             bluredmask = _mask.convert('L')
