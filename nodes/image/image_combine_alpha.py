@@ -76,7 +76,7 @@ class ImageCombineAlpha_UTK:
         for i in range(max_batch):
             _image = input_images[i] if i < len(input_images) else input_images[-1]
             _mask = input_masks[i] if i < len(input_masks) else input_masks[-1]
-            r, g, b, _ = image_channel_split(tensor2pil(_image).convert('RGB'), 'RGB')
+            r, g, b = image_channel_split(tensor2pil(_image).convert('RGB'), 'RGB')
             ret_image = image_channel_merge((r, g, b, tensor2pil(_mask).convert('L')), 'RGBA')
 
             ret_images.append(pil2tensor(ret_image))
