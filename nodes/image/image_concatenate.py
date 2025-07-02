@@ -32,6 +32,7 @@ class ImageConcatenate_UTK:
                     }),
                 "match_image_size": ("BOOLEAN", {"default": True}),
                 "max_size": ("INT", {"default": 4096, "min": 64, "max": 8192, "step": 64}),
+                "gap": ("INT", {"default": 0, "min": 0, "max": 512, "step": 1}),
                 "background_color": (["black", "white", "gray", "transparent"], {"default": "black"}),
             }
         }
@@ -39,7 +40,7 @@ class ImageConcatenate_UTK:
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "concatenate"
     
-    def concatenate(self, image1, image2, direction, match_image_size, max_size, background_color):
+    def concatenate(self, image1, image2, direction, match_image_size, max_size, gap, background_color):
         # Check if the batch sizes are different
         batch_size1 = image1.shape[0]
         batch_size2 = image2.shape[0]
@@ -111,12 +112,12 @@ class ImageConcatenate_UTK:
         h1, w1 = image1.shape[1:3]
         h2, w2 = image2.shape[1:3]
 
-        # Calculate final dimensions
+        # Calculate final dimensions with gap
         if direction in ['right', 'left']:
             final_height = max(h1, h2)
-            final_width = w1 + w2
+            final_width = w1 + w2 + (gap if gap > 0 else 0)
         else:  # up, down
-            final_height = h1 + h2
+            final_height = h1 + h2 + (gap if gap > 0 else 0)
             final_width = max(w1, w2)
 
         # Check if we need to scale down
@@ -142,9 +143,9 @@ class ImageConcatenate_UTK:
             h2, w2 = image2.shape[1:3]
             if direction in ['right', 'left']:
                 final_height = max(h1, h2)
-                final_width = w1 + w2
+                final_width = w1 + w2 + (gap if gap > 0 else 0)
             else:
-                final_height = h1 + h2
+                final_height = h1 + h2 + (gap if gap > 0 else 0)
                 final_width = max(w1, w2)
 
         # Ensure both images have the same number of channels
@@ -160,20 +161,24 @@ class ImageConcatenate_UTK:
 
         # 创建输出张量，batch维度与输入一致
         batch_size = image1.shape[0]
-        if background_color == "transparent":
-            output = torch.zeros((batch_size, final_height, final_width, image1.shape[-1]), dtype=image1.dtype, device=image1.device)
+        if gap > 0:
+            if background_color == "transparent":
+                output = torch.zeros((batch_size, final_height, final_width, image1.shape[-1]), dtype=image1.dtype, device=image1.device)
+            else:
+                color_value = 1.0 if background_color == "white" else 0.0 if background_color == "black" else 0.5
+                output = torch.full((batch_size, final_height, final_width, image1.shape[-1]), color_value, dtype=image1.dtype, device=image1.device)
         else:
-            color_value = 1.0 if background_color == "white" else 0.0 if background_color == "black" else 0.5
-            output = torch.full((batch_size, final_height, final_width, image1.shape[-1]), color_value, dtype=image1.dtype, device=image1.device)
+            # gap=0时，保持原有逻辑，默认黑色背景
+            output = torch.zeros((batch_size, final_height, final_width, image1.shape[-1]), dtype=image1.dtype, device=image1.device)
 
         # 计算放置位置
         if direction == 'right':
             x1 = 0
-            x2 = w1
+            x2 = w1 + (gap if gap > 0 else 0)
             y1 = (final_height - h1) // 2
             y2 = (final_height - h2) // 2
         elif direction == 'left':
-            x1 = w2
+            x1 = w2 + (gap if gap > 0 else 0)
             x2 = 0
             y1 = (final_height - h1) // 2
             y2 = (final_height - h2) // 2
@@ -181,11 +186,11 @@ class ImageConcatenate_UTK:
             x1 = (final_width - w1) // 2
             x2 = (final_width - w2) // 2
             y1 = 0
-            y2 = h1
+            y2 = h1 + (gap if gap > 0 else 0)
         else:  # up
             x1 = (final_width - w1) // 2
             x2 = (final_width - w2) // 2
-            y1 = h2
+            y1 = h2 + (gap if gap > 0 else 0)
             y2 = 0
 
         # 批量放置图片

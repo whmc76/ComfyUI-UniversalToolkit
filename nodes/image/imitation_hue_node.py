@@ -11,6 +11,12 @@ Performs color transfer and imitation between images with skin protection.
 import numpy as np
 import cv2
 import torch
+try:
+    from comfy.utils import ProgressBar
+except ImportError:
+    ProgressBar = None
+from ..image_utils import pil2tensor
+from PIL import Image
 
 def image_stats(image):
     return np.mean(image[:, :, 1:], axis=(0, 1)), np.std(image[:, :, 1:], axis=(0, 1))
@@ -237,25 +243,29 @@ Performs color transfer and imitation between images with skin protection.
     def imitation_hue(self, imitation_image, target_image, strength, skin_protection, auto_brightness, brightness_range,
                      auto_contrast, contrast_range, auto_saturation, saturation_range, auto_tone, tone_strength,
                      mask=None):
-        for img in imitation_image:
-            img_cv1 = tensor2cv2(img)
-
-        for img in target_image:
+        # 只取一张imitation_image
+        img_cv1 = tensor2cv2(imitation_image[0])
+        results = []
+        num_targets = len(target_image)
+        has_mask = mask is not None and len(mask) == num_targets
+        pb = ProgressBar(num_targets) if ProgressBar else None
+        for idx, img in enumerate(target_image):
+            if pb:
+                pb.update(idx+1)
             img_cv2 = tensor2cv2(img)
-
-        img_cv3 = None
-        if mask is not None:
-            for img3 in mask:
-                img_cv3 = img3.cpu().numpy()
+            img_cv3 = None
+            if has_mask:
+                m = mask[idx]
+                img_cv3 = m.cpu().numpy()
                 img_cv3 = (img_cv3 * 255).astype(np.uint8)
-
-        result_img = color_transfer(img_cv1, img_cv2, img_cv3, strength, skin_protection, auto_brightness,
-                                    brightness_range,auto_contrast, contrast_range, auto_saturation,
-                                    saturation_range, auto_tone, tone_strength)
-        result_img = cv2.cvtColor(result_img, cv2.COLOR_BGR2RGB)
-        rst = torch.from_numpy(result_img.astype(np.float32) / 255.0).unsqueeze(0)
-
-        return (rst,)
+            result_img = color_transfer(img_cv1, img_cv2, img_cv3, strength, skin_protection, auto_brightness,
+                                        brightness_range, auto_contrast, contrast_range, auto_saturation,
+                                        saturation_range, auto_tone, tone_strength)
+            result_img = cv2.cvtColor(result_img, cv2.COLOR_BGR2RGB)
+            pil_img = Image.fromarray(result_img)
+            rst = pil2tensor(pil_img)
+            results.append(rst)
+        return (torch.cat(results, dim=0),)
 
 # Node mappings
 NODE_CLASS_MAPPINGS = {
