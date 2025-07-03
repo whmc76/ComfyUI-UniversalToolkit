@@ -8,13 +8,19 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.1.3"
+__version__ = "1.1.4"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.1.4": [
+        "版本更新发布：",
+        "- 更新插件版本号以支持ComfyUI-Manager和Registry获取",
+        "- 确保与ComfyUI v3完全兼容",
+        "- 优化插件元数据和发布配置"
+    ],
     "1.1.3": [
         "修复 PurgeVRAM_UTK 节点类型不匹配问题：",
         "- 创建 AnyType 类实现，参考 ComfyUI-LayerStyle 项目",

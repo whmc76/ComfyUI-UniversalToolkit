@@ -2,9 +2,14 @@
 
 ## 版本
 
-- 当前版本：**v1.0.2**
+- 当前版本：**v1.1.4**
 
 ## 更新日志
+
+### v1.1.4
+- 版本更新发布，支持ComfyUI-Manager和Registry获取
+- 确保与ComfyUI v3完全兼容
+- 优化插件元数据和发布配置
 
 ### v1.0.2
 - 删除无用节点 Load Audio Plus Upload (UTK)
