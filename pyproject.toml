@@ -1,7 +1,7 @@
 [project]
 name = "universaltoolkit"
 description = "A comprehensive toolkit based on ComfyUI, providing image, mask, audio, and tools nodes, fully modular and v3 compatible."
-version = "1.1.4"
+version = "1.1.5"
 license = {file = "LICENSE"}
 dependencies = ["torch", "numpy", "Pillow", "opencv-python", "scipy", "tqdm"]
 requires-python = ">=3.8"

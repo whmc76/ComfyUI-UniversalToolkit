@@ -8,13 +8,22 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.1.4"
+__version__ = "1.1.5"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.1.5": [
+        "版本更新发布：",
+        "- 优化ImitationHueNode_UTK节点的色彩迁移算法",
+        "- 改进皮肤保护功能，提高肤色保持效果",
+        "- 增强自动亮度、对比度、饱和度调节的稳定性",
+        "- 完善影调模仿功能的实现",
+        "- 优化区域色彩迁移的掩码处理",
+        "- 提升整体色彩迁移的自然度和准确性"
+    ],
     "1.1.4": [
         "版本更新发布：",
         "- 更新插件版本号以支持ComfyUI-Manager和Registry获取",
