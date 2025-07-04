@@ -8,13 +8,25 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.1.5"
+__version__ = "1.1.6"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.1.6": [
+        "新增 TextboxNode_UTK 节点（文本框节点）：",
+        "- 基于 ComfyUI-LayerStyle 项目集成",
+        "- 支持在图像上添加自定义样式的文本框",
+        "- 支持文本颜色、背景颜色、透明度调节",
+        "- 支持圆角边框、边框宽度和颜色设置",
+        "- 支持文本对齐方式（左对齐、居中、右对齐）",
+        "- 支持自定义字体路径和字体大小",
+        "- 支持文本框位置精确定位",
+        "- 支持文本自动换行和最大宽度限制",
+        "- 支持批量图像处理"
+    ],
     "1.1.5": [
         "版本更新发布：",
         "- 优化ImitationHueNode_UTK节点的色彩迁移算法",
@@ -181,6 +193,9 @@ try:
     
     from .nodes.image.imitation_hue_node import NODE_CLASS_MAPPINGS as IMITATION_HUE_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as IMITATION_HUE_DISPLAY_MAPPINGS
 
+    # 文本框节点
+    from .nodes.tools.textbox_node import NODE_CLASS_MAPPINGS as TEXTBOX_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as TEXTBOX_DISPLAY_MAPPINGS
+
 except ImportError as e:
     print(f"导入错误: {e}")
     # 如果模块化导入失败，使用空字典
@@ -198,6 +213,8 @@ except ImportError as e:
     AND_MASK_PREVIEW_DISPLAY_MAPPINGS = {}
     IMITATION_HUE_MAPPINGS = {}
     IMITATION_HUE_DISPLAY_MAPPINGS = {}
+    TEXTBOX_MAPPINGS = {}
+    TEXTBOX_DISPLAY_MAPPINGS = {}
 
 # 尝试导入其他可能有依赖的节点
 try:
@@ -314,6 +331,7 @@ NODE_CLASS_MAPPINGS.update(FILL_MASKED_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(MASK_OPERATIONS_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(LOAD_AUDIO_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(AUDIO_CROP_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(TEXTBOX_MAPPINGS)
 
 # 合并显示名称映射
 NODE_DISPLAY_NAME_MAPPINGS = {}
@@ -339,6 +357,7 @@ NODE_DISPLAY_NAME_MAPPINGS.update(FILL_MASKED_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(LOAD_AUDIO_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(AUDIO_CROP_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(MASK_OPERATIONS_DISPLAY_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update(TEXTBOX_DISPLAY_MAPPINGS)
 
 NODE_CATEGORIES = {
     "UniversalToolkit": [
@@ -368,6 +387,7 @@ NODE_CATEGORIES = {
         "Show_UTK",
         "ShowFloat_UTK",
         "PreviewMask_UTK",
+        "TextboxNode_UTK",
     ]
 }
 

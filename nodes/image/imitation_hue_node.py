@@ -213,8 +213,8 @@ class ImitationHueNode_UTK:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "imitation_image": ("IMAGE",),
                 "target_image": ("IMAGE",),
+                "imitation_image": ("IMAGE",),
                 "strength": ("FLOAT", {"default": 1.0, "min": 0.1, "max": 1.0, "step": 0.1}),
                 "skin_protection": ("FLOAT", {"default": 0.2, "min": 0, "max": 1.0, "step": 0.1}),
                 "auto_brightness": ("BOOLEAN", {"default": True}),
@@ -240,7 +240,7 @@ class ImitationHueNode_UTK:
 Performs color transfer and imitation between images with skin protection.
 """
 
-    def imitation_hue(self, imitation_image, target_image, strength, skin_protection, auto_brightness, brightness_range,
+    def imitation_hue(self, target_image, imitation_image, strength, skin_protection, auto_brightness, brightness_range,
                      auto_contrast, contrast_range, auto_saturation, saturation_range, auto_tone, tone_strength,
                      mask=None):
         # 只取一张imitation_image
