@@ -8,13 +8,17 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.1.6"
+__version__ = "1.1.7"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.1.7": [
+        "新增 ThinkRemover_UTK 节点：",
+        "- 支持分离文本中的<think>内容和剩余内容，便于上下文处理和提示词优化"
+    ],
     "1.1.6": [
         "新增 TextboxNode_UTK 节点（文本框节点）：",
         "- 基于 ComfyUI-LayerStyle 项目集成",
@@ -195,6 +199,8 @@ try:
 
     # 文本框节点
     from .nodes.tools.textbox_node import NODE_CLASS_MAPPINGS as TEXTBOX_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as TEXTBOX_DISPLAY_MAPPINGS
+    from .nodes.tools.text_concatenate_node import NODE_CLASS_MAPPINGS as TEXT_CONCATENATE_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as TEXT_CONCATENATE_DISPLAY_MAPPINGS
+    from .nodes.tools.math_expression_node import NODE_CLASS_MAPPINGS as MATH_EXPRESSION_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as MATH_EXPRESSION_DISPLAY_MAPPINGS
 
 except ImportError as e:
     print(f"导入错误: {e}")
@@ -215,6 +221,10 @@ except ImportError as e:
     IMITATION_HUE_DISPLAY_MAPPINGS = {}
     TEXTBOX_MAPPINGS = {}
     TEXTBOX_DISPLAY_MAPPINGS = {}
+    TEXT_CONCATENATE_MAPPINGS = {}
+    TEXT_CONCATENATE_DISPLAY_MAPPINGS = {}
+    MATH_EXPRESSION_MAPPINGS = {}
+    MATH_EXPRESSION_DISPLAY_MAPPINGS = {}
 
 # 尝试导入其他可能有依赖的节点
 try:
@@ -307,6 +317,14 @@ except ImportError:
     RESTORE_CROP_MAPPINGS = {}
     RESTORE_CROP_DISPLAY = {}
 
+try:
+    from .nodes.tools.think_remover_node import NODE_CLASS_MAPPINGS as THINK_REMOVER_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as THINK_REMOVER_DISPLAY_MAPPINGS
+except ImportError as e:
+    print(f"导入错误: {e}")
+    # ... 其它 except ...
+    THINK_REMOVER_MAPPINGS = {}
+    THINK_REMOVER_DISPLAY_MAPPINGS = {}
+
 # 合并所有节点映射
 NODE_CLASS_MAPPINGS = {}
 NODE_CLASS_MAPPINGS.update(EMPTY_UNIT_MAPPINGS)
@@ -332,6 +350,9 @@ NODE_CLASS_MAPPINGS.update(MASK_OPERATIONS_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(LOAD_AUDIO_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(AUDIO_CROP_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(TEXTBOX_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(TEXT_CONCATENATE_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(MATH_EXPRESSION_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(THINK_REMOVER_MAPPINGS)
 
 # 合并显示名称映射
 NODE_DISPLAY_NAME_MAPPINGS = {}
@@ -358,6 +379,9 @@ NODE_DISPLAY_NAME_MAPPINGS.update(LOAD_AUDIO_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(AUDIO_CROP_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(MASK_OPERATIONS_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(TEXTBOX_DISPLAY_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update(TEXT_CONCATENATE_DISPLAY_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update(MATH_EXPRESSION_DISPLAY_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update(THINK_REMOVER_DISPLAY_MAPPINGS)
 
 NODE_CATEGORIES = {
     "UniversalToolkit": [
@@ -385,9 +409,10 @@ NODE_CATEGORIES = {
         "CropByMask_UTK",
         "RestoreCropBox_UTK",
         "Show_UTK",
-        "ShowFloat_UTK",
-        "PreviewMask_UTK",
         "TextboxNode_UTK",
+        "TextConcatenate_UTK",
+        "MathExpression_UTK",
+        "ThinkRemover_UTK",
     ]
 }
 

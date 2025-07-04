@@ -20,7 +20,7 @@ class TextBoxNode_UTK:
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("text",)
     FUNCTION = "textbox"
-    CATEGORY = "UniversalToolkit/Prompt"
+    CATEGORY = "UniversalToolkit/Text"
     DESCRIPTION = "提供一个多行文本输入框，作为工作流中的文本参数节点。"
 
     def textbox(self, text):
