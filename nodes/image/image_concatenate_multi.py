@@ -2,11 +2,12 @@
 Image Concatenate Multi Node (UTK)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-版本: 1.3.0
-最后更新: 2024-06-09
+版本: 1.4.0
+最后更新: 2024-12-19
 作者: May
 
 变更日志：
+- v1.4.0: 修复节点分类，从KJNodes/image改为UniversalToolkit/Image，保持与其他image节点一致性。
 - v1.3.0: 移除grid_size参数，增加gap参数，支持拼接间距设置。
 - v1.2.0: 默认启用智能拼接（smart），支持2~4图，自动等比缩放，逐步拼接，输出接近正方形。
 - v1.1.x: 支持sequential/smart两种模式，拼接逻辑优化。
@@ -45,7 +46,7 @@ class ImageConcatenateMulti_UTK:
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("images",)
     FUNCTION = "combine"
-    CATEGORY = "KJNodes/image"
+    CATEGORY = "UniversalToolkit/Image"
     DESCRIPTION = """
 Creates an image from multiple images.  
 你可以设置inputcount来决定输入端口数量，
