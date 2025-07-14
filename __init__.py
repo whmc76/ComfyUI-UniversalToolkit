@@ -8,13 +8,38 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.1.7"
+__version__ = "1.1.9"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.1.9": [
+        "升级 LoadKontextPresets_UTK 节点功能：",
+        "- 新增用户提示输入参数（user_prompt），支持多行文本输入",
+        "- 为所有27个预设添加$user_prompt$占位符，支持动态场景描述",
+        "- 改造所有预设的brief描述，使其能够根据用户输入生成具体指令",
+        "- 智能占位符替换：有用户输入时替换为具体需求，无输入时使用通用描述",
+        "- 支持重新布光、场景传送、季节变换等预设的用户自定义场景",
+        "- 支持人物变换、艺术风格、特殊效果等预设的个性化需求",
+        "- 提升VLM模型生成指令的针对性和实用性",
+        "- 保持原有27个预设的完整功能和分类结构"
+    ],
+    "1.1.8": [
+        "新增 LoadKontextPresets_UTK 节点（Kontext VLM System Presets）：",
+        "- 基于 Kontext 项目集成，提供25种图像变换预设",
+        "- 支持情境深度融合、无痕融合、场景传送等多种预设",
+        "- 支持移动镜头、重新布光、专业产品图等专业预设",
+        "- 支持画面缩放、图像上色、电影海报等创意预设",
+        "- 支持卡通漫画化、移除文字、更换发型等功能预设",
+        "- 支持肌肉猛男化、清空家具、室内设计等特殊预设",
+        "- 支持季节变换、时光旅人、材质置换等艺术预设",
+        "- 支持微缩世界、幻想领域、衣橱改造等创意预设",
+        "- 支持艺术风格模仿、蓝图视角、添加倒影等效果预设",
+        "- 支持像素艺术、铅笔手绘、油画风格等艺术风格预设",
+        "- 所有预设均按照官方指南进行重写和升级，提供专业的图像变换指令"
+    ],
     "1.1.7": [
         "新增 ThinkRemover_UTK 节点：",
         "- 支持分离文本中的<think>内容和剩余内容，便于上下文处理和提示词优化"
@@ -325,6 +350,13 @@ except ImportError as e:
     THINK_REMOVER_MAPPINGS = {}
     THINK_REMOVER_DISPLAY_MAPPINGS = {}
 
+try:
+    from .nodes.tools.kontext_presets import NODE_CLASS_MAPPINGS as KONTEXT_PRESETS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS as KONTEXT_PRESETS_DISPLAY_MAPPINGS
+except ImportError as e:
+    print(f"导入错误: {e}")
+    KONTEXT_PRESETS_MAPPINGS = {}
+    KONTEXT_PRESETS_DISPLAY_MAPPINGS = {}
+
 # 合并所有节点映射
 NODE_CLASS_MAPPINGS = {}
 NODE_CLASS_MAPPINGS.update(EMPTY_UNIT_MAPPINGS)
@@ -353,6 +385,7 @@ NODE_CLASS_MAPPINGS.update(TEXTBOX_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(TEXT_CONCATENATE_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(MATH_EXPRESSION_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(THINK_REMOVER_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(KONTEXT_PRESETS_MAPPINGS)
 
 # 合并显示名称映射
 NODE_DISPLAY_NAME_MAPPINGS = {}
@@ -382,6 +415,7 @@ NODE_DISPLAY_NAME_MAPPINGS.update(TEXTBOX_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(TEXT_CONCATENATE_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(MATH_EXPRESSION_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(THINK_REMOVER_DISPLAY_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update(KONTEXT_PRESETS_DISPLAY_MAPPINGS)
 
 NODE_CATEGORIES = {
     "UniversalToolkit": [
@@ -413,6 +447,7 @@ NODE_CATEGORIES = {
         "TextConcatenate_UTK",
         "MathExpression_UTK",
         "ThinkRemover_UTK",
+        "LoadKontextPresets_UTK",
     ]
 }
 
