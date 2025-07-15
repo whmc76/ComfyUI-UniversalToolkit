@@ -146,7 +146,7 @@ class LoraInfo_UTK:
             },
         }
 
-    RETURN_NAMES = ("lora_name", "trigger_words", "example_prompt", "info_text")
+    RETURN_NAMES = ("lora_name", "civitai_trigger", "example_prompt", "civitai_info")
     RETURN_TYPES = ("STRING", "STRING", "STRING", "STRING")
     FUNCTION = "lora_info"
     OUTPUT_NODE = True

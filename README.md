@@ -97,7 +97,7 @@ tqdm
 
 #### 系统工具
 - **PurgeVRAM_UTK**：显存清理，支持选择性清理缓存和模型
-- **LoraInfo_UTK**：LoRA信息查询，获取触发词、示例提示词、基础模型等信息
+- **LoraInfo_UTK**：LoRA信息查询，获取CivitAI触发词、示例提示词、基础模型等信息
 
 #### 预设系统
 - **LoadKontextPresets_UTK**：Kontext VLM系统预设，包含27种专业图像变换预设
