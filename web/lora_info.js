@@ -18,8 +18,14 @@ app.registerExtension({
           ["STRING", { multiline: true }],
           app,
         ).widget;
+        this.metaInfoWidget = ComfyWidgets["STRING"](
+          this,
+          "meta_info",
+          ["STRING", { multiline: true }],
+          app,
+        ).widget;
 
-        const [loraNameWidget, baseModelWidget, outputWidget] = this.widgets;
+        const [loraNameWidget, baseModelWidget, outputWidget, metaInfoWidget] = this.widgets;
 
         loraNameWidget.callback = () => {
           const value = loraNameWidget.value;
@@ -32,6 +38,7 @@ app.registerExtension({
             .then((resp) => {
               baseModelWidget.value = resp.baseModel;
               outputWidget.value = resp.output;
+              metaInfoWidget.value = resp.metaInfo;
             });
         };
       }
@@ -41,6 +48,7 @@ app.registerExtension({
         onExecuted?.apply(this, [message]);
         this.showValueWidget.value = message.text[0];
         this.baseModelWidget.value = message.model[0];
+        this.metaInfoWidget.value = message.metaInfo ? message.metaInfo[0] : "";
       }
     }
   },

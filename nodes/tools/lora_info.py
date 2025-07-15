@@ -55,12 +55,55 @@ def calculate_sha256(file_path):
             sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
 
+def get_metadata(filepath):
+    """从LoRA文件中提取元数据"""
+    try:
+        filepath = folder_paths.get_full_path("loras", filepath)
+        with open(filepath, "rb") as file:
+            # https://github.com/huggingface/safetensors#format
+            # 8 bytes: N, an unsigned little-endian 64-bit integer, containing the size of the header
+            header_size = int.from_bytes(file.read(8), "little", signed=False)
+
+            if header_size <= 0:
+                return None
+
+            header = file.read(header_size)
+            if header_size <= 0:
+                return None
+            header_json = json.loads(header)
+            return header_json["__metadata__"] if "__metadata__" in header_json else None
+    except Exception as e:
+        print(f"Error reading metadata from {filepath}: {e}")
+        return None
+
+def sort_tags_by_frequency(meta_tags):
+    """按训练频率排序标签"""
+    if meta_tags is None:
+        return []
+    if "ss_tag_frequency" in meta_tags:
+        meta_tags = meta_tags["ss_tag_frequency"]
+        meta_tags = json.loads(meta_tags)
+        sorted_tags = {}
+        for _, dataset in meta_tags.items():
+            for tag, count in dataset.items():
+                tag = str(tag).strip()
+                if tag in sorted_tags:
+                    sorted_tags[tag] = sorted_tags[tag] + count
+                else:
+                    sorted_tags[tag] = count
+        # 按训练频率排序，最常见的标签在前
+        sorted_tags = dict(sorted(sorted_tags.items(), key=lambda item: item[1], reverse=True))
+        return list(sorted_tags.keys())
+    else:
+        return []
+
 def get_lora_info(lora_name):
     db = load_json_from_file(db_path)
     output = None
     examplePrompt = None
     trainedWords = None
     baseModel = None
+    metaInfo = None
 
     loraInfo = db.get(lora_name, {})
 
@@ -71,6 +114,7 @@ def get_lora_info(lora_name):
     examplePrompt = loraInfo.get('examplePrompt', None)
     trainedWords = loraInfo.get('trainedWords', None)
     baseModel = loraInfo.get('baseModel', None)
+    metaInfo = loraInfo.get('metaInfo', None)
 
     if output is None or baseModel is None:
         output = ""
@@ -106,24 +150,38 @@ def get_lora_info(lora_name):
                         output += f"{key}: {value}\n"
                 output += '\n'
 
+        # 获取元数据信息
+        metadata = get_metadata(lora_name)
+        if metadata:
+            metaInfo = json.dumps(metadata, indent=2, ensure_ascii=False)
+        else:
+            metaInfo = ""
+
         db[lora_name] = {
             "output": output,
             "trainedWords": trainedWords,
             "examplePrompt": examplePrompt,
-            "baseModel": baseModel
+            "baseModel": baseModel,
+            "metaInfo": metaInfo
             }
         save_dict_to_json(db, db_path)
     
-    return (output, trainedWords, examplePrompt, baseModel)
+    return (output, trainedWords, examplePrompt, baseModel, metaInfo)
 
 
 @server.PromptServer.instance.routes.post('/lora_info_utk')
 async def fetch_lora_info(request):
     post = await request.post()
     lora_name = post.get("lora_name")
-    (output, triggerWords, examplePrompt, baseModel) = get_lora_info(lora_name)
+    (output, triggerWords, examplePrompt, baseModel, metaInfo) = get_lora_info(lora_name)
 
-    return web.json_response({"output": output, "triggerWords": triggerWords, "examplePrompt": examplePrompt, "baseModel": baseModel})
+    return web.json_response({
+        "output": output, 
+        "triggerWords": triggerWords, 
+        "examplePrompt": examplePrompt, 
+        "baseModel": baseModel,
+        "metaInfo": metaInfo
+    })
 
 class LoraInfo_UTK:
     """
@@ -135,6 +193,7 @@ class LoraInfo_UTK:
     - 基础模型 (Base Model)
     - CivitAI链接
     - 示例图片
+    - 元数据信息 (Meta Info)
     """
     
     @classmethod
@@ -146,14 +205,14 @@ class LoraInfo_UTK:
             },
         }
 
-    RETURN_NAMES = ("lora_name", "civitai_trigger", "example_prompt", "civitai_info")
-    RETURN_TYPES = ("STRING", "STRING", "STRING", "STRING")
+    RETURN_NAMES = ("lora_name", "civitai_trigger", "example_prompt", "civitai_info", "meta_info")
+    RETURN_TYPES = ("STRING", "STRING", "STRING", "STRING", "STRING")
     FUNCTION = "lora_info"
     OUTPUT_NODE = True
     CATEGORY = "UniversalToolkit/Tools"
 
     def lora_info(self, lora_name):
-        (output, triggerWords, examplePrompt, baseModel) = get_lora_info(lora_name)
+        (output, triggerWords, examplePrompt, baseModel, metaInfo) = get_lora_info(lora_name)
         
         # 构建信息文本
         info_text = f"LoRA: {lora_name}\n"
@@ -171,7 +230,7 @@ class LoraInfo_UTK:
                 "text": (info_text,), 
                 "model": (baseModel,)
             }, 
-            "result": (lora_name, triggerWords or "", examplePrompt or "", info_text)
+            "result": (lora_name, triggerWords or "", examplePrompt or "", info_text, metaInfo or "")
         }
 
 
