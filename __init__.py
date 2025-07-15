@@ -214,49 +214,68 @@ CHANGELOG = {
 try:
     # 工具类节点
     # 音频节点
-    from .nodes.audio.audio_crop_process import \
-        NODE_CLASS_MAPPINGS as AUDIO_CROP_MAPPINGS
-    from .nodes.audio.audio_crop_process import \
-        NODE_DISPLAY_NAME_MAPPINGS as AUDIO_CROP_DISPLAY_MAPPINGS
-    from .nodes.image.image_and_mask_preview import \
-        NODE_CLASS_MAPPINGS as AND_MASK_PREVIEW_MAPPINGS
-    from .nodes.image.image_and_mask_preview import \
-        NODE_DISPLAY_NAME_MAPPINGS as AND_MASK_PREVIEW_DISPLAY_MAPPINGS
+    from .nodes.audio.audio_crop_process import (
+        NODE_CLASS_MAPPINGS as AUDIO_CROP_MAPPINGS,
+    )
+    from .nodes.audio.audio_crop_process import (
+        NODE_DISPLAY_NAME_MAPPINGS as AUDIO_CROP_DISPLAY_MAPPINGS,
+    )
+    from .nodes.image.image_and_mask_preview import (
+        NODE_CLASS_MAPPINGS as AND_MASK_PREVIEW_MAPPINGS,
+    )
+    from .nodes.image.image_and_mask_preview import (
+        NODE_DISPLAY_NAME_MAPPINGS as AND_MASK_PREVIEW_DISPLAY_MAPPINGS,
+    )
+
     # 图像节点
-    from .nodes.image.image_concatenate_multi import \
-        NODE_CLASS_MAPPINGS as CONCATENATE_MULTI_MAPPINGS
-    from .nodes.image.image_concatenate_multi import \
-        NODE_DISPLAY_NAME_MAPPINGS as CONCATENATE_MULTI_DISPLAY_MAPPINGS
-    from .nodes.image.image_pad_for_outpaint_masked import \
-        NODE_CLASS_MAPPINGS as PAD_OUTPAINT_MAPPINGS
-    from .nodes.image.image_pad_for_outpaint_masked import \
-        NODE_DISPLAY_NAME_MAPPINGS as PAD_OUTPAINT_DISPLAY_MAPPINGS
-    from .nodes.image.imitation_hue_node import \
-        NODE_CLASS_MAPPINGS as IMITATION_HUE_MAPPINGS
-    from .nodes.image.imitation_hue_node import \
-        NODE_DISPLAY_NAME_MAPPINGS as IMITATION_HUE_DISPLAY_MAPPINGS
+    from .nodes.image.image_concatenate_multi import (
+        NODE_CLASS_MAPPINGS as CONCATENATE_MULTI_MAPPINGS,
+    )
+    from .nodes.image.image_concatenate_multi import (
+        NODE_DISPLAY_NAME_MAPPINGS as CONCATENATE_MULTI_DISPLAY_MAPPINGS,
+    )
+    from .nodes.image.image_pad_for_outpaint_masked import (
+        NODE_CLASS_MAPPINGS as PAD_OUTPAINT_MAPPINGS,
+    )
+    from .nodes.image.image_pad_for_outpaint_masked import (
+        NODE_DISPLAY_NAME_MAPPINGS as PAD_OUTPAINT_DISPLAY_MAPPINGS,
+    )
+    from .nodes.image.imitation_hue_node import (
+        NODE_CLASS_MAPPINGS as IMITATION_HUE_MAPPINGS,
+    )
+    from .nodes.image.imitation_hue_node import (
+        NODE_DISPLAY_NAME_MAPPINGS as IMITATION_HUE_DISPLAY_MAPPINGS,
+    )
+
     # 掩码节点
-    from .nodes.mask.mask_operations import \
-        NODE_CLASS_MAPPINGS as MASK_OPERATIONS_MAPPINGS
-    from .nodes.mask.mask_operations import \
-        NODE_DISPLAY_NAME_MAPPINGS as MASK_OPERATIONS_DISPLAY_MAPPINGS
-    from .nodes.tools.math_expression_node import \
-        NODE_CLASS_MAPPINGS as MATH_EXPRESSION_MAPPINGS
-    from .nodes.tools.math_expression_node import \
-        NODE_DISPLAY_NAME_MAPPINGS as MATH_EXPRESSION_DISPLAY_MAPPINGS
-    from .nodes.tools.show_nodes import \
-        NODE_CLASS_MAPPINGS as SHOW_NODES_MAPPINGS
-    from .nodes.tools.show_nodes import \
-        NODE_DISPLAY_NAME_MAPPINGS as SHOW_NODES_DISPLAY_MAPPINGS
-    from .nodes.tools.text_concatenate_node import \
-        NODE_CLASS_MAPPINGS as TEXT_CONCATENATE_MAPPINGS
-    from .nodes.tools.text_concatenate_node import \
-        NODE_DISPLAY_NAME_MAPPINGS as TEXT_CONCATENATE_DISPLAY_MAPPINGS
+    from .nodes.mask.mask_operations import (
+        NODE_CLASS_MAPPINGS as MASK_OPERATIONS_MAPPINGS,
+    )
+    from .nodes.mask.mask_operations import (
+        NODE_DISPLAY_NAME_MAPPINGS as MASK_OPERATIONS_DISPLAY_MAPPINGS,
+    )
+    from .nodes.tools.math_expression_node import (
+        NODE_CLASS_MAPPINGS as MATH_EXPRESSION_MAPPINGS,
+    )
+    from .nodes.tools.math_expression_node import (
+        NODE_DISPLAY_NAME_MAPPINGS as MATH_EXPRESSION_DISPLAY_MAPPINGS,
+    )
+    from .nodes.tools.show_nodes import NODE_CLASS_MAPPINGS as SHOW_NODES_MAPPINGS
+    from .nodes.tools.show_nodes import (
+        NODE_DISPLAY_NAME_MAPPINGS as SHOW_NODES_DISPLAY_MAPPINGS,
+    )
+    from .nodes.tools.text_concatenate_node import (
+        NODE_CLASS_MAPPINGS as TEXT_CONCATENATE_MAPPINGS,
+    )
+    from .nodes.tools.text_concatenate_node import (
+        NODE_DISPLAY_NAME_MAPPINGS as TEXT_CONCATENATE_DISPLAY_MAPPINGS,
+    )
+
     # 文本框节点
-    from .nodes.tools.textbox_node import \
-        NODE_CLASS_MAPPINGS as TEXTBOX_MAPPINGS
-    from .nodes.tools.textbox_node import \
-        NODE_DISPLAY_NAME_MAPPINGS as TEXTBOX_DISPLAY_MAPPINGS
+    from .nodes.tools.textbox_node import NODE_CLASS_MAPPINGS as TEXTBOX_MAPPINGS
+    from .nodes.tools.textbox_node import (
+        NODE_DISPLAY_NAME_MAPPINGS as TEXTBOX_DISPLAY_MAPPINGS,
+    )
 
 except ImportError as e:
     print(f"导入错误: {e}")
@@ -284,145 +303,159 @@ except ImportError as e:
 
 # 尝试导入其他可能有依赖的节点
 try:
-    from .nodes.tools.fill_masked_area import \
-        NODE_CLASS_MAPPINGS as FILL_MASKED_MAPPINGS
-    from .nodes.tools.fill_masked_area import \
-        NODE_DISPLAY_NAME_MAPPINGS as FILL_MASKED_DISPLAY_MAPPINGS
+    from .nodes.tools.fill_masked_area import (
+        NODE_CLASS_MAPPINGS as FILL_MASKED_MAPPINGS,
+    )
+    from .nodes.tools.fill_masked_area import (
+        NODE_DISPLAY_NAME_MAPPINGS as FILL_MASKED_DISPLAY_MAPPINGS,
+    )
 except ImportError:
     FILL_MASKED_MAPPINGS = {}
     FILL_MASKED_DISPLAY_MAPPINGS = {}
 
 try:
-    from .nodes.audio.load_audio import \
-        NODE_CLASS_MAPPINGS as LOAD_AUDIO_MAPPINGS
-    from .nodes.audio.load_audio import \
-        NODE_DISPLAY_NAME_MAPPINGS as LOAD_AUDIO_DISPLAY_MAPPINGS
+    from .nodes.audio.load_audio import NODE_CLASS_MAPPINGS as LOAD_AUDIO_MAPPINGS
+    from .nodes.audio.load_audio import (
+        NODE_DISPLAY_NAME_MAPPINGS as LOAD_AUDIO_DISPLAY_MAPPINGS,
+    )
 except ImportError:
     LOAD_AUDIO_MAPPINGS = {}
     LOAD_AUDIO_DISPLAY_MAPPINGS = {}
 
 try:
-    from .nodes.image.empty_unit_generator import \
-        NODE_CLASS_MAPPINGS as EMPTY_UNIT_MAPPINGS
-    from .nodes.image.empty_unit_generator import \
-        NODE_DISPLAY_NAME_MAPPINGS as EMPTY_UNIT_DISPLAY
+    from .nodes.image.empty_unit_generator import (
+        NODE_CLASS_MAPPINGS as EMPTY_UNIT_MAPPINGS,
+    )
+    from .nodes.image.empty_unit_generator import (
+        NODE_DISPLAY_NAME_MAPPINGS as EMPTY_UNIT_DISPLAY,
+    )
 except ImportError:
     EMPTY_UNIT_MAPPINGS = {}
     EMPTY_UNIT_DISPLAY = {}
 
 try:
-    from .nodes.image.image_ratio_detector import \
-        NODE_CLASS_MAPPINGS as RATIO_MAPPINGS
-    from .nodes.image.image_ratio_detector import \
-        NODE_DISPLAY_NAME_MAPPINGS as RATIO_DISPLAY
+    from .nodes.image.image_ratio_detector import NODE_CLASS_MAPPINGS as RATIO_MAPPINGS
+    from .nodes.image.image_ratio_detector import (
+        NODE_DISPLAY_NAME_MAPPINGS as RATIO_DISPLAY,
+    )
 except ImportError:
     RATIO_MAPPINGS = {}
     RATIO_DISPLAY = {}
 
 try:
-    from .nodes.image.depth_map_blur import \
-        NODE_CLASS_MAPPINGS as DEPTH_BLUR_MAPPINGS
-    from .nodes.image.depth_map_blur import \
-        NODE_DISPLAY_NAME_MAPPINGS as DEPTH_BLUR_DISPLAY
+    from .nodes.image.depth_map_blur import NODE_CLASS_MAPPINGS as DEPTH_BLUR_MAPPINGS
+    from .nodes.image.depth_map_blur import (
+        NODE_DISPLAY_NAME_MAPPINGS as DEPTH_BLUR_DISPLAY,
+    )
 except ImportError:
     DEPTH_BLUR_MAPPINGS = {}
     DEPTH_BLUR_DISPLAY = {}
 
 try:
-    from .nodes.image.image_concatenate import \
-        NODE_CLASS_MAPPINGS as CONCAT_MAPPINGS
-    from .nodes.image.image_concatenate import \
-        NODE_DISPLAY_NAME_MAPPINGS as CONCAT_DISPLAY
+    from .nodes.image.image_concatenate import NODE_CLASS_MAPPINGS as CONCAT_MAPPINGS
+    from .nodes.image.image_concatenate import (
+        NODE_DISPLAY_NAME_MAPPINGS as CONCAT_DISPLAY,
+    )
 except ImportError:
     CONCAT_MAPPINGS = {}
     CONCAT_DISPLAY = {}
 
 try:
-    from .nodes.image.image_scale_by_aspect_ratio import \
-        NODE_CLASS_MAPPINGS as SCALE_ASPECT_MAPPINGS
-    from .nodes.image.image_scale_by_aspect_ratio import \
-        NODE_DISPLAY_NAME_MAPPINGS as SCALE_ASPECT_DISPLAY
+    from .nodes.image.image_scale_by_aspect_ratio import (
+        NODE_CLASS_MAPPINGS as SCALE_ASPECT_MAPPINGS,
+    )
+    from .nodes.image.image_scale_by_aspect_ratio import (
+        NODE_DISPLAY_NAME_MAPPINGS as SCALE_ASPECT_DISPLAY,
+    )
 except ImportError:
     SCALE_ASPECT_MAPPINGS = {}
     SCALE_ASPECT_DISPLAY = {}
 
 try:
-    from .nodes.image.image_mask_scale_as import \
-        NODE_CLASS_MAPPINGS as MASK_SCALE_MAPPINGS
-    from .nodes.image.image_mask_scale_as import \
-        NODE_DISPLAY_NAME_MAPPINGS as MASK_SCALE_DISPLAY
+    from .nodes.image.image_mask_scale_as import (
+        NODE_CLASS_MAPPINGS as MASK_SCALE_MAPPINGS,
+    )
+    from .nodes.image.image_mask_scale_as import (
+        NODE_DISPLAY_NAME_MAPPINGS as MASK_SCALE_DISPLAY,
+    )
 except ImportError:
     MASK_SCALE_MAPPINGS = {}
     MASK_SCALE_DISPLAY = {}
 
 try:
-    from .nodes.image.image_scale_restore import \
-        NODE_CLASS_MAPPINGS as SCALE_RESTORE_MAPPINGS
-    from .nodes.image.image_scale_restore import \
-        NODE_DISPLAY_NAME_MAPPINGS as SCALE_RESTORE_DISPLAY
+    from .nodes.image.image_scale_restore import (
+        NODE_CLASS_MAPPINGS as SCALE_RESTORE_MAPPINGS,
+    )
+    from .nodes.image.image_scale_restore import (
+        NODE_DISPLAY_NAME_MAPPINGS as SCALE_RESTORE_DISPLAY,
+    )
 except ImportError:
     SCALE_RESTORE_MAPPINGS = {}
     SCALE_RESTORE_DISPLAY = {}
 
 try:
-    from .nodes.image.image_remove_alpha import \
-        NODE_CLASS_MAPPINGS as REMOVE_ALPHA_MAPPINGS
-    from .nodes.image.image_remove_alpha import \
-        NODE_DISPLAY_NAME_MAPPINGS as REMOVE_ALPHA_DISPLAY
+    from .nodes.image.image_remove_alpha import (
+        NODE_CLASS_MAPPINGS as REMOVE_ALPHA_MAPPINGS,
+    )
+    from .nodes.image.image_remove_alpha import (
+        NODE_DISPLAY_NAME_MAPPINGS as REMOVE_ALPHA_DISPLAY,
+    )
 except ImportError:
     REMOVE_ALPHA_MAPPINGS = {}
     REMOVE_ALPHA_DISPLAY = {}
 
 try:
-    from .nodes.image.image_combine_alpha import \
-        NODE_CLASS_MAPPINGS as COMBINE_ALPHA_MAPPINGS
-    from .nodes.image.image_combine_alpha import \
-        NODE_DISPLAY_NAME_MAPPINGS as COMBINE_ALPHA_DISPLAY
+    from .nodes.image.image_combine_alpha import (
+        NODE_CLASS_MAPPINGS as COMBINE_ALPHA_MAPPINGS,
+    )
+    from .nodes.image.image_combine_alpha import (
+        NODE_DISPLAY_NAME_MAPPINGS as COMBINE_ALPHA_DISPLAY,
+    )
 except ImportError:
     COMBINE_ALPHA_MAPPINGS = {}
     COMBINE_ALPHA_DISPLAY = {}
 
 try:
-    from .nodes.image.check_mask import \
-        NODE_CLASS_MAPPINGS as CHECK_MASK_MAPPINGS
-    from .nodes.image.check_mask import \
-        NODE_DISPLAY_NAME_MAPPINGS as CHECK_MASK_DISPLAY
+    from .nodes.image.check_mask import NODE_CLASS_MAPPINGS as CHECK_MASK_MAPPINGS
+    from .nodes.image.check_mask import NODE_DISPLAY_NAME_MAPPINGS as CHECK_MASK_DISPLAY
 except ImportError:
     CHECK_MASK_MAPPINGS = {}
     CHECK_MASK_DISPLAY = {}
 
 try:
-    from .nodes.tools.purge_vram import \
-        NODE_CLASS_MAPPINGS as PURGE_VRAM_MAPPINGS
-    from .nodes.tools.purge_vram import \
-        NODE_DISPLAY_NAME_MAPPINGS as PURGE_VRAM_DISPLAY
+    from .nodes.tools.purge_vram import NODE_CLASS_MAPPINGS as PURGE_VRAM_MAPPINGS
+    from .nodes.tools.purge_vram import NODE_DISPLAY_NAME_MAPPINGS as PURGE_VRAM_DISPLAY
 except ImportError:
     PURGE_VRAM_MAPPINGS = {}
     PURGE_VRAM_DISPLAY = {}
 
 try:
-    from .nodes.image.crop_by_mask import \
-        NODE_CLASS_MAPPINGS as CROP_MASK_MAPPINGS
-    from .nodes.image.crop_by_mask import \
-        NODE_DISPLAY_NAME_MAPPINGS as CROP_MASK_DISPLAY
+    from .nodes.image.crop_by_mask import NODE_CLASS_MAPPINGS as CROP_MASK_MAPPINGS
+    from .nodes.image.crop_by_mask import (
+        NODE_DISPLAY_NAME_MAPPINGS as CROP_MASK_DISPLAY,
+    )
 except ImportError:
     CROP_MASK_MAPPINGS = {}
     CROP_MASK_DISPLAY = {}
 
 try:
-    from .nodes.image.restore_crop_box import \
-        NODE_CLASS_MAPPINGS as RESTORE_CROP_MAPPINGS
-    from .nodes.image.restore_crop_box import \
-        NODE_DISPLAY_NAME_MAPPINGS as RESTORE_CROP_DISPLAY
+    from .nodes.image.restore_crop_box import (
+        NODE_CLASS_MAPPINGS as RESTORE_CROP_MAPPINGS,
+    )
+    from .nodes.image.restore_crop_box import (
+        NODE_DISPLAY_NAME_MAPPINGS as RESTORE_CROP_DISPLAY,
+    )
 except ImportError:
     RESTORE_CROP_MAPPINGS = {}
     RESTORE_CROP_DISPLAY = {}
 
 try:
-    from .nodes.tools.think_remover_node import \
-        NODE_CLASS_MAPPINGS as THINK_REMOVER_MAPPINGS
-    from .nodes.tools.think_remover_node import \
-        NODE_DISPLAY_NAME_MAPPINGS as THINK_REMOVER_DISPLAY_MAPPINGS
+    from .nodes.tools.think_remover_node import (
+        NODE_CLASS_MAPPINGS as THINK_REMOVER_MAPPINGS,
+    )
+    from .nodes.tools.think_remover_node import (
+        NODE_DISPLAY_NAME_MAPPINGS as THINK_REMOVER_DISPLAY_MAPPINGS,
+    )
 except ImportError as e:
     print(f"导入错误: {e}")
     # ... 其它 except ...
@@ -430,10 +463,12 @@ except ImportError as e:
     THINK_REMOVER_DISPLAY_MAPPINGS = {}
 
 try:
-    from .nodes.tools.kontext_presets import \
-        NODE_CLASS_MAPPINGS as KONTEXT_PRESETS_MAPPINGS
-    from .nodes.tools.kontext_presets import \
-        NODE_DISPLAY_NAME_MAPPINGS as KONTEXT_PRESETS_DISPLAY_MAPPINGS
+    from .nodes.tools.kontext_presets import (
+        NODE_CLASS_MAPPINGS as KONTEXT_PRESETS_MAPPINGS,
+    )
+    from .nodes.tools.kontext_presets import (
+        NODE_DISPLAY_NAME_MAPPINGS as KONTEXT_PRESETS_DISPLAY_MAPPINGS,
+    )
 except ImportError as e:
     print(f"导入错误: {e}")
     KONTEXT_PRESETS_MAPPINGS = {}

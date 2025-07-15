@@ -13,8 +13,15 @@ import math
 import torch
 from PIL import Image
 
-from ..image_utils import (fit_resize_image, image2mask, is_valid_mask, log,
-                           num_round_up_to_multiple, pil2tensor, tensor2pil)
+from ..image_utils import (
+    fit_resize_image,
+    image2mask,
+    is_valid_mask,
+    log,
+    num_round_up_to_multiple,
+    pil2tensor,
+    tensor2pil,
+)
 
 
 def log(message, message_type="info"):
