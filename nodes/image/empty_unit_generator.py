@@ -8,17 +8,19 @@ Generate empty units for testing and development.
 :license: MIT, see LICENSE for more details.
 """
 
-import torch
-import numpy as np
 import re
-from PIL import Image
+
 import cv2
+import numpy as np
+import torch
+from PIL import Image
 
 from ..tools.logging_utils import log
 
+
 class EmptyUnitGenerator_UTK:
     CATEGORY = "UniversalToolkit/Image"
-    
+
     @classmethod
     def INPUT_TYPES(cls):
         ratio_options = [
@@ -44,14 +46,62 @@ class EmptyUnitGenerator_UTK:
         latent_type_options = ["standard", "sd3", "hunyuan", "ltx"]
         return {
             "required": {
-                "width": ("INT", {"default": 1024, "min": 64, "max": 4096, "step": 8, "label": "Width (custom only)"}),
-                "height": ("INT", {"default": 1024, "min": 64, "max": 4096, "step": 8, "label": "Height (custom only)"}),
-                "ratio": (ratio_options, {"default": ratio_options[9], "label": "Resolution/Ratio"}),
-                "scale": ("FLOAT", {"default": 1.0, "min": 0.1, "max": 8.0, "step": 0.1, "label": "Scale (放大倍数)"}),
-                "divisor": ("INT", {"default": 8, "min": 1, "max": 512, "step": 1, "label": "Divisor (整除裁切)"}),
-                "image_color": (["white", "black", "gray", "red", "green", "blue"], {"default": "white"}),
-                "batch": ("INT", {"default": 1, "min": 1, "max": 16, "label": "Batch 数量"}),
-                "latent_type": (latent_type_options, {"default": "standard", "label": "Latent类型"}),
+                "width": (
+                    "INT",
+                    {
+                        "default": 1024,
+                        "min": 64,
+                        "max": 4096,
+                        "step": 8,
+                        "label": "Width (custom only)",
+                    },
+                ),
+                "height": (
+                    "INT",
+                    {
+                        "default": 1024,
+                        "min": 64,
+                        "max": 4096,
+                        "step": 8,
+                        "label": "Height (custom only)",
+                    },
+                ),
+                "ratio": (
+                    ratio_options,
+                    {"default": ratio_options[9], "label": "Resolution/Ratio"},
+                ),
+                "scale": (
+                    "FLOAT",
+                    {
+                        "default": 1.0,
+                        "min": 0.1,
+                        "max": 8.0,
+                        "step": 0.1,
+                        "label": "Scale (放大倍数)",
+                    },
+                ),
+                "divisor": (
+                    "INT",
+                    {
+                        "default": 8,
+                        "min": 1,
+                        "max": 512,
+                        "step": 1,
+                        "label": "Divisor (整除裁切)",
+                    },
+                ),
+                "image_color": (
+                    ["white", "black", "gray", "red", "green", "blue"],
+                    {"default": "white"},
+                ),
+                "batch": (
+                    "INT",
+                    {"default": 1, "min": 1, "max": 16, "label": "Batch 数量"},
+                ),
+                "latent_type": (
+                    latent_type_options,
+                    {"default": "standard", "label": "Latent类型"},
+                ),
             },
             "optional": {},
         }
@@ -60,7 +110,9 @@ class EmptyUnitGenerator_UTK:
     RETURN_NAMES = ("image", "mask", "latent", "width", "height")
     FUNCTION = "generate"
 
-    def generate(self, width, height, ratio, scale, divisor, image_color, batch, latent_type):
+    def generate(
+        self, width, height, ratio, scale, divisor, image_color, batch, latent_type
+    ):
         if ratio == "custom":
             w = width
             h = height
@@ -86,7 +138,10 @@ class EmptyUnitGenerator_UTK:
         color_rgb = COLOR_OPTIONS[image_color]
         images = []
         for _ in range(batch):
-            img = torch.from_numpy(np.array(Image.new("RGB", (w, h), color_rgb))).float() / 255.0
+            img = (
+                torch.from_numpy(np.array(Image.new("RGB", (w, h), color_rgb))).float()
+                / 255.0
+            )
             img = img.permute(2, 0, 1)
             images.append(img)
         images = torch.stack(images, dim=0).permute(0, 2, 3, 1)
@@ -99,10 +154,13 @@ class EmptyUnitGenerator_UTK:
             "ltx": 16,
         }.get(latent_type, 4)
         latent = {
-            "samples": torch.zeros([batch, latent_channels, h // 8, w // 8], dtype=torch.float32),
-            "batch_index_list": None
+            "samples": torch.zeros(
+                [batch, latent_channels, h // 8, w // 8], dtype=torch.float32
+            ),
+            "batch_index_list": None,
         }
         return images, masks, latent, w, h
+
 
 # Node mappings
 NODE_CLASS_MAPPINGS = {
@@ -111,4 +169,4 @@ NODE_CLASS_MAPPINGS = {
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "EmptyUnitGenerator_UTK": "Empty Unit Generator (UTK)",
-} 
+}

@@ -10,11 +10,18 @@ Display and preview nodes for various data types.
 
 import torch
 
+
 class Show_UTK:
     CATEGORY = "UniversalToolkit/Tools"
+
     @classmethod
     def INPUT_TYPES(cls):
-        return {"required": {"input": ("STRING", "INT", "FLOAT", "LIST", "MASK", "IMAGE", "LATENT")}}
+        return {
+            "required": {
+                "input": ("STRING", "INT", "FLOAT", "LIST", "MASK", "IMAGE", "LATENT")
+            }
+        }
+
     RETURN_TYPES = ("STRING", "INT", "FLOAT", "LIST", "MASK", "IMAGE", "LATENT")
     RETURN_NAMES = ("string", "int", "float", "list", "mask", "image", "latent")
     FUNCTION = "show"
@@ -38,6 +45,7 @@ class Show_UTK:
             outs[6] = input  # LATENT
         return tuple(outs)
 
+
 # Node mappings
 NODE_CLASS_MAPPINGS = {
     "Show_UTK": Show_UTK,
@@ -45,4 +53,4 @@ NODE_CLASS_MAPPINGS = {
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "Show_UTK": "Show (UTK)",
-} 
+}

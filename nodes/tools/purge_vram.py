@@ -8,13 +8,16 @@ Purge GPU memory to free up VRAM.
 :license: MIT, see LICENSE for more details.
 """
 
-import torch
 import gc
-from .logging_utils import log
+
+import torch
+
 from .any_type import AnyType
+from .logging_utils import log
 
 # 创建 AnyType 实例
 any = AnyType("*")
+
 
 def clear_memory():
     """Clear GPU memory"""
@@ -22,9 +25,10 @@ def clear_memory():
         torch.cuda.empty_cache()
     gc.collect()
 
+
 class PurgeVRAM_UTK:
     CATEGORY = "UniversalToolkit/Tools"
-    
+
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -33,8 +37,7 @@ class PurgeVRAM_UTK:
                 "purge_cache": ("BOOLEAN", {"default": True}),
                 "purge_models": ("BOOLEAN", {"default": True}),
             },
-            "optional": {
-            }
+            "optional": {},
         }
 
     RETURN_TYPES = (any,)
@@ -47,12 +50,14 @@ class PurgeVRAM_UTK:
         if purge_models:
             try:
                 import comfy.model_management
+
                 comfy.model_management.unload_all_models()
                 comfy.model_management.soft_empty_cache()
             except ImportError:
                 log("ComfyUI model management not available", message_type="warning")
         log("VRAM purged successfully", message_type="finish")
         return (anything,)
+
 
 # Node mappings
 NODE_CLASS_MAPPINGS = {
@@ -61,4 +66,4 @@ NODE_CLASS_MAPPINGS = {
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "PurgeVRAM_UTK": "Purge VRAM (UTK)",
-} 
+}

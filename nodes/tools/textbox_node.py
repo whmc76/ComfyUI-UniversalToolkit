@@ -8,6 +8,7 @@ TextBox Node (Prompt/参数传递)
 :license: MIT, see LICENSE for more details.
 """
 
+
 class TextBoxNode_UTK:
     @classmethod
     def INPUT_TYPES(cls):
@@ -26,10 +27,11 @@ class TextBoxNode_UTK:
     def textbox(self, text):
         return (text,)
 
+
 NODE_CLASS_MAPPINGS = {
     "TextBoxNode_UTK": TextBoxNode_UTK,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "TextBoxNode_UTK": "TextBox (UTK)",
-} 
+}

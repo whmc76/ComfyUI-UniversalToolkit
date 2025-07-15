@@ -1,5 +1,6 @@
 import torch
 
+
 class ThinkRemover_UTK:
     @classmethod
     def INPUT_TYPES(cls):
@@ -7,7 +8,7 @@ class ThinkRemover_UTK:
             "required": {
                 "text": ("STRING",),
             },
-            "optional": {}
+            "optional": {},
         }
 
     RETURN_TYPES = ("STRING", "STRING")
@@ -19,7 +20,7 @@ class ThinkRemover_UTK:
     def think_remover(self, text):
         cleared_content = text
         think_content = text
-        think_tag = '</think>'
+        think_tag = "</think>"
         # 检查是否包含'</think>'
         if think_tag in text.lower():
             end_index = text.lower().index(think_tag) + len(think_tag)
@@ -27,10 +28,11 @@ class ThinkRemover_UTK:
             cleared_content = text[end_index:].strip()
         return (cleared_content, think_content)
 
+
 NODE_CLASS_MAPPINGS = {
     "ThinkRemover_UTK": ThinkRemover_UTK,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "ThinkRemover_UTK": "Think Remover (UTK)",
-} 
+}

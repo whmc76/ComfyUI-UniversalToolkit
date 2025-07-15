@@ -11,9 +11,10 @@ Concatenates two images side by side or vertically with various options.
 import torch
 import torch.nn.functional as F
 
+
 class ImageConcatenate_UTK:
     CATEGORY = "UniversalToolkit/Image"
-    
+
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -21,26 +22,41 @@ class ImageConcatenate_UTK:
                 "image1": ("IMAGE",),
                 "image2": ("IMAGE",),
                 "direction": (
-                    [   'right',
-                        'down',
-                        'left',
-                        'up',
-                        'auto',
+                    [
+                        "right",
+                        "down",
+                        "left",
+                        "up",
+                        "auto",
                     ],
-                    {
-                    "default": 'auto'
-                    }),
+                    {"default": "auto"},
+                ),
                 "match_image_size": ("BOOLEAN", {"default": True}),
-                "max_size": ("INT", {"default": 4096, "min": 64, "max": 8192, "step": 64}),
+                "max_size": (
+                    "INT",
+                    {"default": 4096, "min": 64, "max": 8192, "step": 64},
+                ),
                 "gap": ("INT", {"default": 0, "min": 0, "max": 512, "step": 1}),
-                "background_color": (["black", "white", "gray", "transparent"], {"default": "black"}),
+                "background_color": (
+                    ["black", "white", "gray", "transparent"],
+                    {"default": "black"},
+                ),
             }
         }
-    
+
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "concatenate"
-    
-    def concatenate(self, image1, image2, direction, match_image_size, max_size, gap, background_color):
+
+    def concatenate(
+        self,
+        image1,
+        image2,
+        direction,
+        match_image_size,
+        max_size,
+        gap,
+        background_color,
+    ):
         # Check if the batch sizes are different
         batch_size1 = image1.shape[0]
         batch_size2 = image2.shape[0]
@@ -49,10 +65,18 @@ class ImageConcatenate_UTK:
         if batch_size1 != batch_size2:
             max_batch_size = max(batch_size1, batch_size2)
             if batch_size1 < max_batch_size:
-                last_image1 = image1[-1].unsqueeze(0).repeat(max_batch_size - batch_size1, 1, 1, 1)
+                last_image1 = (
+                    image1[-1]
+                    .unsqueeze(0)
+                    .repeat(max_batch_size - batch_size1, 1, 1, 1)
+                )
                 image1 = torch.cat([image1, last_image1], dim=0)
             if batch_size2 < max_batch_size:
-                last_image2 = image2[-1].unsqueeze(0).repeat(max_batch_size - batch_size2, 1, 1, 1)
+                last_image2 = (
+                    image2[-1]
+                    .unsqueeze(0)
+                    .repeat(max_batch_size - batch_size2, 1, 1, 1)
+                )
                 image2 = torch.cat([image2, last_image2], dim=0)
 
         # Get original dimensions
@@ -60,14 +84,18 @@ class ImageConcatenate_UTK:
         h2, w2 = image2.shape[1:3]
 
         # If direction is auto, determine the best direction based on image dimensions
-        if direction == 'auto':
+        if direction == "auto":
             horizontal_ratio = (w1 + w2) / max(h1, h2)
             vertical_ratio = max(w1, w2) / (h1 + h2)
-            direction = 'right' if abs(horizontal_ratio - 1) <= abs(vertical_ratio - 1) else 'down'
+            direction = (
+                "right"
+                if abs(horizontal_ratio - 1) <= abs(vertical_ratio - 1)
+                else "down"
+            )
 
         # Match image sizes if requested
         if match_image_size:
-            if direction in ['right', 'left', 'auto']:
+            if direction in ["right", "left", "auto"]:
                 target_height = max(h1, h2)
                 if h1 < target_height:
                     scale = target_height / h1
@@ -75,8 +103,8 @@ class ImageConcatenate_UTK:
                     image1 = torch.nn.functional.interpolate(
                         image1.permute(0, 3, 1, 2),
                         size=(target_height, new_width),
-                        mode='bilinear',
-                        align_corners=False
+                        mode="bilinear",
+                        align_corners=False,
                     ).permute(0, 2, 3, 1)
                 if h2 < target_height:
                     scale = target_height / h2
@@ -84,8 +112,8 @@ class ImageConcatenate_UTK:
                     image2 = torch.nn.functional.interpolate(
                         image2.permute(0, 3, 1, 2),
                         size=(target_height, new_width),
-                        mode='bilinear',
-                        align_corners=False
+                        mode="bilinear",
+                        align_corners=False,
                     ).permute(0, 2, 3, 1)
             else:  # up, down
                 target_width = max(w1, w2)
@@ -95,8 +123,8 @@ class ImageConcatenate_UTK:
                     image1 = torch.nn.functional.interpolate(
                         image1.permute(0, 3, 1, 2),
                         size=(new_height, target_width),
-                        mode='bilinear',
-                        align_corners=False
+                        mode="bilinear",
+                        align_corners=False,
                     ).permute(0, 2, 3, 1)
                 if w2 < target_width:
                     scale = target_width / w2
@@ -104,8 +132,8 @@ class ImageConcatenate_UTK:
                     image2 = torch.nn.functional.interpolate(
                         image2.permute(0, 3, 1, 2),
                         size=(new_height, target_width),
-                        mode='bilinear',
-                        align_corners=False
+                        mode="bilinear",
+                        align_corners=False,
                     ).permute(0, 2, 3, 1)
 
         # Update dimensions after scaling
@@ -113,7 +141,7 @@ class ImageConcatenate_UTK:
         h2, w2 = image2.shape[1:3]
 
         # Calculate final dimensions with gap
-        if direction in ['right', 'left']:
+        if direction in ["right", "left"]:
             final_height = max(h1, h2)
             final_width = w1 + w2 + (gap if gap > 0 else 0)
         else:  # up, down
@@ -130,18 +158,18 @@ class ImageConcatenate_UTK:
             image1 = torch.nn.functional.interpolate(
                 image1.permute(0, 3, 1, 2),
                 size=(new_h1, new_w1),
-                mode='bilinear',
-                align_corners=False
+                mode="bilinear",
+                align_corners=False,
             ).permute(0, 2, 3, 1)
             image2 = torch.nn.functional.interpolate(
                 image2.permute(0, 3, 1, 2),
                 size=(new_h2, new_w2),
-                mode='bilinear',
-                align_corners=False
+                mode="bilinear",
+                align_corners=False,
             ).permute(0, 2, 3, 1)
             h1, w1 = image1.shape[1:3]
             h2, w2 = image2.shape[1:3]
-            if direction in ['right', 'left']:
+            if direction in ["right", "left"]:
                 final_height = max(h1, h2)
                 final_width = w1 + w2 + (gap if gap > 0 else 0)
             else:
@@ -153,36 +181,59 @@ class ImageConcatenate_UTK:
         channels_image2 = image2.shape[-1]
         if channels_image1 != channels_image2:
             if channels_image1 < channels_image2:
-                alpha_channel = torch.ones((*image1.shape[:-1], channels_image2 - channels_image1), device=image1.device)
+                alpha_channel = torch.ones(
+                    (*image1.shape[:-1], channels_image2 - channels_image1),
+                    device=image1.device,
+                )
                 image1 = torch.cat((image1, alpha_channel), dim=-1)
             else:
-                alpha_channel = torch.ones((*image2.shape[:-1], channels_image1 - channels_image2), device=image2.device)
+                alpha_channel = torch.ones(
+                    (*image2.shape[:-1], channels_image1 - channels_image2),
+                    device=image2.device,
+                )
                 image2 = torch.cat((image2, alpha_channel), dim=-1)
 
         # 创建输出张量，batch维度与输入一致
         batch_size = image1.shape[0]
         if gap > 0:
             if background_color == "transparent":
-                output = torch.zeros((batch_size, final_height, final_width, image1.shape[-1]), dtype=image1.dtype, device=image1.device)
+                output = torch.zeros(
+                    (batch_size, final_height, final_width, image1.shape[-1]),
+                    dtype=image1.dtype,
+                    device=image1.device,
+                )
             else:
-                color_value = 1.0 if background_color == "white" else 0.0 if background_color == "black" else 0.5
-                output = torch.full((batch_size, final_height, final_width, image1.shape[-1]), color_value, dtype=image1.dtype, device=image1.device)
+                color_value = (
+                    1.0
+                    if background_color == "white"
+                    else 0.0 if background_color == "black" else 0.5
+                )
+                output = torch.full(
+                    (batch_size, final_height, final_width, image1.shape[-1]),
+                    color_value,
+                    dtype=image1.dtype,
+                    device=image1.device,
+                )
         else:
             # gap=0时，保持原有逻辑，默认黑色背景
-            output = torch.zeros((batch_size, final_height, final_width, image1.shape[-1]), dtype=image1.dtype, device=image1.device)
+            output = torch.zeros(
+                (batch_size, final_height, final_width, image1.shape[-1]),
+                dtype=image1.dtype,
+                device=image1.device,
+            )
 
         # 计算放置位置
-        if direction == 'right':
+        if direction == "right":
             x1 = 0
             x2 = w1 + (gap if gap > 0 else 0)
             y1 = (final_height - h1) // 2
             y2 = (final_height - h2) // 2
-        elif direction == 'left':
+        elif direction == "left":
             x1 = w2 + (gap if gap > 0 else 0)
             x2 = 0
             y1 = (final_height - h1) // 2
             y2 = (final_height - h2) // 2
-        elif direction == 'down':
+        elif direction == "down":
             x1 = (final_width - w1) // 2
             x2 = (final_width - w2) // 2
             y1 = 0
@@ -194,10 +245,11 @@ class ImageConcatenate_UTK:
             y2 = 0
 
         # 批量放置图片
-        output[:, y1:y1+h1, x1:x1+w1] = image1
-        output[:, y2:y2+h2, x2:x2+w2] = image2
+        output[:, y1 : y1 + h1, x1 : x1 + w1] = image1
+        output[:, y2 : y2 + h2, x2 : x2 + w2] = image2
 
         return (output,)
+
 
 # Node mappings
 NODE_CLASS_MAPPINGS = {
@@ -206,4 +258,4 @@ NODE_CLASS_MAPPINGS = {
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "ImageConcatenate_UTK": "Image Concatenate (UTK)",
-} 
+}

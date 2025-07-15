@@ -8,6 +8,7 @@ Text Concatenate Node (UTK)
 :license: MIT, see LICENSE for more details.
 """
 
+
 class TextConcatenate_UTK:
     @classmethod
     def INPUT_TYPES(cls):
@@ -21,7 +22,7 @@ class TextConcatenate_UTK:
                 "text_b": ("STRING", {"forceInput": True}),
                 "text_c": ("STRING", {"forceInput": True}),
                 "text_d": ("STRING", {"forceInput": True}),
-            }
+            },
         }
 
     RETURN_TYPES = ("STRING",)
@@ -45,10 +46,11 @@ class TextConcatenate_UTK:
         merged_text = delimiter.join(text_inputs)
         return (merged_text,)
 
+
 NODE_CLASS_MAPPINGS = {
     "TextConcatenate_UTK": TextConcatenate_UTK,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "TextConcatenate_UTK": "Text Concatenate (UTK)",
-} 
+}

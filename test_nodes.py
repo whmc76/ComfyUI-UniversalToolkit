@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 
 # 添加路径
 sys.path.append('.')
@@ -8,7 +8,8 @@ print("🔧 测试所有修复后的节点...\n")
 
 # 测试图像拼接节点
 try:
-    from nodes.image.image_concatenate import NODE_CLASS_MAPPINGS as CONCAT_MAPPINGS
+    from nodes.image.image_concatenate import \
+        NODE_CLASS_MAPPINGS as CONCAT_MAPPINGS
     print("✅ ImageConcatenate_UTK 节点映射:")
     for k, v in CONCAT_MAPPINGS.items():
         print(f"  {k}: {v.__name__}")
@@ -16,7 +17,8 @@ except Exception as e:
     print(f"❌ 导入 ImageConcatenate_UTK 失败: {e}")
 
 try:
-    from nodes.image.image_concatenate_multi import NODE_CLASS_MAPPINGS as CONCAT_MULTI_MAPPINGS
+    from nodes.image.image_concatenate_multi import \
+        NODE_CLASS_MAPPINGS as CONCAT_MULTI_MAPPINGS
     print("\n✅ ImageConcatenateMulti_UTK 节点映射:")
     for k, v in CONCAT_MULTI_MAPPINGS.items():
         print(f"  {k}: {v.__name__}")
@@ -25,7 +27,8 @@ except Exception as e:
 
 # 测试 ImitationHueNode_UTK
 try:
-    from nodes.image.imitation_hue_node import NODE_CLASS_MAPPINGS as IMITATION_MAPPINGS
+    from nodes.image.imitation_hue_node import \
+        NODE_CLASS_MAPPINGS as IMITATION_MAPPINGS
     print("\n✅ ImitationHueNode_UTK 节点映射:")
     for k, v in IMITATION_MAPPINGS.items():
         print(f"  {k}: {v.__name__}")

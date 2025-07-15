@@ -13,12 +13,23 @@ import torch.nn.functional as F
 
 MAX_RESOLUTION = 8192
 
+
 class ImagePadForOutpaintMasked_UTK:
     CATEGORY = "UniversalToolkit/Image"
 
     @classmethod
     def INPUT_TYPES(cls):
-        color_options = ["gray", "white", "black", "red", "green", "blue", "yellow", "cyan", "magenta"]
+        color_options = [
+            "gray",
+            "white",
+            "black",
+            "red",
+            "green",
+            "blue",
+            "yellow",
+            "cyan",
+            "magenta",
+        ]
         return {
             "required": {
                 "image": ("IMAGE",),
@@ -27,18 +38,32 @@ class ImagePadForOutpaintMasked_UTK:
                 "top": ("INT", {"default": 0, "min": 0, "max": 1000, "step": 1}),
                 "right": ("INT", {"default": 0, "min": 0, "max": 1000, "step": 1}),
                 "bottom": ("INT", {"default": 0, "min": 0, "max": 1000, "step": 1}),
-                "feathering": ("INT", {"default": 0, "min": 0, "max": MAX_RESOLUTION, "step": 1}),
+                "feathering": (
+                    "INT",
+                    {"default": 0, "min": 0, "max": MAX_RESOLUTION, "step": 1},
+                ),
                 "background_color": (color_options, {"default": "gray"}),
             },
             "optional": {
                 "mask": ("MASK",),
-            }
+            },
         }
 
     RETURN_TYPES = ("IMAGE", "MASK")
     FUNCTION = "expand_image"
 
-    def expand_image(self, image, data_mode, left, top, right, bottom, feathering, background_color, mask=None):
+    def expand_image(
+        self,
+        image,
+        data_mode,
+        left,
+        top,
+        right,
+        bottom,
+        feathering,
+        background_color,
+        mask=None,
+    ):
         B, H, W, C = image.size()
         # 处理 pad 参数
         if data_mode == "percent":
@@ -60,20 +85,24 @@ class ImagePadForOutpaintMasked_UTK:
         }
         bg_rgb = color_map.get(background_color, [0.5, 0.5, 0.5])
         # 新图像
-        new_image = torch.ones((B, H + top + bottom, W + left + right, C), dtype=torch.float32) 
+        new_image = torch.ones(
+            (B, H + top + bottom, W + left + right, C), dtype=torch.float32
+        )
         for i in range(C):
             new_image[:, :, :, i] = bg_rgb[i]
-        new_image[:, top:top + H, left:left + W, :] = image
+        new_image[:, top : top + H, left : left + W, :] = image
         # 掩码逻辑与原实现一致
         if mask is not None:
             if torch.allclose(mask, torch.zeros_like(mask)):
                 print("Warning: The incoming mask is fully black. Handling it as None.")
                 mask = None
         if mask is None:
-            new_mask = torch.ones((B, H + top + bottom, W + left + right), dtype=torch.float32)
+            new_mask = torch.ones(
+                (B, H + top + bottom, W + left + right), dtype=torch.float32
+            )
             t = torch.zeros((B, H, W), dtype=torch.float32)
         else:
-            mask = F.pad(mask, (left, right, top, bottom), mode='constant', value=0)
+            mask = F.pad(mask, (left, right, top, bottom), mode="constant", value=0)
             mask = 1 - mask
             t = torch.zeros_like(mask)
         if feathering > 0 and feathering * 2 < H and feathering * 2 < W:
@@ -92,10 +121,17 @@ class ImagePadForOutpaintMasked_UTK:
                     else:
                         t[:, top + i, left + j] = v * v
         if mask is None:
-            new_mask[:, top:top + H, left:left + W] = t
-            return (new_image, new_mask,)
+            new_mask[:, top : top + H, left : left + W] = t
+            return (
+                new_image,
+                new_mask,
+            )
         else:
-            return (new_image, mask,)
+            return (
+                new_image,
+                mask,
+            )
+
 
 # Node mappings
 NODE_CLASS_MAPPINGS = {
@@ -104,4 +140,4 @@ NODE_CLASS_MAPPINGS = {
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "ImagePadForOutpaintMasked_UTK": "Image Pad For Outpaint Masked (UTK)",
-} 
+}

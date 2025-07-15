@@ -1,12 +1,14 @@
 import ast
 import math
-import random
 import operator as op
+import random
+
 
 # Hack: string type that is always equal in not equal comparisons
 class AnyType(str):
     def __ne__(self, __value: object) -> bool:
         return False
+
 
 any = AnyType("*")
 
@@ -27,90 +29,79 @@ operators = {
     ast.Or: lambda a, b: 1 if a or b else 0,
     ast.Not: lambda a: 0 if a else 1,
     ast.RShift: op.rshift,
-    ast.LShift: op.lshift
+    ast.LShift: op.lshift,
 }
 
 functions = {
     "round": {
         "args": (1, 2),
-        "call": lambda a, b = None: round(a, b),
-        "hint": "number, dp? = 0"
+        "call": lambda a, b=None: round(a, b),
+        "hint": "number, dp? = 0",
     },
-    "ceil": {
-        "args": (1, 1),
-        "call": lambda a: math.ceil(a),
-        "hint": "number"
-    },
-    "floor": {
-        "args": (1, 1),
-        "call": lambda a: math.floor(a),
-        "hint": "number"
-    },
-    "min": {
-        "args": (2, None),
-        "call": lambda *args: min(*args),
-        "hint": "...numbers"
-    },
-    "max": {
-        "args": (2, None),
-        "call": lambda *args: max(*args),
-        "hint": "...numbers"
-    },
+    "ceil": {"args": (1, 1), "call": lambda a: math.ceil(a), "hint": "number"},
+    "floor": {"args": (1, 1), "call": lambda a: math.floor(a), "hint": "number"},
+    "min": {"args": (2, None), "call": lambda *args: min(*args), "hint": "...numbers"},
+    "max": {"args": (2, None), "call": lambda *args: max(*args), "hint": "...numbers"},
     "randomint": {
         "args": (2, 2),
         "call": lambda a, b: random.randint(a, b),
-        "hint": "min, max"
+        "hint": "min, max",
     },
     "randomchoice": {
         "args": (2, None),
         "call": lambda *args: random.choice(args),
-        "hint": "...numbers"
+        "hint": "...numbers",
     },
-    "sqrt": {
-        "args": (1, 1),
-        "call": lambda a: math.sqrt(a),
-        "hint": "number"
-    },
-    "int": {
-        "args": (1, 1),
-        "call": lambda a = None: int(a),
-        "hint": "number"
-    },
+    "sqrt": {"args": (1, 1), "call": lambda a: math.sqrt(a), "hint": "number"},
+    "int": {"args": (1, 1), "call": lambda a=None: int(a), "hint": "number"},
     "iif": {
         "args": (3, 3),
-        "call": lambda a, b, c = None: b if a else c,
-        "hint": "value, truepart, falsepart"
+        "call": lambda a, b, c=None: b if a else c,
+        "hint": "value, truepart, falsepart",
     },
 }
 
-autocompleteWords = list({
-    "text": x,
-    "value": f"{x}()",
-    "showValue": False,
-    "hint": f"{functions[x]['hint']}",
-    "caretOffset": -1
-} for x in functions.keys())
+autocompleteWords = list(
+    {
+        "text": x,
+        "value": f"{x}()",
+        "showValue": False,
+        "hint": f"{functions[x]['hint']}",
+        "caretOffset": -1,
+    }
+    for x in functions.keys()
+)
+
 
 class MathExpression_UTK:
     @classmethod
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "expression": ("STRING", {"multiline": True, "dynamicPrompts": False, "pysssss.autocomplete": {
-                    "words": autocompleteWords,
-                    "separator": ""
-                }}),
+                "expression": (
+                    "STRING",
+                    {
+                        "multiline": True,
+                        "dynamicPrompts": False,
+                        "pysssss.autocomplete": {
+                            "words": autocompleteWords,
+                            "separator": "",
+                        },
+                    },
+                ),
             },
             "optional": {
-                "a": (any, ),
+                "a": (any,),
                 "b": (any,),
-                "c": (any, ),
+                "c": (any,),
             },
-            "hidden": {"extra_pnginfo": "EXTRA_PNGINFO",
-                       "prompt": "PROMPT"},
+            "hidden": {"extra_pnginfo": "EXTRA_PNGINFO", "prompt": "PROMPT"},
         }
 
-    RETURN_TYPES = ("INT", "FLOAT", )
+    RETURN_TYPES = (
+        "INT",
+        "FLOAT",
+    )
     FUNCTION = "evaluate"
     CATEGORY = "UniversalToolkit/Tools"
     OUTPUT_NODE = True
@@ -122,7 +113,9 @@ class MathExpression_UTK:
         return expression
 
     def get_widget_value(self, extra_pnginfo, prompt, node_name, widget_name):
-        workflow = extra_pnginfo["workflow"] if "workflow" in extra_pnginfo else { "nodes": [] }
+        workflow = (
+            extra_pnginfo["workflow"] if "workflow" in extra_pnginfo else {"nodes": []}
+        )
         node_id = None
         for node in workflow["nodes"]:
             name = node["type"]
@@ -143,7 +136,9 @@ class MathExpression_UTK:
                 if widget_name in values["inputs"]:
                     value = values["inputs"][widget_name]
                     if isinstance(value, list):
-                        raise ValueError("Converted widgets are not supported via named reference, use the inputs instead.")
+                        raise ValueError(
+                            "Converted widgets are not supported via named reference, use the inputs instead."
+                        )
                     return value
             raise NameError(f"Widget not found: {node_name}.{widget_name}")
         raise NameError(f"Node not found: {node_name}.{widget_name}")
@@ -161,8 +156,8 @@ class MathExpression_UTK:
             return target.shape[1]
 
     def evaluate(self, expression, prompt, extra_pnginfo={}, a=None, b=None, c=None):
-        expression = expression.replace('\n', ' ').replace('\r', '')
-        node = ast.parse(expression, mode='eval').body
+        expression = expression.replace("\n", " ").replace("\r", "")
+        node = ast.parse(expression, mode="eval").body
 
         lookup = {"a": a, "b": b, "c": c}
 
@@ -187,7 +182,9 @@ class MathExpression_UTK:
                     if node.attr == "width" or node.attr == "height":
                         return self.get_size(lookup[node.value.id], node.attr)
 
-                return self.get_widget_value(extra_pnginfo, prompt, node.value.id, node.attr)
+                return self.get_widget_value(
+                    extra_pnginfo, prompt, node.value.id, node.attr
+                )
             elif isinstance(node, ast.Name):
                 if node.id in lookup:
                     val = lookup[node.id]
@@ -195,19 +192,23 @@ class MathExpression_UTK:
                         return val
                     else:
                         raise TypeError(
-                            f"Compex types (LATENT/IMAGE) need to reference their width/height, e.g. {node.id}.width")
+                            f"Compex types (LATENT/IMAGE) need to reference their width/height, e.g. {node.id}.width"
+                        )
                 raise NameError(f"Name not found: {node.id}")
             elif isinstance(node, ast.Call):
                 if node.func.id in functions:
                     fn = functions[node.func.id]
                     l = len(node.args)
-                    if l < fn["args"][0] or (fn["args"][1] is not None and l > fn["args"][1]):
+                    if l < fn["args"][0] or (
+                        fn["args"][1] is not None and l > fn["args"][1]
+                    ):
                         if fn["args"][1] is None:
                             toErr = " or more"
                         else:
                             toErr = f" to {fn['args'][1]}"
                         raise SyntaxError(
-                            f"Invalid function call: {node.func.id} requires {fn['args'][0]}{toErr} arguments")
+                            f"Invalid function call: {node.func.id} requires {fn['args'][0]}{toErr} arguments"
+                        )
                     args = []
                     for arg in node.args:
                         args.append(eval_expr(arg))
@@ -229,12 +230,20 @@ class MathExpression_UTK:
                 if isinstance(node.ops[0], ast.LtE):
                     return 1 if l <= r else 0
                 raise NotImplementedError(
-                    "Operator " + node.ops[0].__class__.__name__ + " not supported.")
+                    "Operator " + node.ops[0].__class__.__name__ + " not supported."
+                )
             else:
                 raise TypeError(node)
 
         r = eval_expr(node)
-        return {"ui": {"value": [r]}, "result": (int(r), float(r),)}
+        return {
+            "ui": {"value": [r]},
+            "result": (
+                int(r),
+                float(r),
+            ),
+        }
+
 
 NODE_CLASS_MAPPINGS = {
     "MathExpression_UTK": MathExpression_UTK,
@@ -242,4 +251,4 @@ NODE_CLASS_MAPPINGS = {
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "MathExpression_UTK": "Math Expression (UTK)",
-} 
+}

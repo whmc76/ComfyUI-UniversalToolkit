@@ -10,54 +10,58 @@ Combines RGB image with mask to create RGBA image.
 
 import torch
 from PIL import Image
-from ..image_utils import tensor2pil, pil2tensor
 
-def log(message, message_type='info'):
+from ..image_utils import pil2tensor, tensor2pil
+
+
+def log(message, message_type="info"):
     """简单的日志函数"""
-    if message_type == 'error':
+    if message_type == "error":
         print(f"❌ Error: {message}")
-    elif message_type == 'warning':
+    elif message_type == "warning":
         print(f"⚠️ Warning: {message}")
-    elif message_type == 'finish':
+    elif message_type == "finish":
         print(f"✅ {message}")
     else:
         print(f"ℹ️ {message}")
 
+
 def image_channel_split(image, mode):
     """Split image into channels"""
-    if mode == 'RGB':
+    if mode == "RGB":
         return image.split()
-    elif mode == 'RGBA':
+    elif mode == "RGBA":
         return image.split()
     else:
         return image.split()
+
 
 def image_channel_merge(channels, mode):
     """Merge channels into image"""
-    if mode == 'RGBA':
-        return Image.merge('RGBA', channels)
-    elif mode == 'RGB':
-        return Image.merge('RGB', channels)
+    if mode == "RGBA":
+        return Image.merge("RGBA", channels)
+    elif mode == "RGB":
+        return Image.merge("RGB", channels)
     else:
         return Image.merge(mode, channels)
 
+
 class ImageCombineAlpha_UTK:
     CATEGORY = "UniversalToolkit/Image"
-    
+
     @classmethod
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "RGB_image": ("IMAGE", ),  #
+                "RGB_image": ("IMAGE",),  #
                 "mask": ("MASK",),  #
             },
-            "optional": {
-            }
+            "optional": {},
         }
 
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("RGBA_image",)
-    FUNCTION = 'image_combine_alpha'
+    FUNCTION = "image_combine_alpha"
 
     def image_combine_alpha(self, RGB_image, mask):
 
@@ -76,13 +80,19 @@ class ImageCombineAlpha_UTK:
         for i in range(max_batch):
             _image = input_images[i] if i < len(input_images) else input_images[-1]
             _mask = input_masks[i] if i < len(input_masks) else input_masks[-1]
-            r, g, b = image_channel_split(tensor2pil(_image).convert('RGB'), 'RGB')
-            ret_image = image_channel_merge((r, g, b, tensor2pil(_mask).convert('L')), 'RGBA')
+            r, g, b = image_channel_split(tensor2pil(_image).convert("RGB"), "RGB")
+            ret_image = image_channel_merge(
+                (r, g, b, tensor2pil(_mask).convert("L")), "RGBA"
+            )
 
             ret_images.append(pil2tensor(ret_image))
 
-        log(f"ImageCombineAlpha_UTK Processed {len(ret_images)} image(s).", message_type='finish')
+        log(
+            f"ImageCombineAlpha_UTK Processed {len(ret_images)} image(s).",
+            message_type="finish",
+        )
         return (torch.cat(ret_images, dim=0),)
+
 
 # Node mappings
 NODE_CLASS_MAPPINGS = {
@@ -91,4 +101,4 @@ NODE_CLASS_MAPPINGS = {
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "ImageCombineAlpha_UTK": "Image Combine Alpha (UTK)",
-} 
+}

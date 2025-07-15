@@ -12,8 +12,10 @@ import torch
 
 FLOAT_MAX = 99999999999999999.0
 
+
 class AudioCropProcessUTK:
     CATEGORY = "UniversalToolkit/Audio"
+
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -21,11 +23,15 @@ class AudioCropProcessUTK:
                 "audio": ("AUDIO",),
                 "gain_db": ("FLOAT", {"default": 0, "min": -100, "max": 100}),
                 "offset_seconds": ("FLOAT", {"default": 0, "min": 0, "max": FLOAT_MAX}),
-                "duration_seconds": ("FLOAT", {"default": 0, "min": 0, "max": FLOAT_MAX}),
+                "duration_seconds": (
+                    "FLOAT",
+                    {"default": 0, "min": 0, "max": FLOAT_MAX},
+                ),
                 "resample_to_hz": ("FLOAT", {"default": 0, "min": 0, "max": FLOAT_MAX}),
                 "make_stereo": ("BOOLEAN", {"default": True}),
             }
         }
+
     RETURN_TYPES = ("AUDIO", "INT", "INT", "FLOAT")
     RETURN_NAMES = ("audio", "sample_rate", "channels", "duration")
     FUNCTION = "execute"
@@ -47,12 +53,19 @@ class AudioCropProcessUTK:
         sample_rate = int(audio["sample_rate"])
         # 裁剪offset和duration
         start = int(offset_seconds * sample_rate)
-        end = int(start + duration_seconds * sample_rate) if duration_seconds > 0 else waveform.shape[2]
+        end = (
+            int(start + duration_seconds * sample_rate)
+            if duration_seconds > 0
+            else waveform.shape[2]
+        )
         waveform = waveform[:, :, start:end]
         # 重采样
         if resample_to_hz > 0 and int(resample_to_hz) != sample_rate:
             import torchaudio
-            waveform = torchaudio.functional.resample(waveform, sample_rate, int(resample_to_hz))
+
+            waveform = torchaudio.functional.resample(
+                waveform, sample_rate, int(resample_to_hz)
+            )
             sample_rate = int(resample_to_hz)
         # 增益
         if gain_db != 0.0:
@@ -62,10 +75,20 @@ class AudioCropProcessUTK:
         if make_stereo and waveform.shape[1] == 1:
             waveform = torch.cat([waveform, waveform], dim=1)
         elif make_stereo and waveform.shape[1] != 2:
-            raise ValueError(f"Input audio has {waveform.shape[1]} channels, cannot convert to stereo (2 channels)")
+            raise ValueError(
+                f"Input audio has {waveform.shape[1]} channels, cannot convert to stereo (2 channels)"
+            )
         channels = int(waveform.shape[1])
-        duration_val = float(waveform.shape[2] / sample_rate) if sample_rate > 0 else 0.0
-        return ({"sample_rate": sample_rate, "waveform": waveform}, sample_rate, channels, duration_val)
+        duration_val = (
+            float(waveform.shape[2] / sample_rate) if sample_rate > 0 else 0.0
+        )
+        return (
+            {"sample_rate": sample_rate, "waveform": waveform},
+            sample_rate,
+            channels,
+            duration_val,
+        )
+
 
 # Node mappings
 NODE_CLASS_MAPPINGS = {
@@ -74,4 +97,4 @@ NODE_CLASS_MAPPINGS = {
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "AudioCropProcessUTK": "Audio Crop Process (UTK)",
-} 
+}
