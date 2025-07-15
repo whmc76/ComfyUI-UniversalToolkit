@@ -1,0 +1,175 @@
+name: CI - Code Quality & Testing
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  code-quality:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install flake8 black isort mypy
+      
+      - name: Check code formatting with Black
+        run: |
+          black --check --diff .
+      
+      - name: Check import sorting with isort
+        run: |
+          isort --check-only --diff .
+      
+      - name: Lint with flake8
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+      
+      - name: Type checking with mypy
+        run: |
+          mypy --ignore-missing-imports nodes/
+
+  test-nodes:
+    name: Test Node Import & Functionality
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+      
+      - name: Test node imports
+        run: |
+          python test_nodes.py
+          echo "✅ All nodes imported successfully on Python ${{ matrix.python-version }}"
+      
+      - name: Run basic functionality tests
+        run: |
+          python -c "
+          import sys
+          sys.path.append('.')
+          from __init__ import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
+          print(f'✅ Found {len(NODE_CLASS_MAPPINGS)} nodes')
+          print(f'✅ Found {len(NODE_DISPLAY_NAME_MAPPINGS)} display names')
+          for node_name, node_class in NODE_CLASS_MAPPINGS.items():
+              print(f'  - {node_name}: {node_class.__name__}')
+          "
+
+  security-check:
+    name: Security Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install security tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit safety
+      
+      - name: Run security scan with bandit
+        run: |
+          bandit -r . -f json -o bandit-report.json || true
+          bandit -r . -f txt -o bandit-report.txt || true
+      
+      - name: Check dependencies for known vulnerabilities
+        run: |
+          safety check --json --output safety-report.json || true
+          safety check --text --output safety-report.txt || true
+
+  documentation-check:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      
+      - name: Check README formatting
+        run: |
+          if [ -f README.md ]; then
+            echo "✅ README.md exists"
+            # Check for broken links (basic check)
+            grep -o 'https://[^)]*' README.md | head -5
+          else
+            echo "❌ README.md missing"
+            exit 1
+          fi
+      
+      - name: Check pyproject.toml
+        run: |
+          if [ -f pyproject.toml ]; then
+            echo "✅ pyproject.toml exists"
+            # Validate basic structure
+            grep -q '^\[project\]' pyproject.toml || exit 1
+            grep -q '^version = ' pyproject.toml || exit 1
+            echo "✅ pyproject.toml structure valid"
+          else
+            echo "❌ pyproject.toml missing"
+            exit 1
+          fi
+      
+      - name: Check version consistency
+        run: |
+          PYPROJECT_VERSION=$(grep '^version = ' pyproject.toml | cut -d'"' -f2)
+          INIT_VERSION=$(grep '__version__ = ' __init__.py | cut -d'"' -f2)
+          if [ "$PYPROJECT_VERSION" = "$INIT_VERSION" ]; then
+            echo "✅ Version consistency: $PYPROJECT_VERSION"
+          else
+            echo "❌ Version mismatch: pyproject.toml ($PYPROJECT_VERSION) != __init__.py ($INIT_VERSION)"
+            exit 1
+          fi
+
+  notify:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [code-quality, test-nodes, security-check, documentation-check]
+    if: failure()
+    steps:
+      - name: Notify on failure
+        run: |
+          echo "❌ One or more CI checks failed"
+          echo "Please check the workflow run for details:"
+          echo "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" 

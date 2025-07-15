@@ -8,13 +8,21 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.1.9"
+__version__ = "1.2.0"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.2.0": [
+        "版本更新发布：",
+        "- 全面更新README文档，提供详细的功能介绍和使用指南",
+        "- 优化项目结构和文档组织",
+        "- 完善节点功能说明和分类",
+        "- 更新版本推送代码，确保发布流程顺畅",
+        "- 提升项目整体文档质量和用户体验"
+    ],
     "1.1.9": [
         "升级 LoadKontextPresets_UTK 节点功能：",
         "- 新增用户提示输入参数（user_prompt），支持多行文本输入",

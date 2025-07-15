@@ -1,0 +1,197 @@
+name: Version Management
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+      release_notes:
+        description: 'Release notes (optional)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  bump-version:
+    name: Bump Version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install semver
+      
+      - name: Get current version
+        id: current-version
+        run: |
+          CURRENT_VERSION=$(grep '^version = ' pyproject.toml | cut -d'"' -f2)
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+      
+      - name: Calculate new version
+        id: new-version
+        run: |
+          CURRENT_VERSION="${{ steps.current-version.outputs.current_version }}"
+          VERSION_TYPE="${{ github.event.inputs.version_type }}"
+          
+          # Parse version components
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+          
+          case $VERSION_TYPE in
+            "major")
+              NEW_MAJOR=$((major + 1))
+              NEW_MINOR=0
+              NEW_PATCH=0
+              ;;
+            "minor")
+              NEW_MAJOR=$major
+              NEW_MINOR=$((minor + 1))
+              NEW_PATCH=0
+              ;;
+            "patch")
+              NEW_MAJOR=$major
+              NEW_MINOR=$minor
+              NEW_PATCH=$((patch + 1))
+              ;;
+          esac
+          
+          NEW_VERSION="$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
+      
+      - name: Update pyproject.toml
+        run: |
+          NEW_VERSION="${{ steps.new-version.outputs.new_version }}"
+          sed -i "s/^version = \".*\"/version = \"$NEW_VERSION\"/" pyproject.toml
+          echo "Updated pyproject.toml to version $NEW_VERSION"
+      
+      - name: Update __init__.py
+        run: |
+          NEW_VERSION="${{ steps.new-version.outputs.new_version }}"
+          sed -i "s/__version__ = \".*\"/__version__ = \"$NEW_VERSION\"/" __init__.py
+          echo "Updated __init__.py to version $NEW_VERSION"
+      
+      - name: Update README.md version badge
+        run: |
+          NEW_VERSION="${{ steps.new-version.outputs.new_version }}"
+          sed -i "s/badge\/version-.*-blue/badge\/version-$NEW_VERSION-blue/" README.md
+          echo "Updated README.md version badge to $NEW_VERSION"
+      
+      - name: Create version bump commit
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add pyproject.toml __init__.py README.md
+          git commit -m "chore: bump version to ${{ steps.new-version.outputs.new_version }}"
+          git tag -a "v${{ steps.new-version.outputs.new_version }}" -m "Version ${{ steps.new-version.outputs.new_version }}"
+      
+      - name: Push changes
+        run: |
+          git push origin HEAD:${{ github.ref }}
+          git push origin "v${{ steps.new-version.outputs.new_version }}"
+      
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.new-version.outputs.new_version }}
+          release_name: ComfyUI-UniversalToolkit v${{ steps.new-version.outputs.new_version }}
+          body: |
+            ## 🎉 ComfyUI-UniversalToolkit v${{ steps.new-version.outputs.new_version }} 发布
+            
+            ### 📋 版本信息
+            - **版本类型**: ${{ github.event.inputs.version_type }}
+            - **发布时间**: $(date -u +"%Y-%m-%d %H:%M UTC")
+            - **提交**: ${{ github.sha }}
+            
+            ### 📝 更新说明
+            ${{ github.event.inputs.release_notes || '请查看提交历史了解详细更新内容。' }}
+            
+            ### 📦 安装方式
+            1. **ComfyUI-Manager安装（推荐）**：
+               - 在ComfyUI中打开ComfyUI-Manager
+               - 搜索 "ComfyUI-UniversalToolkit"
+               - 点击安装
+            
+            2. **手动安装**：
+               ```bash
+               git clone https://github.com/whmc76/ComfyUI-UniversalToolkit.git
+               cd ComfyUI-UniversalToolkit
+               git checkout v${{ steps.new-version.outputs.new_version }}
+               pip install -r requirements.txt
+               ```
+            
+            ### 🎯 功能特性
+            - 🎨 图像处理：色彩迁移、图像拼接、尺寸调整、深度图模糊等
+            - 🎵 音频处理：音频加载、裁剪、重采样、增益调节等
+            - 🎭 掩码操作：掩码运算、填充、裁剪、预览等
+            - 🛠️ 实用工具：数学表达式、文本处理、显存清理、预设加载等
+            - 📱 智能预设：27种Kontext VLM系统预设
+            
+            ### 🔧 兼容性
+            - ComfyUI v1.0.0+
+            - Python 3.8+
+            - Windows, macOS, Linux
+            
+            ### 📄 详细文档
+            查看 [README.md](https://github.com/whmc76/ComfyUI-UniversalToolkit/blob/main/README.md) 获取完整使用说明
+            
+            ### 🤝 反馈与支持
+            - 问题反馈：[Issues](https://github.com/whmc76/ComfyUI-UniversalToolkit/issues)
+            - 讨论交流：[Discussions](https://github.com/whmc76/ComfyUI-UniversalToolkit/discussions)
+            
+            ---
+            
+            ⭐ 如果这个项目对您有帮助，请给我们一个Star！
+          draft: false
+          prerelease: false
+      
+      - name: Notify Discord (Optional)
+        if: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          curl -H "Content-Type: application/json" \
+               -d '{
+                 "embeds": [{
+                   "title": "🚀 ComfyUI-UniversalToolkit v'${{ steps.new-version.outputs.new_version }}' 版本发布",
+                   "description": "新版本已成功发布！\n\n📋 版本信息：\n• 版本类型：'${{ github.event.inputs.version_type }}'\n• 发布时间：'$(date -u +"%Y-%m-%d %H:%M UTC")'\n\n📝 更新说明：\n'${{ github.event.inputs.release_notes || '请查看GitHub发布页面了解详细更新内容。' }}'",
+                   "color": 3066993,
+                   "fields": [
+                     {
+                       "name": "📦 安装",
+                       "value": "通过ComfyUI-Manager搜索安装，或手动克隆仓库",
+                       "inline": true
+                     },
+                     {
+                       "name": "🔗 链接",
+                       "value": "[GitHub](https://github.com/whmc76/ComfyUI-UniversalToolkit) | [Release](https://github.com/whmc76/ComfyUI-UniversalToolkit/releases/tag/v'${{ steps.new-version.outputs.new_version }}')",
+                       "inline": true
+                     }
+                   ],
+                   "footer": {
+                     "text": "ComfyUI-UniversalToolkit"
+                   }
+                 }]
+               }' \
+               ${{ secrets.DISCORD_WEBHOOK_URL }} 
