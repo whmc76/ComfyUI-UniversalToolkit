@@ -284,6 +284,8 @@ ComfyUI-UniversalToolkit/
 - [ComfyUI-LayerStyle](https://github.com/your-repo) - 模块化设计参考
 - [ComfyUI-MingNodes](https://github.com/your-repo) - 色彩迁移算法参考
 - [Kontext](https://github.com/your-repo) - VLM预设系统
+- [kjnodes](https://github.com/kijai/ComfyUI-KJNodes) - 节点开发参考和灵感
+- [audio-separation-nodes-comfyui](https://github.com/christian-byrne/audio-separation-nodes-comfyui) - 音频处理节点参考
 
 ---
 
