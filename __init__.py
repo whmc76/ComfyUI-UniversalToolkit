@@ -284,9 +284,9 @@ except ImportError as e:
 
 # 尝试导入其他可能有依赖的节点
 try:
-    from .nodes.tools.fill_masked_area import \
+    from .nodes.image.fill_masked_area import \
         NODE_CLASS_MAPPINGS as FILL_MASKED_MAPPINGS
-    from .nodes.tools.fill_masked_area import \
+    from .nodes.image.fill_masked_area import \
         NODE_DISPLAY_NAME_MAPPINGS as FILL_MASKED_DISPLAY_MAPPINGS
 except ImportError:
     FILL_MASKED_MAPPINGS = {}

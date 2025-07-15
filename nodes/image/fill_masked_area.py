@@ -36,7 +36,7 @@ def mask_blur(mask, feathering):
 
 
 class FillMaskedArea_UTK:
-    CATEGORY = "UniversalToolkit/Tools"
+    CATEGORY = "UniversalToolkit/Image"
 
     @classmethod
     def INPUT_TYPES(cls):
