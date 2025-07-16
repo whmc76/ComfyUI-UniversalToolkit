@@ -8,13 +8,22 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.2.1"
+__version__ = "1.2.2"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.2.2": [
+        "新增万能编辑预设功能：",
+        "- 添加Universal Editor (万能编辑)预设，支持精确的图像编辑指令转换",
+        "- 基于Kontext格式和Flux模型的编辑指令生成",
+        "- 支持人物、物体、背景、风格、文本等多种编辑类型",
+        "- 严格遵循9条编辑规则，确保视觉一致性和精确性",
+        "- 完全支持$user_prompt$占位符替换机制",
+        "- 优化预设指令结构，移除重复的英文输出要求",
+    ],
     "1.2.1": [
         "修复自动发布问题：",
         "- 精简pyproject.toml依赖配置，仅保留核心依赖",
