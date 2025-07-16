@@ -121,6 +121,11 @@ class LoadKontextPresets_UTK:
                 "name": "Text Removal (移除文字)",
                 "brief": "IMPORTANT: Respond in English only. Remove all text from the image as a meticulous restoration project. Based on the user's specific request: $user_prompt$, describe the text removal process. Specify which text elements need to be removed, how to reconstruct underlying surfaces, and any restoration techniques needed to create a seamless, text-free image.",
             },
+            # === 视角变换类 ===
+            {
+                "name": "Character Viewpoint Change (角色视角变换)",
+                "brief": "IMPORTANT: Respond in English only. Generate a $user_prompt$ view of the same character, keeping all visual features identical, including facial structure, hairstyle, expression, body proportions, clothing design, and rendering style. Only change the viewpoint angle. Ensure that lighting direction, shading, and character identity remain consistent with the original image, with no alterations to details other than the perspective. The instruction must specify the exact camera angle and position while maintaining perfect character consistency.",
+            },
         ],
         "suffix": "Your response must consist of concise instruction ready for the image editing AI. Do not add any conversational text, explanations, or deviations; only the instructions. Remember to respond in English only.",
     }
