@@ -3,7 +3,19 @@ name = "universaltoolkit"
 description = "A comprehensive toolkit based on ComfyUI, providing image, mask, audio, and tools nodes, fully modular and v3 compatible."
 version = "1.2.0"
 license = {file = "LICENSE"}
-dependencies = ["torch", "numpy", "Pillow", "opencv-python", "scipy", "tqdm"]
+dependencies = [
+    "torch>=1.9.0",
+    "numpy>=1.21.0", 
+    "Pillow>=8.0.0",
+    "opencv-python>=4.5.0",
+    "librosa>=0.8.0",
+    "torchaudio>=1.9.0",
+    "soundfile>=0.10.0",
+    "scipy>=1.7.0",
+    "requests>=2.25.0",
+    "aiohttp>=3.8.0",
+    "tqdm>=4.60.0"
+]
 requires-python = ">=3.8"
 classifiers = [
     "Operating System :: OS Independent",
