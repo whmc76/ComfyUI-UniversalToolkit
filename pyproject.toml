@@ -1,7 +1,7 @@
 [project]
 name = "universaltoolkit"
 description = "A comprehensive toolkit based on ComfyUI, providing image, mask, audio, and tools nodes, fully modular and v3 compatible."
-version = "1.2.0"
+version = "1.2.1"
 license = {file = "LICENSE"}
 dependencies = [
     "torch",

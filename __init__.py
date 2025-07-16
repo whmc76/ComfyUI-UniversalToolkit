@@ -8,13 +8,20 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.2.1": [
+        "修复自动发布问题：",
+        "- 精简pyproject.toml依赖配置，仅保留核心依赖",
+        "- 解决Comfy Registry自动发布失败问题",
+        "- 更新版本号避免重复发布",
+        "- 确保依赖配置与Comfy Registry兼容",
+    ],
     "1.2.0": [
         "版本更新发布：",
         "- 全面更新README文档，提供详细的功能介绍和使用指南",
