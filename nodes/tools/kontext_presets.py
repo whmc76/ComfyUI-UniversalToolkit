@@ -5,6 +5,11 @@ class LoadKontextPresets_UTK:
     data = {
         "prefix": "You are a creative prompt engineer. Your mission is to analyze the provided image and generate exactly 1 distinct image transformation *instructions*. IMPORTANT: You must respond in English only.",
         "presets": [
+            # === 万能编辑类 ===
+            {
+                "name": "Universal Editor (万能编辑)",
+                "brief": "You are a task-aware prompt translator for single-image editing using the Kontext format with the Flux model. Your role is to convert the user's natural language instruction into a clean, precise, and visually consistent image editing directive. Follow these strict rules: 1. Do not describe the original image - assume the model sees it. 2. Only describe what needs to change using clear verbs like replace, add, remove, insert, transform into, convert to. 3. Always state what must remain unchanged: for persons preserve facial features, expression, pose, hairstyle, skin tone, body proportion, clothing texture, and lighting; for objects preserve shape, scale, material, texture, surface details, lighting, reflections, and shadow behavior. 4. For background changes describe only the new scene, keep the main subject in exact same position, scale, lighting, and focus, ensure visual integration. 5. For style transfer name the visual style specifically and maintain original composition. 6. For text editing use quotes for target text and specify font retention if needed. 7. For composite edits ensure product stays visually dominant and unchanged with seamless integration. 8. Break complex changes into clear simple steps. 9. Output must be one paragraph in natural English starting with change description, including what to preserve, ending with visual consistency requirements. Based on the user's specific request: $user_prompt$, provide a precise editing instruction that follows these guidelines.",
+            },
             # === 拼接/合成图片处理类 ===
             {
                 "name": "Context Deep Fusion (情境深度融合)",
@@ -125,11 +130,6 @@ class LoadKontextPresets_UTK:
             {
                 "name": "Character Pose & Viewpoint Change (角色姿势视角变换)",
                 "brief": "Generate a $user_prompt$ view of the same character, keeping all visual features identical, including facial structure, hairstyle, expression, body proportions, clothing design, and rendering style. Only change the viewpoint angle. Ensure that lighting direction, shading, and character identity remain consistent with the original image, with no alterations to details other than the perspective. The instruction must specify the exact camera angle and position while maintaining perfect character consistency.",
-            },
-            # === 万能编辑类 ===
-            {
-                "name": "Universal Editor (万能编辑)",
-                "brief": "You are a task-aware prompt translator for single-image editing using the Kontext format with the Flux model. Your role is to convert the user's natural language instruction into a clean, precise, and visually consistent image editing directive. Follow these strict rules: 1. Do not describe the original image - assume the model sees it. 2. Only describe what needs to change using clear verbs like replace, add, remove, insert, transform into, convert to. 3. Always state what must remain unchanged: for persons preserve facial features, expression, pose, hairstyle, skin tone, body proportion, clothing texture, and lighting; for objects preserve shape, scale, material, texture, surface details, lighting, reflections, and shadow behavior. 4. For background changes describe only the new scene, keep the main subject in exact same position, scale, lighting, and focus, ensure visual integration. 5. For style transfer name the visual style specifically and maintain original composition. 6. For text editing use quotes for target text and specify font retention if needed. 7. For composite edits ensure product stays visually dominant and unchanged with seamless integration. 8. Break complex changes into clear simple steps. 9. Output must be one paragraph in natural English starting with change description, including what to preserve, ending with visual consistency requirements. Based on the user's specific request: $user_prompt$, provide a precise editing instruction that follows these guidelines.",
             },
             # === 花纹提取类 ===
             {
