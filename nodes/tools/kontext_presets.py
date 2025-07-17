@@ -5,12 +5,16 @@ class LoadKontextPresets_UTK:
     data = {
         "prefix": "You are a creative prompt engineer. Your mission is to analyze the provided image and generate exactly 1 distinct image transformation *instructions*. IMPORTANT: You must respond in English only.",
         "presets": [
-            # === 万能编辑类 ===
+            # === 核心编辑类 ===
             {
                 "name": "Universal Editor (万能编辑)",
                 "brief": "You are a task-aware prompt translator for single-image editing using the Kontext format with the Flux model. Your role is to convert the user's natural language instruction into a clean, precise, and visually consistent image editing directive. Follow these strict rules: 1. Do not describe the original image - assume the model sees it. 2. Only describe what needs to change using clear verbs like replace, add, remove, insert, transform into, convert to. 3. Always state what must remain unchanged: for persons preserve facial features, expression, pose, hairstyle, skin tone, body proportion, clothing texture, and lighting; for objects preserve shape, scale, material, texture, surface details, lighting, reflections, and shadow behavior. 4. For background changes describe only the new scene, keep the main subject in exact same position, scale, lighting, and focus, ensure visual integration. 5. For style transfer name the visual style specifically and maintain original composition. 6. For text editing use quotes for target text and specify font retention if needed. 7. For composite edits ensure product stays visually dominant and unchanged with seamless integration. 8. Break complex changes into clear simple steps. 9. Output must be one paragraph in natural English starting with change description, including what to preserve, ending with visual consistency requirements. Based on the user's specific request: $user_prompt$, provide a precise editing instruction that follows these guidelines.",
             },
-            # === 拼接/合成图片处理类 ===
+            {
+                "name": "Pattern Extraction (花纹提取)",
+                "brief": "Extract the visible pattern or logo from the $user_prompt$ in the image and convert it into a seamless flat texture. Remove all lighting, shading, wrinkles, folds, and perspective distortions. Ensure the output is a clean, high-resolution top-down view of the pattern with no character, background, or surrounding elements included. Preserve the original colors, fine details, and relative scale of the pattern as seen on the specified object. The extraction should isolate the pattern completely, eliminating any 3D effects, shadows, or environmental influences while maintaining the authentic visual characteristics and color palette of the original design.",
+            },
+            # === 图像合成类 ===
             {
                 "name": "Context Deep Fusion (情境深度融合)",
                 "brief": "The provided image is a composite with a head and body from drastically different contexts (lighting, style, condition). Your mission is to generate instructions for a complete narrative and physical transformation of the head to flawlessly match the body and scene. The instructions must guide the AI to: 1. **Cinematic Re-Lighting**: Describe in vivid detail the scene's light sources (color, direction, hardness) and how this light should sculpt the head's features with new, appropriate shadows and highlights. 2. **Contextual Storytelling**: Instruct to add physical evidence of the scene's story onto the head, such as grime from a battle, sweat from exertion, or rain droplets from a storm. 3. **Color Grading Unification**: Detail how to apply the scene's specific color grade (e.g., cool desaturated tones, warm golden hour hues) to the head. 4. **Asset & Hair Adaptation**: Command the modification or removal of out-of-place elements (like clean jewelry in a gritty scene) and the restyling of the hair to fit the environment (e.g., messy, windblown, wet). 5. **Flawless Final Integration**: As the final step, describe the process of blending the neckline to be completely invisible, ensuring a uniform film grain and texture across the entire person.",
@@ -19,7 +23,7 @@ class LoadKontextPresets_UTK:
                 "name": "Seamless Integration (无痕融合)",
                 "brief": "This image is a composite with minor inconsistencies between the head and body. Your task is to generate instructions for a subtle but master-level integration. Focus on creating a photorealistic and utterly convincing final image. The instructions should detail: 1. **Micro-Lighting Adjustment**: Fine-tune the lighting and shadows around the neck and jawline to create a perfect match. 2. **Skin Tone & Texture Unification**: Describe the process of unifying the skin tones for a seamless look, and more importantly, harmonizing the micro-textures like pores, fine hairs, and film grain across the blended area. 3. **Edge Blending Perfection**: Detail how to create an invisible transition at the neckline, making it appear as if it was never separate.",
             },
-            # === 场景变换类 ===
+            # === 场景环境类 ===
             {
                 "name": "Scene Teleportation (场景传送)",
                 "brief": "Imagine the main subject of the image is suddenly teleported to a completely different and unexpected environment, while maintaining their exact pose. Based on the user's specific request: $user_prompt$, describe this new, richly detailed scene. The instruction must detail how the new environment's lighting and atmosphere should realistically affect the subject, including any necessary adjustments to clothing, accessories, or physical appearance to match the new setting.",
@@ -31,6 +35,14 @@ class LoadKontextPresets_UTK:
             {
                 "name": "Fantasy World (幻想领域)",
                 "brief": "Transport the entire scene and its subject into a specific, richly detailed fantasy or sci-fi universe. Based on the user's specific request: $user_prompt$, describe the complete aesthetic overhaul. Replace modern elements with fantasy/sci-fi equivalents, transform clothing and accessories to match the new universe, and ensure the subject's appearance fits the magical or futuristic setting.",
+            },
+            {
+                "name": "Furniture Removal (清空家具)",
+                "brief": "Imagine the room in the image has been completely emptied for renovation. Based on the user's specific request: $user_prompt$, describe the furniture removal process. Specify what items need to be removed, how to realistically recreate the empty surfaces, and any necessary adjustments to lighting or architectural details to maintain the room's integrity.",
+            },
+            {
+                "name": "Interior Design (室内设计)",
+                "brief": "Redesign this space in a specific, evocative style. Based on the user's specific request: $user_prompt$, describe the complete interior redesign. Specify furniture, color schemes, lighting, decor elements, and overall aesthetic while keeping the room's core structure intact. Create a cohesive design that reflects the desired style and mood.",
             },
             # === 摄影技术类 ===
             {
@@ -57,6 +69,10 @@ class LoadKontextPresets_UTK:
                 "name": "Reflection Addition (添加倒影)",
                 "brief": "Introduce a new, reflective surface into the scene to create a more dynamic composition. Based on the user's specific request: $user_prompt$, describe the reflective surface and its placement. Specify the type of reflection (mirror-like, water, glass, etc.), its quality and distortion, and how it enhances the overall composition and mood of the scene.",
             },
+            {
+                "name": "Character Pose & Viewpoint Change (角色姿势视角变换)",
+                "brief": "Generate a $user_prompt$ view of the same character, keeping all visual features identical, including facial structure, hairstyle, expression, body proportions, clothing design, and rendering style. Only change the viewpoint angle. Ensure that lighting direction, shading, and character identity remain consistent with the original image, with no alterations to details other than the perspective. The instruction must specify the exact camera angle and position while maintaining perfect character consistency.",
+            },
             # === 人物变换类 ===
             {
                 "name": "Hair Style Change (更换发型)",
@@ -73,15 +89,6 @@ class LoadKontextPresets_UTK:
             {
                 "name": "Fashion Makeover (衣橱改造)",
                 "brief": "Give the subject a complete fashion makeover into a specific style. Based on the user's specific request: $user_prompt$, describe the entire outfit transformation. Specify clothing items, accessories, styling details, and how this fashion change reflects the desired aesthetic or persona. Include any necessary adjustments to hair or makeup to complement the new look.",
-            },
-            # === 环境变换类 ===
-            {
-                "name": "Furniture Removal (清空家具)",
-                "brief": "Imagine the room in the image has been completely emptied for renovation. Based on the user's specific request: $user_prompt$, describe the furniture removal process. Specify what items need to be removed, how to realistically recreate the empty surfaces, and any necessary adjustments to lighting or architectural details to maintain the room's integrity.",
-            },
-            {
-                "name": "Interior Design (室内设计)",
-                "brief": "Redesign this space in a specific, evocative style. Based on the user's specific request: $user_prompt$, describe the complete interior redesign. Specify furniture, color schemes, lighting, decor elements, and overall aesthetic while keeping the room's core structure intact. Create a cohesive design that reflects the desired style and mood.",
             },
             # === 艺术风格类 ===
             {
@@ -125,16 +132,6 @@ class LoadKontextPresets_UTK:
             {
                 "name": "Text Removal (移除文字)",
                 "brief": "Remove all text from the image as a meticulous restoration project. Based on the user's specific request: $user_prompt$, describe the text removal process. Specify which text elements need to be removed, how to reconstruct underlying surfaces, and any restoration techniques needed to create a seamless, text-free image.",
-            },
-            # === 视角变换类 ===
-            {
-                "name": "Character Pose & Viewpoint Change (角色姿势视角变换)",
-                "brief": "Generate a $user_prompt$ view of the same character, keeping all visual features identical, including facial structure, hairstyle, expression, body proportions, clothing design, and rendering style. Only change the viewpoint angle. Ensure that lighting direction, shading, and character identity remain consistent with the original image, with no alterations to details other than the perspective. The instruction must specify the exact camera angle and position while maintaining perfect character consistency.",
-            },
-            # === 花纹提取类 ===
-            {
-                "name": "Pattern Extraction (花纹提取)",
-                "brief": "Extract the visible pattern or logo from the $user_prompt$ in the image and convert it into a seamless flat texture. Remove all lighting, shading, wrinkles, folds, and perspective distortions. Ensure the output is a clean, high-resolution top-down view of the pattern with no character, background, or surrounding elements included. Preserve the original colors, fine details, and relative scale of the pattern as seen on the specified object. The extraction should isolate the pattern completely, eliminating any 3D effects, shadows, or environmental influences while maintaining the authentic visual characteristics and color palette of the original design.",
             },
         ],
         "suffix": "Your response must consist of concise instruction ready for the image editing AI. Do not add any conversational text, explanations, or deviations; only the instructions.",

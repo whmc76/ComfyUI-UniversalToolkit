@@ -1,6 +1,6 @@
 # ComfyUI-UniversalToolkit
 
-[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/whmc76/ComfyUI-UniversalToolkit)
+[![Version](https://img.shields.io/badge/version-1.2.4-blue.svg)](https://github.com/whmc76/ComfyUI-UniversalToolkit)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![ComfyUI](https://img.shields.io/badge/ComfyUI-v3+-orange.svg)](https://github.com/comfyanonymous/ComfyUI)
 
@@ -12,7 +12,7 @@
 - **🎵 音频处理**：音频加载、裁剪、重采样、增益调节等
 - **🎭 掩码操作**：掩码运算、填充、裁剪、预览等
 - **🛠️ 实用工具**：数学表达式、文本处理、显存清理、预设加载等
-- **📱 智能预设**：27种Kontext VLM系统预设，支持动态场景描述
+- **📱 智能预设**：30种Kontext VLM系统预设，支持动态场景描述
 - **🔧 模块化设计**：按功能分类，易于维护和扩展
 - **⚡ 高性能**：支持批量处理，优化内存使用
 
@@ -100,16 +100,53 @@ tqdm
 - **LoraInfo_UTK**：LoRA信息查询，获取CivitAI触发词、示例提示词、基础模型、元数据等信息
 
 #### 预设系统
-- **LoadKontextPresets_UTK**：Kontext VLM系统预设，包含27种专业图像变换预设
-  - 情境深度融合、无痕融合、场景传送
-  - 移动镜头、重新布光、专业产品图
-  - 画面缩放、图像上色、电影海报
-  - 卡通漫画化、移除文字、更换发型
-  - 肌肉猛男化、清空家具、室内设计
-  - 季节变换、时光旅人、材质置换
-  - 微缩世界、幻想领域、衣橱改造
-  - 艺术风格模仿、蓝图视角、添加倒影
-  - 像素艺术、铅笔手绘、油画风格
+- **LoadKontextPresets_UTK**：Kontext VLM系统预设，包含30种专业图像变换预设，分为7个主要分类：
+
+  **🎯 核心编辑类 (2个)**
+  - Universal Editor (万能编辑) - 默认预设，精确的图像编辑指令转换
+  - Pattern Extraction (花纹提取) - 从指定对象提取花纹或logo
+
+  **🖼️ 图像合成类 (2个)**
+  - Context Deep Fusion (情境深度融合) - 深度融合不同上下文的头部和身体
+  - Seamless Integration (无痕融合) - 微调级别的图像合成
+
+  **🌍 场景环境类 (5个)**
+  - Scene Teleportation (场景传送) - 将主体传送到不同环境
+  - Season Change (季节变换) - 改变场景的季节设定
+  - Fantasy World (幻想领域) - 转换为奇幻或科幻世界
+  - Furniture Removal (清空家具) - 移除房间内的所有家具
+  - Interior Design (室内设计) - 重新设计室内空间风格
+
+  **📷 摄影技术类 (7个)**
+  - Camera Movement (移动镜头) - 戏剧性的镜头移动效果
+  - Relighting (重新布光) - 完全改变图像的光照和氛围
+  - Camera Zoom (画面缩放) - 有目的的缩放效果
+  - Professional Product Photography (专业产品图) - 商业级产品摄影效果
+  - Tilt-Shift Miniature (微缩世界) - 倾斜移轴微缩效果
+  - Reflection Addition (添加倒影) - 添加反射表面增强构图
+  - Character Pose & Viewpoint Change (角色姿势视角变换) - 改变角色视角保持特征一致
+
+  **👤 人物变换类 (4个)**
+  - Hair Style Change (更换发型) - 完整的发型变换
+  - Bodybuilding Transformation (肌肉猛男化) - 肌肉发达的体型变换
+  - Age Transformation (时光旅人) - 年龄变换效果
+  - Fashion Makeover (衣橱改造) - 完整的时尚改造
+
+  **🎨 艺术风格类 (6个)**
+  - Image Colorization (图像上色) - 黑白图像的艺术上色
+  - Cartoon/Anime Style (卡通漫画化) - 卡通或动漫风格转换
+  - Artistic Style Imitation (艺术风格模仿) - 著名艺术运动风格模仿
+  - Pixel Art (像素艺术) - 像素艺术风格转换
+  - Pencil Sketch (铅笔手绘) - 铅笔素描风格
+  - Oil Painting (油画风格) - 油画风格转换
+
+  **✨ 特殊效果类 (4个)**
+  - Material Transformation (材质置换) - 将主体转换为不同材质
+  - Movie Poster (电影海报) - 电影海报风格转换
+  - Technical Blueprint (蓝图视角) - 技术蓝图风格
+  - Text Removal (移除文字) - 移除图像中的文字
+
+> 📖 **详细分类说明**：查看 [PRESET_CATEGORIES.md](PRESET_CATEGORIES.md) 了解完整的分类优化说明和使用建议。
 
 ## 🚀 使用示例
 
@@ -139,7 +176,38 @@ AudioCropProcess_UTK
 
 ## 📋 版本历史
 
-### v1.2.0 (最新)
+### v1.2.4 (最新)
+- 优化预设分类结构，提升用户体验
+- 将原11个分类优化为7个主要分类：核心编辑、图像合成、场景环境、摄影技术、人物变换、艺术风格、特殊效果
+- 合并相似类别，减少重复，提升分类逻辑性
+- 保持所有30个预设的完整功能不变
+- 优化预设顺序，万能编辑作为默认选项
+
+### v1.2.3
+- 新增花纹提取预设和优化用户体验
+- 添加Pattern Extraction (花纹提取)预设，支持指定提取对象
+- 将Universal Editor (万能编辑)预设移到最前面作为默认选项
+- 优化预设顺序，提升用户使用体验
+- 支持从任意对象中提取花纹、logo、图案等
+- 完全支持$user_prompt$占位符替换机制
+- 预设总数达到30个，覆盖各种图像处理需求
+
+### v1.2.2
+- 新增万能编辑预设功能
+- 添加Universal Editor (万能编辑)预设，支持精确的图像编辑指令转换
+- 基于Kontext格式和Flux模型的编辑指令生成
+- 支持人物、物体、背景、风格、文本等多种编辑类型
+- 严格遵循9条编辑规则，确保视觉一致性和精确性
+- 完全支持$user_prompt$占位符替换机制
+- 优化预设指令结构，移除重复的英文输出要求
+
+### v1.2.1
+- 升级LoadKontextPresets_UTK节点功能
+- 新增用户提示输入参数，支持动态场景描述
+- 为所有27个预设添加$user_prompt$占位符
+- 智能占位符替换，提升VLM模型生成指令的针对性
+
+### v1.2.0
 - 全面更新README文档，提供详细的功能介绍和使用指南
 - 优化项目结构和文档组织
 - 完善节点功能说明和分类

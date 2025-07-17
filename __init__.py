@@ -8,13 +8,23 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.2.3"
+__version__ = "1.2.4"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.2.4": [
+        "优化预设分类结构，提升用户体验：",
+        "- 重新整理预设分类，合并相似类别，减少重复",
+        "- 将原11个分类优化为7个主要分类：核心编辑、图像合成、场景环境、摄影技术、人物变换、艺术风格、特殊效果",
+        "- 将视角变换类合并到摄影技术类，将花纹提取类合并到核心编辑类",
+        "- 将环境变换类合并到场景环境类，简化分类结构",
+        "- 优化预设顺序，保持万能编辑作为默认选项",
+        "- 提升预设分类的逻辑性和易用性",
+        "- 保持所有30个预设的完整功能不变",
+    ],
     "1.2.3": [
         "新增花纹提取预设和优化用户体验：",
         "- 添加Pattern Extraction (花纹提取)预设，支持指定提取对象",
