@@ -146,8 +146,6 @@ tqdm
   - Technical Blueprint (蓝图视角) - 技术蓝图风格
   - Text Removal (移除文字) - 移除图像中的文字
 
-> 📖 **详细分类说明**：查看 [PRESET_CATEGORIES.md](PRESET_CATEGORIES.md) 了解完整的分类优化说明和使用建议。
-
 ## 🚀 使用示例
 
 ### 图像拼接示例
