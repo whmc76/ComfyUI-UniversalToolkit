@@ -8,13 +8,22 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.2.2"
+__version__ = "1.2.3"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.2.3": [
+        "新增花纹提取预设和优化用户体验：",
+        "- 添加Pattern Extraction (花纹提取)预设，支持指定提取对象",
+        "- 将Universal Editor (万能编辑)预设移到最前面作为默认选项",
+        "- 优化预设顺序，提升用户使用体验",
+        "- 支持从任意对象中提取花纹、logo、图案等",
+        "- 完全支持$user_prompt$占位符替换机制",
+        "- 预设总数达到30个，覆盖各种图像处理需求",
+    ],
     "1.2.2": [
         "新增万能编辑预设功能：",
         "- 添加Universal Editor (万能编辑)预设，支持精确的图像编辑指令转换",
