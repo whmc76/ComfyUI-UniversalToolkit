@@ -1,6 +1,6 @@
 # ComfyUI-UniversalToolkit
 
-[![Version](https://img.shields.io/badge/version-1.2.4-blue.svg)](https://github.com/whmc76/ComfyUI-UniversalToolkit)
+[![Version](https://img.shields.io/badge/version-1.2.5-blue.svg)](https://github.com/whmc76/ComfyUI-UniversalToolkit)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![ComfyUI](https://img.shields.io/badge/ComfyUI-v3+-orange.svg)](https://github.com/comfyanonymous/ComfyUI)
 
@@ -174,7 +174,20 @@ AudioCropProcess_UTK
 
 ## 📋 版本历史
 
-### v1.2.4 (最新)
+### v1.2.5 (最新)
+- 优化Kontext预设系统，提升用户体验
+- 为所有预设添加英文分类前缀，提升节点中的可读性
+- 重新组织预设分类：Core-核心编辑、Composite-图像合成、Scene-场景环境、Photo-摄影技术、Character-人物变换、Art-艺术风格、Effect-特殊效果、Utility-实用功能
+- 将花纹提取预设移动到实用功能类，更符合其功能定位
+- 升级身材改造预设，支持多种身材变化（高矮胖瘦、强壮肌肉、性感身材等）
+- 优化衣橱改造预设，强调保持角色特征不变和服装自然性
+- 升级专业产品图预设，确保产品特征不变和环境自然集成
+- 改进角色姿势视角变换预设，支持多种角度和姿势变化
+- 结合社区最佳实践，优化所有预设的brief描述
+- 提升预设指令的精确性和实用性
+- 保持所有预设的完整功能，总数维持30个
+
+### v1.2.4
 - 优化预设分类结构，提升用户体验
 - 将原11个分类优化为7个主要分类：核心编辑、图像合成、场景环境、摄影技术、人物变换、艺术风格、特殊效果
 - 合并相似类别，减少重复，提升分类逻辑性

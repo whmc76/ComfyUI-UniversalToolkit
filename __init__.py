@@ -8,13 +8,26 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.2.4"
+__version__ = "1.2.5"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.2.5": [
+        "优化Kontext预设系统，提升用户体验：",
+        "- 为所有预设添加英文分类前缀，提升节点中的可读性",
+        "- 重新组织预设分类：Core-核心编辑、Composite-图像合成、Scene-场景环境、Photo-摄影技术、Character-人物变换、Art-艺术风格、Effect-特殊效果、Utility-实用功能",
+        "- 将花纹提取预设移动到实用功能类，更符合其功能定位",
+        "- 升级身材改造预设，支持多种身材变化（高矮胖瘦、强壮肌肉、性感身材等）",
+        "- 优化衣橱改造预设，强调保持角色特征不变和服装自然性",
+        "- 升级专业产品图预设，确保产品特征不变和环境自然集成",
+        "- 改进角色姿势视角变换预设，支持多种角度和姿势变化",
+        "- 结合社区最佳实践，优化所有预设的brief描述",
+        "- 提升预设指令的精确性和实用性",
+        "- 保持所有预设的完整功能，总数维持30个",
+    ],
     "1.2.4": [
         "优化预设分类结构，提升用户体验：",
         "- 重新整理预设分类，合并相似类别，减少重复",
