@@ -8,13 +8,23 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.2.5"
+__version__ = "1.2.6"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.2.6": [
+        "进一步优化角色姿势视角变换预设：",
+        "- 使用更精确的提示词结构，提升指令的准确性",
+        "- 明确指定相机角度、位置和角色动作的描述要求",
+        "- 强调角色正在执行的具体动作，让变换更加生动",
+        "- 优化brief描述，支持更具体的用户需求",
+        "- 保持所有角色特征的一致性要求",
+        "- 确保光照、阴影和透视的自然性",
+        "- 提升预设指令的精确性和实用性",
+    ],
     "1.2.5": [
         "优化Kontext预设系统，提升用户体验：",
         "- 为所有预设添加英文分类前缀，提升节点中的可读性",
