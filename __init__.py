@@ -8,13 +8,16 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.2.8"
+__version__ = "1.2.9"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.2.9": [
+        "优化蓝图视角预设，重命名为设计图模式，支持多种技术图纸风格与详细指令描述。",
+    ],
     "1.2.8": [
         "新增模特手持特写预设和优化产品摄影预设：",
         "- 新增Photo-Model Hand Product Close-Up (模特手持特写)预设，专门用于生成模特手持产品的特写摄影场景",
