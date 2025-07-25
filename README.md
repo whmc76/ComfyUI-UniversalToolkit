@@ -1,6 +1,6 @@
 # ComfyUI-UniversalToolkit
 
-[![Version](https://img.shields.io/badge/version-1.2.6-blue.svg)](https://github.com/whmc76/ComfyUI-UniversalToolkit)
+[![Version](https://img.shields.io/badge/version-1.2.8-blue.svg)](https://github.com/whmc76/ComfyUI-UniversalToolkit)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![ComfyUI](https://img.shields.io/badge/ComfyUI-v3+-orange.svg)](https://github.com/comfyanonymous/ComfyUI)
 
@@ -12,7 +12,7 @@
 - **🎵 音频处理**：音频加载、裁剪、重采样、增益调节等
 - **🎭 掩码操作**：掩码运算、填充、裁剪、预览等
 - **🛠️ 实用工具**：数学表达式、文本处理、显存清理、预设加载等
-- **📱 智能预设**：30种Kontext VLM系统预设，支持动态场景描述
+- **📱 智能预设**：32种Kontext VLM系统预设，支持动态场景描述
 - **🔧 模块化设计**：按功能分类，易于维护和扩展
 - **⚡ 高性能**：支持批量处理，优化内存使用
 
@@ -117,11 +117,13 @@ tqdm
   - Furniture Removal (清空家具) - 移除房间内的所有家具
   - Interior Design (室内设计) - 重新设计室内空间风格
 
-  **📷 摄影技术类 (7个)**
+  **📷 摄影技术类 (9个)**
   - Camera Movement (移动镜头) - 戏剧性的镜头移动效果
   - Relighting (重新布光) - 完全改变图像的光照和氛围
   - Camera Zoom (画面缩放) - 有目的的缩放效果
   - Professional Product Photography (专业产品图) - 商业级产品摄影效果
+  - Product Lifestyle Scene (产品生活场景图) - 产品在生活场景中的展示
+  - Model Hand Product Close-Up (模特手持特写) - 模特手持产品的特写摄影
   - Tilt-Shift Miniature (微缩世界) - 倾斜移轴微缩效果
   - Reflection Addition (添加倒影) - 添加反射表面增强构图
   - Character Pose & Viewpoint Change (角色姿势视角变换) - 改变角色视角保持特征一致
@@ -174,7 +176,30 @@ AudioCropProcess_UTK
 
 ## 📋 版本历史
 
-### v1.2.6 (最新)
+### v1.2.8 (最新)
+- 新增模特手持特写预设和优化产品摄影预设
+- 新增Photo-Model Hand Product Close-Up (模特手持特写)预设，专门用于生成模特手持产品的特写摄影场景
+- 将Photo-Model Product Trial改名为Photo-Product Lifestyle Scene (产品生活场景图)，更准确反映功能
+- 升级Photo-Professional Product Photography (专业产品图)预设，强调场景驱动环境优先级
+- 优化专业产品图预设：严格遵循用户场景要求，避免默认影棚背景
+- 改进场景匹配：提供购物中心橱窗、咖啡厅、户外公园等具体场景示例
+- 增强环境匹配灯光：根据场景使用商场环境光、户外自然光、室内温暖灯光
+- 提升构图焦点：强调自然前景/背景整合，保持产品作为明确焦点
+- 完善输出要求：详细描述场景设置、相机角度、背景元素、灯光风格和构图
+- 保持所有预设的完整功能，总数达到32个，覆盖更全面的图像处理需求
+
+### v1.2.7
+- 升级专业产品摄影和模特试用产品图预设
+- 新增Photo-Model Product Trial (模特试用产品图)预设，专门用于生成模特使用商品的场景图
+- 升级Photo-Professional Product Photography (专业产品图)预设，使用更精确的商业摄影指令
+- 优化专业产品图预设：增强场景响应式环境、专业灯光阴影控制、构图焦点卓越性
+- 改进模特试用产品图预设：强调模特产品互动、生活化环境整合、专业模特呈现
+- 提升商业摄影质量标准：确保锐利对焦、准确曝光、专业调色
+- 增强真实故事叙述：创造既真实又令人向往的生活方式故事
+- 完善输出要求：详细描述摄影设置、灯光安排、背景处理、相机角度和构图风格
+- 保持所有预设的完整功能，总数达到31个，覆盖更全面的图像处理需求
+
+### v1.2.6
 - 进一步优化角色姿势视角变换预设
 - 使用更精确的提示词结构，提升指令的准确性
 - 明确指定相机角度、位置和角色动作的描述要求
