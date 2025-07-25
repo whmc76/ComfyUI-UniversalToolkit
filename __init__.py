@@ -8,13 +8,25 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.2.9"
+__version__ = "1.3.0"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.3.0": [
+        "改进Image Remove Alpha节点和优化专业产品图预设：",
+        "- 改进Image Remove Alpha (UTK)节点：将background_color参数从手动输入改为预设颜色下拉菜单",
+        "- 新增10种预设颜色选项：black、white、gray、red、green、blue、yellow、cyan、magenta、transparent",
+        "- 优化专业产品图预设：强化场景驱动环境优先级和商业摄影质量标准",
+        "- 改进场景驱动环境：严格遵循用户场景要求，避免默认影棚背景",
+        "- 增强真实灯光与阴影：根据场景上下文匹配灯光风格",
+        "- 提升专业构图技巧：使用三分法则、引导线和受控景深",
+        "- 完善环境真实感：产品与环境无缝融合，匹配透视和表面反射",
+        "- 强化营销级质量标准：保持锐利对焦和清洁专业的色彩分级",
+        "- 优化用户体验：提供更直观的颜色选择和更精确的场景控制",
+    ],
     "1.2.9": [
         "优化蓝图视角预设，重命名为设计图模式，支持多种技术图纸风格与详细指令描述。",
     ],
