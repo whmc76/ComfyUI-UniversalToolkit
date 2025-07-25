@@ -35,7 +35,7 @@ class ImageRemoveAlpha_UTK:
             "required": {
                 "RGBA_image": ("IMAGE",),  #
                 "fill_background": ("BOOLEAN", {"default": False}),
-                "background_color": ("STRING", {"default": "#000000"}),
+                "background_color": (["black", "white", "gray", "red", "green", "blue", "yellow", "cyan", "magenta", "transparent"], {"default": "black"}),
             },
             "optional": {
                 "mask": ("MASK",),  #
@@ -49,6 +49,22 @@ class ImageRemoveAlpha_UTK:
     def image_remove_alpha(
         self, RGBA_image, fill_background, background_color, mask=None
     ):
+        # 颜色名称到颜色值的映射
+        color_map = {
+            "black": "#000000",
+            "white": "#FFFFFF",
+            "gray": "#808080",
+            "red": "#FF0000",
+            "green": "#00FF00",
+            "blue": "#0000FF",
+            "yellow": "#FFFF00",
+            "cyan": "#00FFFF",
+            "magenta": "#FF00FF",
+            "transparent": None
+        }
+
+        # 获取对应的颜色值
+        bg_color = color_map.get(background_color, "#000000")
 
         ret_images = []
 
@@ -71,8 +87,15 @@ class ImageRemoveAlpha_UTK:
                         message_type="error",
                     )
                     return (RGBA_image,)
-                ret_image = Image.new("RGB", size=_image.size, color=background_color)
-                ret_image.paste(_image, mask=alpha)
+
+                # 处理透明背景
+                if bg_color is None:
+                    # 如果选择透明，直接转换为RGB（透明部分变为白色）
+                    ret_image = _image.convert("RGB")
+                else:
+                    ret_image = Image.new("RGB", size=_image.size, color=bg_color)
+                    ret_image.paste(_image, mask=alpha)
+
                 ret_images.append(pil2tensor(ret_image))
 
             else:
