@@ -1,0 +1,80 @@
+{
+    "zh": {
+        "language": "语言",
+        "user_prompt": "用户提示词",
+        "shot_size": "镜头大小",
+        "lighting_type": "灯光类型",
+        "light_source": "光源",
+        "color_tone": "色调",
+        "camera_angle": "摄像机角度",
+        "lens": "镜头",
+        "camera_movement_basic": "基础摄像机运动",
+        "camera_movement_advanced": "高级摄像机运动",
+        "time_of_day": "时间",
+        "motion": "运动",
+        "visual_effects": "视觉效果",
+        "stylization_visual_style": "视觉风格",
+        "character_emotion": "角色情感",
+        "composition": "构图",
+        "prompt_format": "提示词格式",
+        "default_prompt": "一个美丽的场景",
+        "professional_suffix": "，专业电影质量，高细节，4K分辨率",
+        "detailed_suffix": "。专业电影制作，高质量，详细渲染",
+        "format_professional": "专业",
+        "format_simple": "简单",
+        "format_detailed": "详细",
+        "none_option": "无"
+    },
+    "en": {
+        "language": "Language",
+        "user_prompt": "User Prompt",
+        "shot_size": "Shot Size",
+        "lighting_type": "Lighting Type",
+        "light_source": "Light Source",
+        "color_tone": "Color Tone",
+        "camera_angle": "Camera Angle",
+        "lens": "Lens",
+        "camera_movement_basic": "Camera Movement Basic",
+        "camera_movement_advanced": "Camera Movement Advanced",
+        "time_of_day": "Time of Day",
+        "motion": "Motion",
+        "visual_effects": "Visual Effects",
+        "stylization_visual_style": "Visual Style",
+        "character_emotion": "Character Emotion",
+        "composition": "Composition",
+        "prompt_format": "Prompt Format",
+        "default_prompt": "A beautiful scene",
+        "professional_suffix": ", professional cinematic quality, high detail, 4K resolution",
+        "detailed_suffix": ". Professional cinematic production, high quality, detailed rendering",
+        "format_professional": "Professional",
+        "format_simple": "Simple", 
+        "format_detailed": "Detailed",
+        "none_option": "none"
+    },
+    "messages": {
+        "zh": {
+            "load_message": "[Self Nodes] 已加载以下节点:",
+            "detected_locale": "检测到中文语言环境",
+            "using_default": "语言检测失败，使用默认中文",
+            "unsupported_language": "不支持的语言",
+            "fallback_to_default": "，回退到默认语言",
+            "generated_prompt": "已生成包含",
+            "cinematic_elements": "个电影元素的提示词",
+            "selected_elements": "选中的元素"
+        },
+        "en": {
+            "load_message": "[Self Nodes] Loaded the following nodes:",
+            "detected_locale": "Detected non-Chinese locale",
+            "using_default": "Language detection failed, using default Chinese",
+            "unsupported_language": "Unsupported language",
+            "fallback_to_default": ", fallback to default language",
+            "generated_prompt": "Generated prompt with",
+            "cinematic_elements": "cinematic elements",
+            "selected_elements": "Selected elements"
+        }
+    },
+    "display_names": {
+        "zh": "🎬 视频提示词生成器",
+        "en": "🎬 Video Prompt Generator"
+    }
+} 
