@@ -106,8 +106,8 @@ class EmptyUnitGenerator_UTK:
             "optional": {},
         }
 
-    RETURN_TYPES = ("IMAGE", "MASK", "LATENT", "INT", "INT")
-    RETURN_NAMES = ("image", "mask", "latent", "width", "height")
+    RETURN_TYPES = ("IMAGE", "MASK", "LATENT", "INT", "INT", "INT")
+    RETURN_NAMES = ("image", "mask", "latent", "width", "height", "batch_num")
     FUNCTION = "generate"
 
     def generate(
@@ -159,7 +159,7 @@ class EmptyUnitGenerator_UTK:
             ),
             "batch_index_list": None,
         }
-        return images, masks, latent, w, h
+        return images, masks, latent, w, h, batch
 
 
 # Node mappings
