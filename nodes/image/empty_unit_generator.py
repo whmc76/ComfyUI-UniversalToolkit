@@ -96,7 +96,7 @@ class EmptyUnitGenerator_UTK:
                 ),
                 "batch": (
                     "INT",
-                    {"default": 1, "min": 1, "max": 16, "label": "Batch 数量"},
+                    {"default": 1, "min": 1, "max": 9999, "label": "Batch 数量"},
                 ),
                 "latent_type": (
                     latent_type_options,
