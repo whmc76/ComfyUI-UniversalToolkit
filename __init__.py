@@ -8,13 +8,21 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.3.1": [
+        "修复Audio Crop Process节点duration=0时的裁剪逻辑：",
+        "- 修复当duration_seconds为0时仍会进行音频裁剪的问题",
+        "- 优化裁剪逻辑：只有当duration大于0时才进行裁剪",
+        "- 支持duration=0且offset>0时只应用offset裁剪",
+        "- 支持duration=0且offset=0时不进行任何裁剪，保持原始音频",
+        "- 提升音频处理节点的用户体验和功能准确性",
+    ],
     "1.3.0": [
         "改进Image Remove Alpha节点和优化专业产品图预设：",
         "- 改进Image Remove Alpha (UTK)节点：将background_color参数从手动输入改为预设颜色下拉菜单",

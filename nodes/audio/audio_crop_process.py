@@ -52,13 +52,16 @@ class AudioCropProcessUTK:
         waveform = audio["waveform"]  # [B, C, N]
         sample_rate = int(audio["sample_rate"])
         # 裁剪offset和duration
-        start = int(offset_seconds * sample_rate)
-        end = (
-            int(start + duration_seconds * sample_rate)
-            if duration_seconds > 0
-            else waveform.shape[2]
-        )
-        waveform = waveform[:, :, start:end]
+        if duration_seconds > 0:
+            # 只有当duration大于0时才进行裁剪
+            start = int(offset_seconds * sample_rate)
+            end = int(start + duration_seconds * sample_rate)
+            waveform = waveform[:, :, start:end]
+        elif offset_seconds > 0:
+            # 如果duration为0但offset大于0，只应用offset裁剪
+            start = int(offset_seconds * sample_rate)
+            waveform = waveform[:, :, start:]
+        # 如果duration和offset都为0，则不进行任何裁剪
         # 重采样
         if resample_to_hz > 0 and int(resample_to_hz) != sample_rate:
             import torchaudio
