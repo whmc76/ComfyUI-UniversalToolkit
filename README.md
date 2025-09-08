@@ -1,6 +1,6 @@
 # ComfyUI-UniversalToolkit
 
-[![Version](https://img.shields.io/badge/version-1.2.8-blue.svg)](https://github.com/whmc76/ComfyUI-UniversalToolkit)
+[![Version](https://img.shields.io/badge/version-1.3.2-blue.svg)](https://github.com/whmc76/ComfyUI-UniversalToolkit)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![ComfyUI](https://img.shields.io/badge/ComfyUI-v3+-orange.svg)](https://github.com/comfyanonymous/ComfyUI)
 
@@ -12,7 +12,7 @@
 - **🎵 音频处理**：音频加载、裁剪、重采样、增益调节等
 - **🎭 掩码操作**：掩码运算、填充、裁剪、预览等
 - **🛠️ 实用工具**：数学表达式、文本处理、显存清理、预设加载等
-- **📱 智能预设**：32种Kontext VLM系统预设，支持动态场景描述
+- **📱 智能预设**：33种Kontext VLM系统预设，支持动态场景描述
 - **🔧 模块化设计**：按功能分类，易于维护和扩展
 - **⚡ 高性能**：支持批量处理，优化内存使用
 
@@ -97,11 +97,10 @@ tqdm
 - **LoraInfo_UTK**：LoRA信息查询，获取CivitAI触发词、示例提示词、基础模型、元数据等信息
 
 #### 预设系统
-- **LoadKontextPresets_UTK**：Kontext VLM系统预设，包含30种专业图像变换预设，分为7个主要分类：
+- **LoadKontextPresets_UTK**：Kontext VLM系统预设，包含33种专业图像变换预设，分为8个主要分类：
 
-  **🎯 核心编辑类 (2个)**
+  **🎯 核心编辑类 (1个)**
   - Universal Editor (万能编辑) - 默认预设，精确的图像编辑指令转换
-  - Pattern Extraction (花纹提取) - 从指定对象提取花纹或logo
 
   **🖼️ 图像合成类 (2个)**
   - Context Deep Fusion (情境深度融合) - 深度融合不同上下文的头部和身体
@@ -114,16 +113,21 @@ tqdm
   - Furniture Removal (清空家具) - 移除房间内的所有家具
   - Interior Design (室内设计) - 重新设计室内空间风格
 
-  **📷 摄影技术类 (9个)**
+  **📷 摄影技术类 (4个)**
   - Camera Movement (移动镜头) - 戏剧性的镜头移动效果
   - Relighting (重新布光) - 完全改变图像的光照和氛围
   - Camera Zoom (画面缩放) - 有目的的缩放效果
-  - Professional Product Photography (专业产品图) - 商业级产品摄影效果
-  - Product Lifestyle Scene (产品生活场景图) - 产品在生活场景中的展示
-  - Model Hand Product Close-Up (模特手持特写) - 模特手持产品的特写摄影
   - Tilt-Shift Miniature (微缩世界) - 倾斜移轴微缩效果
   - Reflection Addition (添加倒影) - 添加反射表面增强构图
   - Character Pose & Viewpoint Change (角色姿势视角变换) - 改变角色视角保持特征一致
+
+  **🛒 电商应用类 (6个)**
+  - Professional Product Photography (专业产品图) - 商业级产品摄影效果
+  - Product Lifestyle Scene (产品生活场景图) - 产品在生活场景中的展示
+  - Model Hand Product Close-Up (模特手持特写) - 模特手持产品的特写摄影
+  - Fashion Try-On Model Showcase (时尚试穿展示) - 服装试穿展示
+  - Product Pattern Extraction (产品图案提取) - 从指定对象提取花纹或logo
+  - Logo Transfer to Product (品牌融合植入) - 将logo无缝融合到产品图片中
 
   **👤 人物变换类 (4个)**
   - Hair Style Change (更换发型) - 完整的发型变换
@@ -139,10 +143,9 @@ tqdm
   - Pencil Sketch (铅笔手绘) - 铅笔素描风格
   - Oil Painting (油画风格) - 油画风格转换
 
-  **✨ 特殊效果类 (4个)**
+  **✨ 实用功能类 (3个)**
   - Material Transformation (材质置换) - 将主体转换为不同材质
-  - Movie Poster (电影海报) - 电影海报风格转换
-  - Technical Blueprint (蓝图视角) - 技术蓝图风格
+  - Text Addition (添加文字) - 在图像中添加文字
   - Text Removal (移除文字) - 移除图像中的文字
 
 ## 🚀 使用示例
@@ -173,7 +176,21 @@ AudioCropProcess_UTK
 
 ## 📋 版本历史
 
-### v1.2.8 (最新)
+### v1.3.2 (最新)
+- 新增电商应用类，重新组织预设分类结构
+- 创建专门的电商应用类，包含6个专业电商功能：
+  - Ecommerce-Professional Product Photography (专业产品图)
+  - Ecommerce-Product Lifestyle Scene (产品生活场景图)
+  - Ecommerce-Model Hand Product Close-Up (模特手持特写)
+  - Ecommerce-Fashion Try-On Model Showcase (时尚试穿展示)
+  - Ecommerce-Product Pattern Extraction (产品图案提取)
+  - Ecommerce-Logo Transfer to Product (品牌融合植入)
+- 新增品牌融合植入功能，支持将logo无缝融合到产品图片中
+- 优化预设分类逻辑，将通用功能保留在实用功能类中
+- 提升电商专业功能的使用体验和分类清晰度
+- 保持所有预设的完整功能，总数达到33个，覆盖更全面的图像处理需求
+
+### v1.2.8
 - 新增模特手持特写预设和优化产品摄影预设
 - 新增Photo-Model Hand Product Close-Up (模特手持特写)预设，专门用于生成模特手持产品的特写摄影场景
 - 将Photo-Model Product Trial改名为Photo-Product Lifestyle Scene (产品生活场景图)，更准确反映功能
