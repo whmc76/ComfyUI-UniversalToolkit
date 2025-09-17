@@ -8,13 +8,25 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.3.1"
+__version__ = "1.3.3"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.3.3": [
+        "新增多个kjnodes节点移植和架构优化：",
+        "- 新增Color Match (UTK)节点：支持6种颜色匹配算法，用于图像间色彩转移",
+        "- 新增Color To Mask (UTK)节点：根据RGB颜色值创建掩码，支持阈值调节",
+        "- 新增Separate Masks (UTK)节点：分离连通组件为独立掩码，支持3种输出模式",
+        "- 新增Bbox Visualize (UTK)节点：在图像上绘制边界框，支持xywh和xyxy格式",
+        "- 重构mask分类架构：创建独立py文件封装，与image分类保持一致",
+        "- 优化Color Match节点输入顺序：image_target在前，避免bypass节点传递错误",
+        "- 完善节点分类和导航：所有新节点正确显示在右侧导航面板",
+        "- 增强依赖管理：添加color-matcher、scipy等必要依赖",
+        "- 提升代码质量：完整的错误处理、进度显示和参数验证",
+    ],
     "1.3.1": [
         "修复Audio Crop Process节点duration=0时的裁剪逻辑：",
         "- 修复当duration_seconds为0时仍会进行音频裁剪的问题",
@@ -340,10 +352,10 @@ try:
     from .nodes.image.imitation_hue_node import \
         NODE_DISPLAY_NAME_MAPPINGS as IMITATION_HUE_DISPLAY_MAPPINGS
     # 掩码节点
-    from .nodes.mask.mask_operations import \
-        NODE_CLASS_MAPPINGS as MASK_OPERATIONS_MAPPINGS
-    from .nodes.mask.mask_operations import \
-        NODE_DISPLAY_NAME_MAPPINGS as MASK_OPERATIONS_DISPLAY_MAPPINGS
+    from .nodes.mask import \
+        NODE_CLASS_MAPPINGS as MASK_MAPPINGS
+    from .nodes.mask import \
+        NODE_DISPLAY_NAME_MAPPINGS as MASK_DISPLAY_MAPPINGS
     from .nodes.tools.math_expression_node import \
         NODE_CLASS_MAPPINGS as MATH_EXPRESSION_MAPPINGS
     from .nodes.tools.math_expression_node import \
@@ -363,8 +375,8 @@ except ImportError as e:
     # 如果模块化导入失败，使用空字典
     AUDIO_CROP_MAPPINGS = {}
     AUDIO_CROP_DISPLAY_MAPPINGS = {}
-    MASK_OPERATIONS_MAPPINGS = {}
-    MASK_OPERATIONS_DISPLAY_MAPPINGS = {}
+    MASK_MAPPINGS = {}
+    MASK_DISPLAY_MAPPINGS = {}
     CONCATENATE_MULTI_MAPPINGS = {}
     CONCATENATE_MULTI_DISPLAY_MAPPINGS = {}
     PAD_OUTPAINT_MAPPINGS = {}
@@ -517,6 +529,24 @@ except ImportError:
     RESTORE_CROP_DISPLAY = {}
 
 try:
+    from .nodes.image.color_match_standalone import \
+        NODE_CLASS_MAPPINGS as COLOR_MATCH_MAPPINGS
+    from .nodes.image.color_match_standalone import \
+        NODE_DISPLAY_NAME_MAPPINGS as COLOR_MATCH_DISPLAY
+except ImportError:
+    COLOR_MATCH_MAPPINGS = {}
+    COLOR_MATCH_DISPLAY = {}
+
+try:
+    from .nodes.image.bbox_visualize import \
+        NODE_CLASS_MAPPINGS as BBOX_VISUALIZE_MAPPINGS
+    from .nodes.image.bbox_visualize import \
+        NODE_DISPLAY_NAME_MAPPINGS as BBOX_VISUALIZE_DISPLAY
+except ImportError:
+    BBOX_VISUALIZE_MAPPINGS = {}
+    BBOX_VISUALIZE_DISPLAY = {}
+
+try:
     from .nodes.tools.think_remover_node import \
         NODE_CLASS_MAPPINGS as THINK_REMOVER_MAPPINGS
     from .nodes.tools.think_remover_node import \
@@ -557,6 +587,15 @@ except ImportError as e:
     PROMPT_HELPER_MAPPINGS = {}
     PROMPT_HELPER_DISPLAY_MAPPINGS = {}
 
+try:
+    from .nodes.tools.color_to_mask import \
+        NODE_CLASS_MAPPINGS as COLOR_TO_MASK_MAPPINGS
+    from .nodes.tools.color_to_mask import \
+        NODE_DISPLAY_NAME_MAPPINGS as COLOR_TO_MASK_DISPLAY
+except ImportError:
+    COLOR_TO_MASK_MAPPINGS = {}
+    COLOR_TO_MASK_DISPLAY = {}
+
 # 合并所有节点映射
 NODE_CLASS_MAPPINGS = {}
 NODE_CLASS_MAPPINGS.update(EMPTY_UNIT_MAPPINGS)
@@ -576,8 +615,10 @@ NODE_CLASS_MAPPINGS.update(CHECK_MASK_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(PURGE_VRAM_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(CROP_MASK_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(RESTORE_CROP_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(COLOR_MATCH_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(BBOX_VISUALIZE_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(FILL_MASKED_MAPPINGS)
-NODE_CLASS_MAPPINGS.update(MASK_OPERATIONS_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(MASK_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(LOAD_AUDIO_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(AUDIO_CROP_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(TEXTBOX_MAPPINGS)
@@ -587,6 +628,7 @@ NODE_CLASS_MAPPINGS.update(THINK_REMOVER_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(LORA_INFO_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(KONTEXT_PRESETS_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(PROMPT_HELPER_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(COLOR_TO_MASK_MAPPINGS)
 
 # 合并显示名称映射
 NODE_DISPLAY_NAME_MAPPINGS = {}
@@ -607,10 +649,12 @@ NODE_DISPLAY_NAME_MAPPINGS.update(CHECK_MASK_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(PURGE_VRAM_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(CROP_MASK_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(RESTORE_CROP_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(COLOR_MATCH_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(BBOX_VISUALIZE_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(FILL_MASKED_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(LOAD_AUDIO_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(AUDIO_CROP_DISPLAY_MAPPINGS)
-NODE_DISPLAY_NAME_MAPPINGS.update(MASK_OPERATIONS_DISPLAY_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update(MASK_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(TEXTBOX_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(TEXT_CONCATENATE_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(MATH_EXPRESSION_DISPLAY_MAPPINGS)
@@ -618,6 +662,7 @@ NODE_DISPLAY_NAME_MAPPINGS.update(THINK_REMOVER_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(LORA_INFO_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(KONTEXT_PRESETS_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(PROMPT_HELPER_DISPLAY_MAPPINGS)
+NODE_DISPLAY_NAME_MAPPINGS.update(COLOR_TO_MASK_DISPLAY)
 
 NODE_CATEGORIES = {
     "UniversalToolkit": [
@@ -644,12 +689,15 @@ NODE_CATEGORIES = {
         "PurgeVRAM_UTK",
         "CropByMask_UTK",
         "RestoreCropBox_UTK",
+        "ColorMatch_UTK",
+        "BboxVisualize_UTK",
         "TextboxNode_UTK",
         "TextConcatenate_UTK",
         "MathExpression_UTK",
         "ThinkRemover_UTK",
         "LoraInfo_UTK",
         "LoadKontextPresets_UTK",
+        "ColorToMask_UTK",
     ]
 }
 

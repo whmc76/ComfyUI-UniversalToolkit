@@ -12,6 +12,9 @@ soundfile>=0.10.0
 # Scientific computing
 scipy>=1.7.0
 
+# Color matching
+color-matcher
+
 # Network requests
 requests>=2.25.0
 aiohttp>=3.8.0
