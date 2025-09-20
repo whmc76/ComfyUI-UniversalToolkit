@@ -8,13 +8,24 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.3.4"
+__version__ = "1.3.5"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.3.5": [
+        "新增Image Crop By Mask And Resize节点和代码优化：",
+        "- 新增Image Crop By Mask And Resize (UTK)节点：完全按照kjnodes标准实现",
+        "- 支持16像素对齐：确保所有输出尺寸能被16整除，AI模型友好",
+        "- 三阶段批处理策略：分析→统一→处理，确保输出尺寸一致性",
+        "- 智能宽高比处理：基于最大宽高比计算最优目标分辨率",
+        "- 高质量缩放算法：图像使用Lanczos，mask使用双线性插值",
+        "- 灵活的分辨率约束：支持min/max crop resolution参数",
+        "- 恢复Crop By Mask (UTK)节点：保持原有稳定功能不变",
+        "- 提供两种裁剪选择：原版保持兼容，新版提供kjnodes标准",
+    ],
     "1.3.4": [
         "新增Lazy Switch KJ节点和重要功能修复：",
         "- 新增Lazy Switch KJ (UTK)节点：支持懒加载评估的条件流程控制",
@@ -558,6 +569,15 @@ except ImportError:
     BBOX_VISUALIZE_DISPLAY = {}
 
 try:
+    from .nodes.image.image_crop_by_mask_and_resize import \
+        NODE_CLASS_MAPPINGS as IMAGE_CROP_RESIZE_MAPPINGS
+    from .nodes.image.image_crop_by_mask_and_resize import \
+        NODE_DISPLAY_NAME_MAPPINGS as IMAGE_CROP_RESIZE_DISPLAY
+except ImportError:
+    IMAGE_CROP_RESIZE_MAPPINGS = {}
+    IMAGE_CROP_RESIZE_DISPLAY = {}
+
+try:
     from .nodes.tools.think_remover_node import \
         NODE_CLASS_MAPPINGS as THINK_REMOVER_MAPPINGS
     from .nodes.tools.think_remover_node import \
@@ -637,6 +657,7 @@ NODE_CLASS_MAPPINGS.update(CROP_MASK_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(RESTORE_CROP_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(COLOR_MATCH_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(BBOX_VISUALIZE_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(IMAGE_CROP_RESIZE_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(FILL_MASKED_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(MASK_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(LOAD_AUDIO_MAPPINGS)
@@ -672,6 +693,7 @@ NODE_DISPLAY_NAME_MAPPINGS.update(CROP_MASK_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(RESTORE_CROP_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(COLOR_MATCH_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(BBOX_VISUALIZE_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(IMAGE_CROP_RESIZE_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(FILL_MASKED_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(LOAD_AUDIO_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(AUDIO_CROP_DISPLAY_MAPPINGS)
@@ -713,6 +735,7 @@ NODE_CATEGORIES = {
         "RestoreCropBox_UTK",
         "ColorMatch_UTK",
         "BboxVisualize_UTK",
+        "ImageCropByMaskAndResize_UTK",
         "TextboxNode_UTK",
         "TextConcatenate_UTK",
         "MathExpression_UTK",
