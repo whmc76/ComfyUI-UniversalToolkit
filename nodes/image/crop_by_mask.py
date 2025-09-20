@@ -132,26 +132,42 @@ class CropByMask_UTK:
         l_images = []
         l_masks = []
 
+        # 处理图像批次
         for l in image:
             l_images.append(torch.unsqueeze(l, 0))
+        
+        # 处理mask批次
         if mask_for_crop.dim() == 2:
             mask_for_crop = torch.unsqueeze(mask_for_crop, 0)
-        # 如果有多张mask输入，使用第一张
-        if mask_for_crop.shape[0] > 1:
-            log(
-                f"Warning: Multiple mask inputs, using the first.",
-                message_type="warning",
-            )
-            mask_for_crop = torch.unsqueeze(mask_for_crop[0], 0)
+        
+        # 反转mask（如果需要）
         if invert_mask:
             mask_for_crop = 1 - mask_for_crop
-        l_masks.append(tensor2pil(torch.unsqueeze(mask_for_crop, 0)).convert("L"))
+        
+        # 将所有mask转换为PIL图像
+        for i in range(mask_for_crop.shape[0]):
+            l_masks.append(tensor2pil(torch.unsqueeze(mask_for_crop[i], 0)).convert("L"))
+        
+        # 如果mask数量少于图像数量，重复使用最后一个mask
+        while len(l_masks) < len(l_images):
+            l_masks.append(l_masks[-1])
+        
+        # 如果mask数量多于图像数量，截断到图像数量
+        if len(l_masks) > len(l_images):
+            l_masks = l_masks[:len(l_images)]
+            log(f"Warning: More masks than images, using first {len(l_images)} masks.", message_type="warning")
 
-        _mask = mask2image(mask_for_crop)
+        # 获取画布尺寸
+        canvas_width, canvas_height = (
+            tensor2pil(torch.unsqueeze(image[0], 0)).convert("RGB").size
+        )
+        
+        # 存储所有的裁剪框用于预览（使用第一个mask）
+        first_mask = l_masks[0]
         try:
-            bluredmask = gaussian_blur(_mask, 20).convert("L")
+            bluredmask = gaussian_blur(first_mask, 20).convert("L")
         except ImportError:
-            bluredmask = _mask.convert("L")
+            bluredmask = first_mask.convert("L")
 
         x = 0
         y = 0
@@ -162,14 +178,11 @@ class CropByMask_UTK:
         elif detect == "max_inscribed_rect":
             (x, y, width, height) = max_inscribed_rect(bluredmask)
         else:
-            (x, y, width, height) = mask_area(_mask)
+            (x, y, width, height) = mask_area(first_mask)
 
         width = num_round_up_to_multiple(width, 8)
         height = num_round_up_to_multiple(height, 8)
-        log(f"CropByMask_UTK: Box detected. x={x},y={y},width={width},height={height}")
-        canvas_width, canvas_height = (
-            tensor2pil(torch.unsqueeze(image[0], 0)).convert("RGB").size
-        )
+        
         x1 = x - left_reserve if x - left_reserve > 0 else 0
         y1 = y - top_reserve if y - top_reserve > 0 else 0
         x2 = (
@@ -182,7 +195,9 @@ class CropByMask_UTK:
             if y + height + bottom_reserve < canvas_height
             else canvas_height
         )
-        preview_image = tensor2pil(mask_for_crop).convert("RGB")
+        
+        # 创建预览图像
+        preview_image = first_mask.convert("RGB")
         preview_image = draw_rect(
             preview_image,
             x,
@@ -201,12 +216,50 @@ class CropByMask_UTK:
             line_color="#00F000",
             line_width=(width + height) // 200,
         )
+        
         crop_box = (x1, y1, x2, y2)
+        
+        # 处理每个图像和对应的mask
         for i in range(len(l_images)):
             _canvas = tensor2pil(l_images[i]).convert("RGB")
-            _mask = l_masks[0]
-            ret_images.append(pil2tensor(_canvas.crop(crop_box)))
-            ret_masks.append(image2mask(_mask.crop(crop_box)))
+            _mask = l_masks[i]  # 使用对应的mask而不是第一个
+            
+            # 对每个mask单独计算裁剪区域
+            try:
+                current_bluredmask = gaussian_blur(_mask, 20).convert("L")
+            except ImportError:
+                current_bluredmask = _mask.convert("L")
+
+            curr_x, curr_y, curr_width, curr_height = 0, 0, 0, 0
+            if detect == "min_bounding_rect":
+                (curr_x, curr_y, curr_width, curr_height) = min_bounding_rect(current_bluredmask)
+            elif detect == "max_inscribed_rect":
+                (curr_x, curr_y, curr_width, curr_height) = max_inscribed_rect(current_bluredmask)
+            else:
+                (curr_x, curr_y, curr_width, curr_height) = mask_area(_mask)
+
+            curr_width = num_round_up_to_multiple(curr_width, 8)
+            curr_height = num_round_up_to_multiple(curr_height, 8)
+            
+            curr_x1 = curr_x - left_reserve if curr_x - left_reserve > 0 else 0
+            curr_y1 = curr_y - top_reserve if curr_y - top_reserve > 0 else 0
+            curr_x2 = (
+                curr_x + curr_width + right_reserve
+                if curr_x + curr_width + right_reserve < canvas_width
+                else canvas_width
+            )
+            curr_y2 = (
+                curr_y + curr_height + bottom_reserve
+                if curr_y + curr_height + bottom_reserve < canvas_height
+                else canvas_height
+            )
+            
+            current_crop_box = (curr_x1, curr_y1, curr_x2, curr_y2)
+            
+            ret_images.append(pil2tensor(_canvas.crop(current_crop_box)))
+            ret_masks.append(image2mask(_mask.crop(current_crop_box)))
+            
+            log(f"CropByMask_UTK: Image {i+1} - Box detected. x={curr_x},y={curr_y},width={curr_width},height={curr_height}")
 
         log(
             f"CropByMask_UTK Processed {len(ret_images)} image(s).",

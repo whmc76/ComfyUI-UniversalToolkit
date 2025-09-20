@@ -8,13 +8,24 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.3.3"
+__version__ = "1.3.4"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.3.4": [
+        "新增Lazy Switch KJ节点和重要功能修复：",
+        "- 新增Lazy Switch KJ (UTK)节点：支持懒加载评估的条件流程控制",
+        "- 支持任意数据类型的条件切换，提供真正的懒加载机制",
+        "- 修复Crop By Mask (UTK)节点批处理逻辑：现在正确支持图像和mask批次对应",
+        "- 改进批处理算法：每个图像使用对应位置的mask进行独立裁剪",
+        "- 智能处理批次数量不匹配：自动重复或截断mask以匹配图像数量",
+        "- 增强日志输出：每个图像的裁剪信息单独记录，便于调试",
+        "- 保持向后兼容性：单图像+单mask的使用方式保持不变",
+        "- 优化性能：避免不必要的计算，特别适用于条件工作流",
+    ],
     "1.3.3": [
         "新增多个kjnodes节点移植和架构优化：",
         "- 新增Color Match (UTK)节点：支持6种颜色匹配算法，用于图像间色彩转移",
@@ -596,6 +607,15 @@ except ImportError:
     COLOR_TO_MASK_MAPPINGS = {}
     COLOR_TO_MASK_DISPLAY = {}
 
+try:
+    from .nodes.tools.lazy_switch import \
+        NODE_CLASS_MAPPINGS as LAZY_SWITCH_MAPPINGS
+    from .nodes.tools.lazy_switch import \
+        NODE_DISPLAY_NAME_MAPPINGS as LAZY_SWITCH_DISPLAY
+except ImportError:
+    LAZY_SWITCH_MAPPINGS = {}
+    LAZY_SWITCH_DISPLAY = {}
+
 # 合并所有节点映射
 NODE_CLASS_MAPPINGS = {}
 NODE_CLASS_MAPPINGS.update(EMPTY_UNIT_MAPPINGS)
@@ -629,6 +649,7 @@ NODE_CLASS_MAPPINGS.update(LORA_INFO_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(KONTEXT_PRESETS_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(PROMPT_HELPER_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(COLOR_TO_MASK_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(LAZY_SWITCH_MAPPINGS)
 
 # 合并显示名称映射
 NODE_DISPLAY_NAME_MAPPINGS = {}
@@ -663,6 +684,7 @@ NODE_DISPLAY_NAME_MAPPINGS.update(LORA_INFO_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(KONTEXT_PRESETS_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(PROMPT_HELPER_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(COLOR_TO_MASK_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(LAZY_SWITCH_DISPLAY)
 
 NODE_CATEGORIES = {
     "UniversalToolkit": [
@@ -698,6 +720,7 @@ NODE_CATEGORIES = {
         "LoraInfo_UTK",
         "LoadKontextPresets_UTK",
         "ColorToMask_UTK",
+        "LazySwitchKJ_UTK",
     ]
 }
 
