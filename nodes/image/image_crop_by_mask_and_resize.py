@@ -32,7 +32,7 @@ class ImageCropByMaskAndResize_UTK:
     CATEGORY = "UniversalToolkit/Image"
     
     DESCRIPTION = """
-Crops images based on mask detection and optionally resizes to target resolution.
+Crops images based on mask detection and resizes to target resolution with multiple methods.
 
 This node processes batches of images and masks, ensuring all outputs have
 consistent dimensions. It uses a three-stage approach:
@@ -41,17 +41,25 @@ consistent dimensions. It uses a three-stage approach:
 2. **Unification Stage**: Calculate optimal unified dimensions 
 3. **Processing Stage**: Crop all images with unified dimensions and resize
 
+Resize Methods:
+- **fill**: Scale to completely fill target size (may crop edges)
+- **crop**: Scale to fit within target size, center and pad with black
+- **letterbox**: Scale to fit within target size, add black bars to maintain aspect ratio
+- **stretch**: Directly stretch to target size (may distort aspect ratio)
+
 Features:
 - **Batch Processing**: Handles multiple images and masks correctly
 - **16-pixel Alignment**: Ensures dimensions are divisible by 16 (AI-friendly)
-- **Aspect Ratio Preservation**: Maintains proportions during resize
+- **Multiple Resize Methods**: Choose the best method for your use case
+- **Quality Upscaling**: Support for nearest, bilinear, bicubic, and Lanczos
 - **Flexible Constraints**: Min/max crop resolution limits
-- **Quality Scaling**: Uses high-quality Lanczos for images, bilinear for masks
 
 Parameters:
 - **base_resolution**: Target resolution for the longer side
 - **padding**: Extra padding around detected regions  
 - **min/max_crop_resolution**: Constraints for crop region size
+- **resize_method**: How to handle aspect ratio when resizing
+- **upscale_method**: Interpolation method for high-quality scaling
 """
 
     @classmethod
@@ -83,6 +91,14 @@ Parameters:
                     "min": 64, 
                     "max": MAX_RESOLUTION, 
                     "step": 16
+                }),
+                "resize_method": (["fill", "crop", "letterbox", "stretch"], {
+                    "default": "fill",
+                    "tooltip": "Method for resizing to target resolution"
+                }),
+                "upscale_method": (["nearest", "bilinear", "bicubic", "lanczos"], {
+                    "default": "lanczos",
+                    "tooltip": "Interpolation method for upscaling"
                 }),
             },
         }
@@ -142,7 +158,106 @@ Parameters:
 
         return (int(x0), int(y0), int(w), int(h))
 
-    def crop(self, image, mask, base_resolution, padding=0, min_crop_resolution=128, max_crop_resolution=512):
+    def resize_image_with_method(self, image, mask, target_width, target_height, resize_method, upscale_method):
+        """
+        Resize image and mask using specified method.
+        """
+        original_height, original_width = image.shape[0], image.shape[1]
+        
+        if resize_method == "stretch":
+            # 直接拉伸到目标尺寸
+            resized_image = image.unsqueeze(0).movedim(-1, 1)  # (B, C, H, W)
+            resized_image = common_upscale(resized_image, target_width, target_height, upscale_method, "disabled")
+            resized_image = resized_image.movedim(1, -1).squeeze(0)  # (H, W, C)
+            
+            resized_mask = mask.unsqueeze(0).unsqueeze(0)  # (1, 1, H, W)
+            resized_mask = common_upscale(resized_mask, target_width, target_height, 'bilinear', "disabled")
+            resized_mask = resized_mask.squeeze(0).squeeze(0)  # (H, W)
+            
+        elif resize_method == "fill":
+            # 填充模式：缩放到完全填满目标尺寸（可能裁剪）
+            scale = max(target_width / original_width, target_height / original_height)
+            new_width = int(original_width * scale)
+            new_height = int(original_height * scale)
+            
+            # 先缩放到足够大的尺寸
+            resized_image = image.unsqueeze(0).movedim(-1, 1)
+            resized_image = common_upscale(resized_image, new_width, new_height, upscale_method, "disabled")
+            resized_image = resized_image.movedim(1, -1).squeeze(0)
+            
+            resized_mask = mask.unsqueeze(0).unsqueeze(0)
+            resized_mask = common_upscale(resized_mask, new_width, new_height, 'bilinear', "disabled")
+            resized_mask = resized_mask.squeeze(0).squeeze(0)
+            
+            # 然后从中心裁剪到目标尺寸
+            start_x = (new_width - target_width) // 2
+            start_y = (new_height - target_height) // 2
+            resized_image = resized_image[start_y:start_y+target_height, start_x:start_x+target_width, :]
+            resized_mask = resized_mask[start_y:start_y+target_height, start_x:start_x+target_width]
+            
+        elif resize_method == "crop":
+            # 裁剪模式：保持宽高比，从中心裁剪
+            scale = min(target_width / original_width, target_height / original_height)
+            new_width = int(original_width * scale)
+            new_height = int(original_height * scale)
+            
+            # 缩放到合适尺寸
+            resized_image = image.unsqueeze(0).movedim(-1, 1)
+            resized_image = common_upscale(resized_image, new_width, new_height, upscale_method, "disabled")
+            resized_image = resized_image.movedim(1, -1).squeeze(0)
+            
+            resized_mask = mask.unsqueeze(0).unsqueeze(0)
+            resized_mask = common_upscale(resized_mask, new_width, new_height, 'bilinear', "disabled")
+            resized_mask = resized_mask.squeeze(0).squeeze(0)
+            
+            # 如果需要，进行中心裁剪或填充
+            if new_width != target_width or new_height != target_height:
+                # 创建目标尺寸的画布
+                final_image = torch.zeros(target_height, target_width, image.shape[-1], dtype=image.dtype, device=image.device)
+                final_mask = torch.zeros(target_height, target_width, dtype=mask.dtype, device=mask.device)
+                
+                # 计算放置位置（居中）
+                start_x = (target_width - new_width) // 2
+                start_y = (target_height - new_height) // 2
+                
+                final_image[start_y:start_y+new_height, start_x:start_x+new_width, :] = resized_image
+                final_mask[start_y:start_y+new_height, start_x:start_x+new_width] = resized_mask
+                
+                resized_image = final_image
+                resized_mask = final_mask
+                
+        elif resize_method == "letterbox":
+            # letterbox模式：保持宽高比，添加黑边
+            scale = min(target_width / original_width, target_height / original_height)
+            new_width = int(original_width * scale)
+            new_height = int(original_height * scale)
+            
+            # 缩放图像
+            resized_image = image.unsqueeze(0).movedim(-1, 1)
+            resized_image = common_upscale(resized_image, new_width, new_height, upscale_method, "disabled")
+            resized_image = resized_image.movedim(1, -1).squeeze(0)
+            
+            resized_mask = mask.unsqueeze(0).unsqueeze(0)
+            resized_mask = common_upscale(resized_mask, new_width, new_height, 'bilinear', "disabled")
+            resized_mask = resized_mask.squeeze(0).squeeze(0)
+            
+            # 创建目标尺寸的画布（黑色背景）
+            final_image = torch.zeros(target_height, target_width, image.shape[-1], dtype=image.dtype, device=image.device)
+            final_mask = torch.zeros(target_height, target_width, dtype=mask.dtype, device=mask.device)
+            
+            # 居中放置
+            start_x = (target_width - new_width) // 2
+            start_y = (target_height - new_height) // 2
+            
+            final_image[start_y:start_y+new_height, start_x:start_x+new_width, :] = resized_image
+            final_mask[start_y:start_y+new_height, start_x:start_x+new_width] = resized_mask
+            
+            resized_image = final_image
+            resized_mask = final_mask
+        
+        return resized_image, resized_mask
+
+    def crop(self, image, mask, base_resolution, padding=0, min_crop_resolution=128, max_crop_resolution=512, resize_method="fill", upscale_method="lanczos"):
         """
         Crop images by mask and resize to target resolution.
         Implements kjnodes batch processing strategy.
@@ -203,17 +318,18 @@ Parameters:
             cropped_mask = mask[i][y0_new:y1_new, x0_new:x1_new]
             
             # Ensure target dimensions are divisible by 16
-            target_width = (target_width + 15) // 16 * 16
-            target_height = (target_height + 15) // 16 * 16
+            final_target_width = (target_width + 15) // 16 * 16
+            final_target_height = (target_height + 15) // 16 * 16
 
-            # Resize using ComfyUI's common_upscale
-            cropped_image = cropped_image.unsqueeze(0).movedim(-1, 1)  # (B, C, H, W)
-            cropped_image = common_upscale(cropped_image, target_width, target_height, "lanczos", "disabled")
-            cropped_image = cropped_image.movedim(1, -1).squeeze(0)  # (H, W, C)
-
-            cropped_mask = cropped_mask.unsqueeze(0).unsqueeze(0)  # (1, 1, H, W)
-            cropped_mask = common_upscale(cropped_mask, target_width, target_height, 'bilinear', "disabled")
-            cropped_mask = cropped_mask.squeeze(0).squeeze(0)  # (H, W)
+            # Resize using specified method
+            cropped_image, cropped_mask = self.resize_image_with_method(
+                cropped_image, 
+                cropped_mask, 
+                final_target_width, 
+                final_target_height, 
+                resize_method, 
+                upscale_method
+            )
 
             image_list.append(cropped_image)
             mask_list.append(cropped_mask)

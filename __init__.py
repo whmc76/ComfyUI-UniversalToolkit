@@ -8,13 +8,25 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.3.5"
+__version__ = "1.3.6"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.3.6": [
+        "增强Image Crop By Mask And Resize节点功能：",
+        "- 新增4种resize方法：fill、crop、letterbox、stretch",
+        "- fill模式：缩放填满目标尺寸，可能裁剪边缘（默认）",
+        "- crop模式：保持宽高比，居中放置，黑色填充不足部分",
+        "- letterbox模式：保持宽高比，添加黑边，完整保留内容",
+        "- stretch模式：直接拉伸到目标尺寸，可能扭曲比例",
+        "- 新增4种插值方法：nearest、bilinear、bicubic、lanczos",
+        "- 支持高质量Lanczos插值（默认）和快速nearest插值",
+        "- 完善的resize逻辑：智能处理各种宽高比场景",
+        "- 提供专业级图像处理选项，满足不同应用需求",
+    ],
     "1.3.5": [
         "新增Image Crop By Mask And Resize节点和代码优化：",
         "- 新增Image Crop By Mask And Resize (UTK)节点：完全按照kjnodes标准实现",
