@@ -16,7 +16,7 @@ from PIL import Image, ImageOps
 from ..image_utils import tensor2pil, pil2tensor, image2mask
 
 
-class ImageBlendAdvanceV3_UTK:
+class ImageBlendAdvance_UTK:
     """
     Advanced image blending node with transforms and multiple blend modes.
     
@@ -25,7 +25,7 @@ class ImageBlendAdvanceV3_UTK:
     """
     
     def __init__(self):
-        self.NODE_NAME = 'ImageBlendAdvanceV3_UTK'
+        self.NODE_NAME = 'ImageBlendAdvance_UTK'
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -62,7 +62,7 @@ class ImageBlendAdvanceV3_UTK:
 
     RETURN_TYPES = ("IMAGE", "MASK")
     RETURN_NAMES = ("image", "mask")
-    FUNCTION = 'image_blend_advance_v3'
+    FUNCTION = 'image_blend_advance'
     CATEGORY = 'UniversalToolkit/Image'
     
     DESCRIPTION = """
@@ -162,7 +162,7 @@ and artistic effects with precise control over blending.
         
         return rotated_image, rotated_mask
 
-    def image_blend_advance_v3(self, layer_image, invert_mask, blend_mode, opacity,
+    def image_blend_advance(self, layer_image, invert_mask, blend_mode, opacity,
                               x_percent, y_percent, mirror, scale, aspect_ratio, rotate,
                               transform_method, anti_aliasing, background_image=None, layer_mask=None):
         """
@@ -316,9 +316,9 @@ and artistic effects with precise control over blending.
 
 # Node registration
 NODE_CLASS_MAPPINGS = {
-    "ImageBlendAdvanceV3_UTK": ImageBlendAdvanceV3_UTK,
+    "ImageBlendAdvance_UTK": ImageBlendAdvance_UTK,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "ImageBlendAdvanceV3_UTK": "Image Blend Advance V3 (UTK)",
+    "ImageBlendAdvance_UTK": "Image Blend Advance (UTK)",
 }

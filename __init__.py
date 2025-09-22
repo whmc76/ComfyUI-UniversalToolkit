@@ -16,8 +16,8 @@ __url__ = "https://github.com/whmc76"
 # 更新日志
 CHANGELOG = {
     "1.3.7": [
-        "新增Image Blend Advance V3节点和Crop By Mask功能增强：",
-        "- 新增Image Blend Advance V3 (UTK)节点：高级图像混合与变换功能",
+        "新增Image Blend Advance节点和Crop By Mask功能增强：",
+        "- 新增Image Blend Advance (UTK)节点：高级图像混合与变换功能",
         "- 支持17种混合模式：normal、multiply、screen、overlay等专业混合效果",
         "- 完整变换功能：位置、缩放、宽高比、旋转、镜像翻转控制",
         "- 6种插值方法：lanczos、bicubic、bilinear等高质量缩放算法",
@@ -604,12 +604,12 @@ except ImportError:
 
 try:
     from .nodes.image.image_blend_advance_v3 import \
-        NODE_CLASS_MAPPINGS as IMAGE_BLEND_V3_MAPPINGS
+        NODE_CLASS_MAPPINGS as IMAGE_BLEND_MAPPINGS
     from .nodes.image.image_blend_advance_v3 import \
-        NODE_DISPLAY_NAME_MAPPINGS as IMAGE_BLEND_V3_DISPLAY
+        NODE_DISPLAY_NAME_MAPPINGS as IMAGE_BLEND_DISPLAY
 except ImportError:
-    IMAGE_BLEND_V3_MAPPINGS = {}
-    IMAGE_BLEND_V3_DISPLAY = {}
+    IMAGE_BLEND_MAPPINGS = {}
+    IMAGE_BLEND_DISPLAY = {}
 
 try:
     from .nodes.tools.think_remover_node import \
@@ -692,7 +692,7 @@ NODE_CLASS_MAPPINGS.update(RESTORE_CROP_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(COLOR_MATCH_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(BBOX_VISUALIZE_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(IMAGE_CROP_RESIZE_MAPPINGS)
-NODE_CLASS_MAPPINGS.update(IMAGE_BLEND_V3_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(IMAGE_BLEND_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(FILL_MASKED_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(MASK_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(LOAD_AUDIO_MAPPINGS)
@@ -729,7 +729,7 @@ NODE_DISPLAY_NAME_MAPPINGS.update(RESTORE_CROP_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(COLOR_MATCH_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(BBOX_VISUALIZE_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(IMAGE_CROP_RESIZE_DISPLAY)
-NODE_DISPLAY_NAME_MAPPINGS.update(IMAGE_BLEND_V3_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(IMAGE_BLEND_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(FILL_MASKED_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(LOAD_AUDIO_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(AUDIO_CROP_DISPLAY_MAPPINGS)
@@ -772,7 +772,7 @@ NODE_CATEGORIES = {
         "ColorMatch_UTK",
         "BboxVisualize_UTK",
         "ImageCropByMaskAndResize_UTK",
-        "ImageBlendAdvanceV3_UTK",
+        "ImageBlendAdvance_UTK",
         "TextboxNode_UTK",
         "TextConcatenate_UTK",
         "MathExpression_UTK",
