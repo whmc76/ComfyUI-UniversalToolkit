@@ -111,8 +111,9 @@ class CropByMask_UTK:
         "MASK",
         "BOX",
         "IMAGE",
+        "MASK",
     )
-    RETURN_NAMES = ("croped_image", "croped_mask", "crop_box", "box_preview")
+    RETURN_NAMES = ("croped_image", "croped_mask", "crop_box", "box_preview", "remaining_area")
     FUNCTION = "crop_by_mask"
 
     def crop_by_mask(
@@ -202,11 +203,24 @@ class CropByMask_UTK:
             line_width=(width + height) // 200,
         )
         crop_box = (x1, y1, x2, y2)
+        remaining_masks = []
+        
         for i in range(len(l_images)):
             _canvas = tensor2pil(l_images[i]).convert("RGB")
             _mask = l_masks[0]
             ret_images.append(pil2tensor(_canvas.crop(crop_box)))
             ret_masks.append(image2mask(_mask.crop(crop_box)))
+            
+            # 计算remaining area：被裁剪掉的区域显示为白色
+            original_mask_tensor = mask_for_crop[0] if i == 0 else mask_for_crop[min(i, mask_for_crop.shape[0]-1)]
+            
+            # 创建裁剪区域的mask（被裁剪的部分）
+            crop_region_mask = torch.zeros_like(original_mask_tensor)
+            crop_region_mask[y1:y2, x1:x2] = 1.0
+            
+            # remaining area显示被裁剪掉的部分：裁剪区域为白色
+            remaining_mask = crop_region_mask
+            remaining_masks.append(remaining_mask.unsqueeze(0))
 
         log(
             f"CropByMask_UTK Processed {len(ret_images)} image(s).",
@@ -217,6 +231,7 @@ class CropByMask_UTK:
             torch.cat(ret_masks, dim=0),
             list(crop_box),
             pil2tensor(preview_image),
+            torch.cat(remaining_masks, dim=0),
         )
 
 

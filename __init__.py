@@ -8,13 +8,26 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.3.6"
+__version__ = "1.3.7"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.3.7": [
+        "新增Image Blend Advance V3节点和Crop By Mask功能增强：",
+        "- 新增Image Blend Advance V3 (UTK)节点：高级图像混合与变换功能",
+        "- 支持17种混合模式：normal、multiply、screen、overlay等专业混合效果",
+        "- 完整变换功能：位置、缩放、宽高比、旋转、镜像翻转控制",
+        "- 6种插值方法：lanczos、bicubic、bilinear等高质量缩放算法",
+        "- 智能边界处理：自动处理图层超出画布的情况",
+        "- 自动背景生成：未提供背景时自动创建透明背景",
+        "- Alpha通道支持：自动提取和处理RGBA图像的透明度",
+        "- 增强Crop By Mask (UTK)节点：新增remaining_area输出",
+        "- remaining_area显示被裁剪区域：白色矩形标记已处理区域",
+        "- 完善批处理支持：智能处理多图像和蒙版的对应关系",
+    ],
     "1.3.6": [
         "增强Image Crop By Mask And Resize节点功能：",
         "- 新增4种resize方法：fill、crop、letterbox、stretch",
@@ -590,6 +603,15 @@ except ImportError:
     IMAGE_CROP_RESIZE_DISPLAY = {}
 
 try:
+    from .nodes.image.image_blend_advance_v3 import \
+        NODE_CLASS_MAPPINGS as IMAGE_BLEND_V3_MAPPINGS
+    from .nodes.image.image_blend_advance_v3 import \
+        NODE_DISPLAY_NAME_MAPPINGS as IMAGE_BLEND_V3_DISPLAY
+except ImportError:
+    IMAGE_BLEND_V3_MAPPINGS = {}
+    IMAGE_BLEND_V3_DISPLAY = {}
+
+try:
     from .nodes.tools.think_remover_node import \
         NODE_CLASS_MAPPINGS as THINK_REMOVER_MAPPINGS
     from .nodes.tools.think_remover_node import \
@@ -670,6 +692,7 @@ NODE_CLASS_MAPPINGS.update(RESTORE_CROP_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(COLOR_MATCH_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(BBOX_VISUALIZE_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(IMAGE_CROP_RESIZE_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(IMAGE_BLEND_V3_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(FILL_MASKED_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(MASK_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(LOAD_AUDIO_MAPPINGS)
@@ -706,6 +729,7 @@ NODE_DISPLAY_NAME_MAPPINGS.update(RESTORE_CROP_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(COLOR_MATCH_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(BBOX_VISUALIZE_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(IMAGE_CROP_RESIZE_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(IMAGE_BLEND_V3_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(FILL_MASKED_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(LOAD_AUDIO_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(AUDIO_CROP_DISPLAY_MAPPINGS)
@@ -748,6 +772,7 @@ NODE_CATEGORIES = {
         "ColorMatch_UTK",
         "BboxVisualize_UTK",
         "ImageCropByMaskAndResize_UTK",
+        "ImageBlendAdvanceV3_UTK",
         "TextboxNode_UTK",
         "TextConcatenate_UTK",
         "MathExpression_UTK",
