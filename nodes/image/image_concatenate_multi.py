@@ -2,11 +2,12 @@
 Image Concatenate Multi Node (UTK)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-版本: 1.4.0
+版本: 1.5.0
 最后更新: 2024-12-19
 作者: May
 
 变更日志：
+- v1.5.0: 修复无效输入处理问题，当某个输入无效时自动忽略并拼接剩余有效图像，避免报错。
 - v1.4.0: 修复节点分类，从KJNodes/image改为UniversalToolkit/Image，保持与其他image节点一致性。
 - v1.3.0: 移除grid_size参数，增加gap参数，支持拼接间距设置。
 - v1.2.0: 默认启用智能拼接（smart），支持2~4图，自动等比缩放，逐步拼接，输出接近正方形。
@@ -71,11 +72,23 @@ Creates an image from multiple images.
         image_3=None,
         image_4=None,
     ):
-        images = [image_1, image_2]
-        if image_3 is not None:
-            images.append(image_3)
-        if image_4 is not None:
-            images.append(image_4)
+        # 收集所有输入图像
+        all_images = [image_1, image_2, image_3, image_4]
+        
+        # 过滤掉无效输入（None 或形状不正确的图像）
+        images = []
+        for img in all_images:
+            if img is not None and self._is_valid_image(img):
+                images.append(img)
+        
+        # 如果没有有效图像，返回错误
+        if len(images) == 0:
+            raise ValueError("没有有效的输入图像")
+        
+        # 如果只有一个有效图像，直接返回
+        if len(images) == 1:
+            return (images[0],)
+        
         if mode == "smart":
             img = images[0]
             for ni in images[1:]:
@@ -96,6 +109,27 @@ Creates an image from multiple images.
             )
         return (image,)
 
+    def _is_valid_image(self, img):
+        """
+        验证图像是否有效
+        """
+        if img is None:
+            return False
+        
+        # 检查是否为 torch.Tensor
+        if not isinstance(img, torch.Tensor):
+            return False
+        
+        # 检查形状是否正确（至少应该是4维：batch, height, width, channels）
+        if len(img.shape) != 4:
+            return False
+        
+        # 检查是否有有效的尺寸
+        if img.shape[1] <= 0 or img.shape[2] <= 0 or img.shape[3] <= 0:
+            return False
+        
+        return True
+
     def _sequential_concatenate(
         self,
         image1,
@@ -106,8 +140,16 @@ Creates an image from multiple images.
         background_color,
         gap,
     ):
-        h1, w1 = image1.shape[1:3]
-        h2, w2 = image2.shape[1:3]
+        b1, h1, w1 = image1.shape[:3]
+        b2, h2, w2 = image2.shape[:3]
+        
+        # 处理批次大小不匹配的情况
+        if b1 != b2:
+            # 如果批次大小不同，取较小的批次大小
+            min_batch = min(b1, b2)
+            image1 = image1[:min_batch]
+            image2 = image2[:min_batch]
+            b1 = min_batch
         if direction == "auto":
             horizontal_ratio = (w1 + w2) / max(h1, h2)
             vertical_ratio = max(w1, w2) / (h1 + h2)
@@ -193,7 +235,7 @@ Creates an image from multiple images.
                 final_width = max(w1, w2)
         if background_color == "transparent":
             output = torch.zeros(
-                (1, final_height, final_width, image1.shape[-1]),
+                (b1, final_height, final_width, image1.shape[-1]),
                 dtype=image1.dtype,
                 device=image1.device,
             )
@@ -204,7 +246,7 @@ Creates an image from multiple images.
                 else 0.0 if background_color == "black" else 0.5
             )
             output = torch.full(
-                (1, final_height, final_width, image1.shape[-1]),
+                (b1, final_height, final_width, image1.shape[-1]),
                 color_value,
                 dtype=image1.dtype,
                 device=image1.device,
@@ -294,6 +336,15 @@ Creates an image from multiple images.
     def _smart_pair_concatenate(self, img1, img2, max_size, background_color, gap):
         b, h1, w1, c = img1.shape
         b2, h2, w2, c2 = img2.shape
+        
+        # 处理批次大小不匹配的情况
+        if b != b2:
+            # 如果批次大小不同，取较小的批次大小
+            min_batch = min(b, b2)
+            img1 = img1[:min_batch]
+            img2 = img2[:min_batch]
+            b = min_batch
+        
         target_height = max(h1, h2)
         scale1_h = target_height / h1
         scale2_h = target_height / h2
@@ -346,7 +397,7 @@ Creates an image from multiple images.
                 final_width = new_w1 + new_w2 + (gap if gap > 0 else 0)
             if background_color == "transparent":
                 output = torch.zeros(
-                    (1, final_height, final_width, img1.shape[-1]),
+                    (b, final_height, final_width, img1.shape[-1]),
                     dtype=img1.dtype,
                     device=img1.device,
                 )
@@ -357,7 +408,7 @@ Creates an image from multiple images.
                     else 0.0 if background_color == "black" else 0.5
                 )
                 output = torch.full(
-                    (1, final_height, final_width, img1.shape[-1]),
+                    (b, final_height, final_width, img1.shape[-1]),
                     color_value,
                     dtype=img1.dtype,
                     device=img1.device,
@@ -400,7 +451,7 @@ Creates an image from multiple images.
                 final_width = new_width
             if background_color == "transparent":
                 output = torch.zeros(
-                    (1, final_height, final_width, img1.shape[-1]),
+                    (b, final_height, final_width, img1.shape[-1]),
                     dtype=img1.dtype,
                     device=img1.device,
                 )
@@ -411,7 +462,7 @@ Creates an image from multiple images.
                     else 0.0 if background_color == "black" else 0.5
                 )
                 output = torch.full(
-                    (1, final_height, final_width, img1.shape[-1]),
+                    (b, final_height, final_width, img1.shape[-1]),
                     color_value,
                     dtype=img1.dtype,
                     device=img1.device,
