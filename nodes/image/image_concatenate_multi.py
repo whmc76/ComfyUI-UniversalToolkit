@@ -2,11 +2,13 @@
 Image Concatenate Multi Node (UTK)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-版本: 1.5.0
+版本: 1.6.1
 最后更新: 2024-12-19
 作者: May
 
 变更日志：
+- v1.6.1: 为Image Concatenate Multi节点添加详细注释，完善代码文档。
+- v1.6.0: 将image_2改为可选输入，支持更灵活的输入组合（如只输入image1、输入134、输入14等）。
 - v1.5.0: 修复无效输入处理问题，当某个输入无效时自动忽略并拼接剩余有效图像，避免报错。
 - v1.4.0: 修复节点分类，从KJNodes/image改为UniversalToolkit/Image，保持与其他image节点一致性。
 - v1.3.0: 移除grid_size参数，增加gap参数，支持拼接间距设置。
@@ -26,10 +28,18 @@ import torch
 class ImageConcatenateMulti_UTK:
     @classmethod
     def INPUT_TYPES(cls):
+        """
+        定义节点的输入类型
+        
+        注意：v1.6.0版本将image_2从required改为optional，
+        现在支持更灵活的输入组合：
+        - 只输入image_1：直接返回image_1
+        - 输入任意有效组合：如image_1+image_3+image_4、image_1+image_4等
+        - 自动过滤无效输入，避免因某个输入无效而报错
+        """
         return {
             "required": {
-                "image_1": ("IMAGE",),
-                "image_2": ("IMAGE",),
+                "image_1": ("IMAGE",),  # 必需的第一个图像输入
                 "mode": (["sequential", "smart"], {"default": "smart"}),
                 "direction": (["right", "down", "left", "up"], {"default": "right"}),
                 "match_image_size": ("BOOLEAN", {"default": False}),
@@ -44,8 +54,9 @@ class ImageConcatenateMulti_UTK:
                 "gap": ("INT", {"default": 0, "min": 0, "max": 256, "step": 1}),
             },
             "optional": {
-                "image_3": ("IMAGE",),
-                "image_4": ("IMAGE",),
+                "image_2": ("IMAGE",),  # v1.6.0新增：可选的第二个图像输入
+                "image_3": ("IMAGE",),  # 可选的第三个图像输入
+                "image_4": ("IMAGE",),  # 可选的第四个图像输入
             },
         }
 
@@ -68,27 +79,56 @@ Creates an image from multiple images.
         background_color,
         gap,
         image_1,
-        image_2,
+        image_2=None,
         image_3=None,
         image_4=None,
     ):
-        # 收集所有输入图像
+        """
+        多图像拼接主函数
+        
+        支持灵活的输入组合：
+        - 只输入image_1：直接返回image_1
+        - 输入任意有效组合：如image_1+image_3+image_4、image_1+image_4等
+        - 自动过滤无效输入（None或形状不正确的图像）
+        
+        Args:
+            mode: 拼接模式 ("sequential" 或 "smart")
+            direction: 拼接方向 ("right", "down", "left", "up")
+            match_image_size: 是否匹配图像尺寸
+            max_size: 最大输出尺寸
+            background_color: 背景颜色
+            gap: 图像间距
+            image_1: 必需的第一个图像输入
+            image_2: 可选的第二个图像输入（v1.6.0新增）
+            image_3: 可选的第三个图像输入
+            image_4: 可选的第四个图像输入
+            
+        Returns:
+            tuple: 拼接后的图像
+            
+        Raises:
+            ValueError: 当没有有效输入图像时
+        """
+        # 收集所有输入图像（包括可选的image_2）
         all_images = [image_1, image_2, image_3, image_4]
         
         # 过滤掉无效输入（None 或形状不正确的图像）
+        # 这样可以支持任意输入组合，如只输入image_1、输入134、输入14等
         images = []
         for img in all_images:
             if img is not None and self._is_valid_image(img):
                 images.append(img)
         
-        # 如果没有有效图像，返回错误
+        # 边界情况处理：如果没有有效图像，返回错误
         if len(images) == 0:
             raise ValueError("没有有效的输入图像")
         
-        # 如果只有一个有效图像，直接返回
+        # 边界情况处理：如果只有一个有效图像，直接返回
+        # 这解决了只输入image_1时的处理问题
         if len(images) == 1:
             return (images[0],)
         
+        # 智能拼接模式：自动选择最佳拼接方向，输出接近正方形
         if mode == "smart":
             img = images[0]
             for ni in images[1:]:
@@ -96,6 +136,8 @@ Creates an image from multiple images.
                     img, ni, max_size, background_color, gap
                 )
             return (img,)
+        
+        # 顺序拼接模式：按照指定方向依次拼接
         image = images[0]
         for new_image in images[1:]:
             (image,) = self._sequential_concatenate(
@@ -112,6 +154,21 @@ Creates an image from multiple images.
     def _is_valid_image(self, img):
         """
         验证图像是否有效
+        
+        用于过滤无效输入，支持灵活的输入组合。
+        当某个输入为None或形状不正确时，自动忽略该输入。
+        
+        Args:
+            img: 待验证的图像张量
+            
+        Returns:
+            bool: True表示图像有效，False表示图像无效
+            
+        验证条件：
+        1. 图像不为None
+        2. 图像为torch.Tensor类型
+        3. 图像形状为4维 (batch, height, width, channels)
+        4. 图像尺寸大于0
         """
         if img is None:
             return False
