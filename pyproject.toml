@@ -4,10 +4,18 @@ description = "A comprehensive toolkit based on ComfyUI, providing image, mask, 
 version = "1.3.7"
 license = {file = "LICENSE"}
 dependencies = [
-    "torch",
-    "numpy",
-    "Pillow",
-    "opencv-python"
+    "torch>=1.9.0",
+    "numpy>=1.21.0",
+    "Pillow>=8.0.0",
+    "opencv-python>=4.5.0",
+    "librosa>=0.8.0",
+    "torchaudio>=1.9.0",
+    "soundfile>=0.10.0",
+    "scipy>=1.7.0",
+    "color-matcher",
+    "requests>=2.25.0",
+    "aiohttp>=3.8.0",
+    "tqdm>=4.60.0"
 ]
 requires-python = ">=3.8"
 classifiers = [
@@ -24,7 +32,7 @@ Documentation = "https://github.com/whmc76/ComfyUI-UniversalToolkit/wiki"
 [tool.comfy]
 PublisherId = "whmc76"
 DisplayName = "ComfyUI-UniversalToolkit"
-Icon = ""
-Banner = ""
+Icon = "https://raw.githubusercontent.com/whmc76/ComfyUI-UniversalToolkit/main/assets/icon.png"
+Banner = "https://raw.githubusercontent.com/whmc76/ComfyUI-UniversalToolkit/main/assets/banner.png"
 requires-comfyui = ">=1.0.0"
 includes = []
