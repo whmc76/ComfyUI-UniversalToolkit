@@ -8,13 +8,22 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.4.2"
+__version__ = "1.4.3"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.4.3": [
+        "修复翻译API节点错误消息显示问题：",
+        "- 修复API密钥获取网址在错误消息中不显示的问题",
+        "- 改进特定提供者模式下的错误处理逻辑",
+        "- 现在API密钥缺失时会显示完整的错误消息和获取网址",
+        "- 错误消息格式：'Error: Service requires API key. Get it at: [URL]'",
+        "- 提升用户体验，用户可直接点击链接申请API密钥",
+        "- 统一了auto模式和特定提供者模式的错误消息显示",
+    ],
     "1.4.2": [
         "优化翻译API节点服务可靠性：",
         "- 移除LibreTranslate和MyMemory等不可靠的翻译服务",
