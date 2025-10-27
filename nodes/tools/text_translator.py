@@ -34,8 +34,8 @@ class GLM4FlashProvider(TranslationProvider):
     """GLM-4 Flash (Free) - AI-powered translation"""
     
     def __init__(self):
-        super().__init__("GLM-4 Flash (Free)", True, False)
-        self.priority = 1
+        super().__init__("GLM-4 Flash (Free)", True, True)
+        self.priority = 6
         self.base_url = "https://open.bigmodel.cn/api/paas/v4/chat/completions"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -146,8 +146,8 @@ class SiliconFlowProvider(TranslationProvider):
     """Silicon Flow (Free) - AI-powered translation"""
     
     def __init__(self):
-        super().__init__("Silicon Flow (Free)", True, False)
-        self.priority = 2
+        super().__init__("Silicon Flow (Free)", True, True)
+        self.priority = 7
         self.base_url = "https://api.siliconflow.cn/v1/chat/completions"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -259,7 +259,7 @@ class BaiduTranslateProvider(TranslationProvider):
     
     def __init__(self):
         super().__init__("Baidu Translate (Free)", True, True)
-        self.priority = 3
+        self.priority = 8
         self.base_url = "https://fanyi-api.baidu.com/api/trans/vip/translate"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -339,7 +339,7 @@ class YoudaoTranslateProvider(TranslationProvider):
     
     def __init__(self):
         super().__init__("Youdao Translate (Free)", True, True)
-        self.priority = 4
+        self.priority = 9
         self.base_url = "https://openapi.youdao.com/api"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -420,7 +420,7 @@ class MicrosoftTranslateProvider(TranslationProvider):
     
     def __init__(self):
         super().__init__("Microsoft Translator (Free)", True, False)
-        self.priority = 5
+        self.priority = 1
         self.base_url = "https://api.cognitive.microsofttranslator.com/translate"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -485,7 +485,7 @@ class GoogleTranslateProvider(TranslationProvider):
     
     def __init__(self):
         super().__init__("Google Translate (Free)", True, False)
-        self.priority = 6
+        self.priority = 2
         self.base_url = "https://translate.googleapis.com/translate_a/single"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -523,7 +523,7 @@ class LibreTranslateProvider(TranslationProvider):
     
     def __init__(self):
         super().__init__("LibreTranslate (Free)", True, False)
-        self.priority = 7
+        self.priority = 3
         self.base_url = "https://libretranslate.de/translate"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -560,7 +560,7 @@ class MyMemoryProvider(TranslationProvider):
     
     def __init__(self):
         super().__init__("MyMemory (Free)", True, False)
-        self.priority = 8
+        self.priority = 4
         self.base_url = "https://api.mymemory.translated.net/get"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -595,7 +595,7 @@ class DeepLProvider(TranslationProvider):
     
     def __init__(self):
         super().__init__("DeepL (Paid)", False, True)
-        self.priority = 9
+        self.priority = 10
         self.base_url = "https://api-free.deepl.com/v2/translate"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -637,7 +637,7 @@ class AzureTranslatorProvider(TranslationProvider):
     
     def __init__(self):
         super().__init__("Azure Translator (Paid)", False, True)
-        self.priority = 10
+        self.priority = 11
         self.base_url = "https://api.cognitive.microsofttranslator.com/translate"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -733,17 +733,17 @@ class TextTranslator_UTK:
             "Íslenska", "Македонски", "Malti", "Српски", "Українська", "O'zbek"
         ]
         
-        # Provider list with free/paid indicators
+        # Provider list with free/paid indicators (ordered by priority)
         provider_list = [
             "auto",
-            "GLM-4 Flash (Free)",
-            "Silicon Flow (Free)",
-            "Baidu Translate (Free)",
-            "Youdao Translate (Free)",
             "Microsoft Translator (Free)",
             "Google Translate (Free)",
             "LibreTranslate (Free)", 
             "MyMemory (Free)",
+            "GLM-4 Flash (Free)",
+            "Silicon Flow (Free)",
+            "Baidu Translate (Free)",
+            "Youdao Translate (Free)",
             "DeepL (Paid)",
             "Azure Translator (Paid)"
         ]
