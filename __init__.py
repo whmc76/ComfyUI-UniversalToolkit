@@ -8,13 +8,23 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.4.1"
+__version__ = "1.4.2"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.4.2": [
+        "优化翻译API节点服务可靠性：",
+        "- 移除LibreTranslate和MyMemory等不可靠的翻译服务",
+        "- 修复Bing Translator API密钥要求，正确标记为需要API密钥",
+        "- 重新排序翻译服务：Google Translate作为唯一免费服务",
+        "- 简化提供者列表，仅保留经过验证的可靠服务",
+        "- 改进Bing Translator错误处理，提供更准确的API密钥验证",
+        "- 清理代码，移除116行不可靠服务的代码",
+        "- 提升翻译成功率和用户体验",
+    ],
     "1.4.1": [
         "修复翻译API节点错误处理和重命名：",
         "- 重命名Text Translator节点为Text Translator API (UTK)，更准确反映功能定位",
