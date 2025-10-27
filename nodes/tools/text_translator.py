@@ -19,10 +19,11 @@ import random
 class TranslationProvider:
     """Base class for translation providers"""
     
-    def __init__(self, name: str, is_free: bool, requires_key: bool = False):
+    def __init__(self, name: str, is_free: bool, requires_key: bool = False, api_key_url: str = ""):
         self.name = name
         self.is_free = is_free
         self.requires_key = requires_key
+        self.api_key_url = api_key_url
         self.priority = 0  # Lower number = higher priority
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -34,7 +35,7 @@ class GLM4FlashProvider(TranslationProvider):
     """GLM-4 Flash (Free) - AI-powered translation"""
     
     def __init__(self):
-        super().__init__("GLM-4 Flash (Free)", True, True)
+        super().__init__("GLM-4 Flash (Free)", True, True, "https://open.bigmodel.cn/")
         self.priority = 6
         self.base_url = "https://open.bigmodel.cn/api/paas/v4/chat/completions"
     
@@ -106,7 +107,7 @@ Direct translation without separators"""
             # Skip if no API key provided for AI services
             if not api_key or api_key == "your-api-key-here":
                 print(f"    ⏭️  Skipping GLM-4 Flash - requires API key")
-                return False, "GLM-4 Flash requires API key"
+                return False, f"GLM-4 Flash requires API key. Get it at: {self.api_key_url}"
             
             headers = {
                 'Content-Type': 'application/json',
@@ -146,7 +147,7 @@ class SiliconFlowProvider(TranslationProvider):
     """Silicon Flow (Free) - AI-powered translation"""
     
     def __init__(self):
-        super().__init__("Silicon Flow (Free)", True, True)
+        super().__init__("Silicon Flow (Free)", True, True, "https://cloud.siliconflow.cn/")
         self.priority = 7
         self.base_url = "https://api.siliconflow.cn/v1/chat/completions"
     
@@ -218,7 +219,7 @@ Direct translation without separators"""
             # Skip if no API key provided for AI services
             if not api_key or api_key == "your-api-key-here":
                 print(f"    ⏭️  Skipping Silicon Flow - requires API key")
-                return False, "Silicon Flow requires API key"
+                return False, f"Silicon Flow requires API key. Get it at: {self.api_key_url}"
             
             headers = {
                 'Content-Type': 'application/json',
@@ -258,7 +259,7 @@ class BaiduTranslateProvider(TranslationProvider):
     """Baidu Translate (Free) - Baidu translation service"""
     
     def __init__(self):
-        super().__init__("Baidu Translate (Free)", True, True)
+        super().__init__("Baidu Translate (Free)", True, True, "https://fanyi-api.baidu.com/")
         self.priority = 8
         self.base_url = "https://fanyi-api.baidu.com/api/trans/vip/translate"
     
@@ -290,7 +291,7 @@ class BaiduTranslateProvider(TranslationProvider):
             # Skip if no API key provided for Baidu
             if not api_key or api_key == "your_app_id":
                 print(f"    ⏭️  Skipping Baidu Translate - requires API key")
-                return False, "Baidu Translate requires API key"
+                return False, f"Baidu Translate requires API key. Get it at: {self.api_key_url}"
             
             # Generate salt and sign for Baidu API
             import time
@@ -338,7 +339,7 @@ class YoudaoTranslateProvider(TranslationProvider):
     """Youdao Translate (Free) - Youdao translation service"""
     
     def __init__(self):
-        super().__init__("Youdao Translate (Free)", True, True)
+        super().__init__("Youdao Translate (Free)", True, True, "https://ai.youdao.com/")
         self.priority = 9
         self.base_url = "https://openapi.youdao.com/api"
     
@@ -370,7 +371,7 @@ class YoudaoTranslateProvider(TranslationProvider):
             # Skip if no API key provided for Youdao
             if not api_key or api_key == "your_app_key":
                 print(f"    ⏭️  Skipping Youdao Translate - requires API key")
-                return False, "Youdao Translate requires API key"
+                return False, f"Youdao Translate requires API key. Get it at: {self.api_key_url}"
             
             # Generate salt and sign for Youdao API
             import time
@@ -419,7 +420,7 @@ class MicrosoftTranslateProvider(TranslationProvider):
     """Microsoft Translator (Free) - Microsoft translation service"""
     
     def __init__(self):
-        super().__init__("Microsoft Translator (Free)", True, True)
+        super().__init__("Microsoft Translator (Free)", True, True, "https://azure.microsoft.com/zh-cn/services/cognitive-services/translator/")
         self.priority = 4
         self.base_url = "https://api.cognitive.microsofttranslator.com/translate"
     
@@ -430,7 +431,7 @@ class MicrosoftTranslateProvider(TranslationProvider):
             # Skip if no API key provided for Microsoft Translator
             if not api_key or api_key == "your_api_key":
                 print(f"    ⏭️  Skipping Microsoft Translator - requires API key")
-                return False, "Microsoft Translator requires API key"
+                return False, f"Microsoft Translator requires API key. Get it at: {self.api_key_url}"
             
             # Microsoft Translator language code mapping
             lang_map = {
@@ -553,7 +554,7 @@ class BingTranslateProvider(TranslationProvider):
     """Bing Translator (Free) - Microsoft's free translation service"""
     
     def __init__(self):
-        super().__init__("Bing Translator (Free)", True, True)  # Requires API key
+        super().__init__("Bing Translator (Free)", True, True, "https://azure.microsoft.com/zh-cn/services/cognitive-services/translator/")  # Requires API key
         self.priority = 2
         self.base_url = "https://api.cognitive.microsofttranslator.com/translate"
     
@@ -564,7 +565,7 @@ class BingTranslateProvider(TranslationProvider):
             # Check if API key is provided
             if not api_key or api_key == "your_api_key":
                 print(f"    ⏭️  Skipping Bing Translator - requires API key")
-                return False, "Bing Translator requires API key"
+                return False, f"Bing Translator requires API key. Get it at: {self.api_key_url}"
             
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
@@ -611,14 +612,14 @@ class DeepLProvider(TranslationProvider):
     """DeepL (Paid) - High quality translation"""
     
     def __init__(self):
-        super().__init__("DeepL (Paid)", False, True)
+        super().__init__("DeepL (Paid)", False, True, "https://www.deepl.com/pro-api")
         self.priority = 10
         self.base_url = "https://api-free.deepl.com/v2/translate"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
         if not api_key:
             print(f"    ❌ DeepL requires API key but none provided")
-            return False, "DeepL requires API key"
+            return False, f"DeepL requires API key. Get it at: {self.api_key_url}"
         
         try:
             print(f"    🔗 Connecting to DeepL API...")
@@ -653,14 +654,14 @@ class AzureTranslatorProvider(TranslationProvider):
     """Azure Translator (Paid) - Microsoft translation service"""
     
     def __init__(self):
-        super().__init__("Azure Translator (Paid)", False, True)
+        super().__init__("Azure Translator (Paid)", False, True, "https://azure.microsoft.com/zh-cn/services/cognitive-services/translator/")
         self.priority = 11
         self.base_url = "https://api.cognitive.microsofttranslator.com/translate"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
         if not api_key:
             print(f"    ❌ Azure Translator requires API key but none provided")
-            return False, "Azure Translator requires API key"
+            return False, f"Azure Translator requires API key. Get it at: {self.api_key_url}"
         
         try:
             print(f"    🔗 Connecting to Azure Translator API...")
