@@ -736,10 +736,12 @@ class TextTranslator_UTK:
         # Provider list with free/paid indicators (ordered by priority)
         provider_list = [
             "auto",
+            "--- Free Services ---",
             "Microsoft Translator (Free)",
             "Google Translate (Free)",
             "LibreTranslate (Free)", 
             "MyMemory (Free)",
+            "--- Require API Key ---",
             "GLM-4 Flash (Free)",
             "Silicon Flow (Free)",
             "Baidu Translate (Free)",
@@ -839,6 +841,12 @@ class TextTranslator_UTK:
         else:
             # Use specific provider
             print(f"🎯 Using specific provider: {provider}")
+            
+            # Skip separator items
+            if provider.startswith("---"):
+                print(f"❌ Error: '{provider}' is a separator, not a provider")
+                return ("", "", f"Error: '{provider}' is a separator, not a provider")
+            
             if provider not in self.providers:
                 print(f"❌ Error: Unknown provider '{provider}'")
                 return ("", "", f"Error: Unknown provider '{provider}'")
