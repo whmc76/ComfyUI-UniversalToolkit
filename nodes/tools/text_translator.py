@@ -549,85 +549,27 @@ class GoogleTranslateProvider(TranslationProvider):
             return False, f"Google Translate error: {str(e)}"
 
 
-class LibreTranslateProvider(TranslationProvider):
-    """LibreTranslate (Free) - Open source translation"""
-    
-    def __init__(self):
-        super().__init__("LibreTranslate (Free)", True, False)
-        self.priority = 2
-        self.base_url = "https://libretranslate.de/translate"
-        self.backup_urls = [
-            "https://translate.argosopentech.com/translate",
-            "https://libretranslate.com/translate"
-        ]
-    
-    def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
-        data = {
-            'q': text,
-            'source': source_lang if source_lang != "auto" else "en",
-            'target': target_lang,
-            'format': 'text'
-        }
-        
-        # Try primary URL first
-        urls_to_try = [self.base_url] + self.backup_urls
-        
-        for i, url in enumerate(urls_to_try, 1):
-            try:
-                print(f"    🔗 Connecting to LibreTranslate API (URL {i}/{len(urls_to_try)})...")
-                print(f"    📤 Sending request: {source_lang} -> {target_lang}")
-                response = requests.post(url, data=data, timeout=10)
-                print(f"    📥 Response status: {response.status_code}")
-                
-                if response.status_code == 200:
-                    # Check if response is HTML (error page)
-                    if response.text.strip().startswith('<!DOCTYPE html>') or response.text.strip().startswith('<html'):
-                        print(f"    ⚠️  URL {i} returned HTML page, trying next...")
-                        continue
-                    
-                    # Check if response is empty
-                    if not response.text.strip():
-                        print(f"    ⚠️  URL {i} returned empty response, trying next...")
-                        continue
-                    
-                    try:
-                        result = response.json()
-                        if 'translatedText' in result:
-                            translated_text = result['translatedText']
-                            print(f"    ✅ LibreTranslate success (URL {i}): {len(translated_text)} characters")
-                            return True, translated_text
-                        print(f"    ⚠️  URL {i}: Invalid response format - {result}")
-                        continue
-                    except ValueError as e:
-                        print(f"    ⚠️  URL {i}: JSON parse error - {response.text[:100]}...")
-                        continue
-                else:
-                    print(f"    ⚠️  URL {i}: HTTP {response.status_code}, trying next...")
-                    continue
-                    
-            except Exception as e:
-                print(f"    ⚠️  URL {i} failed: {str(e)}, trying next...")
-                continue
-        
-        print(f"    ❌ LibreTranslate: All URLs failed")
-        return False, "All LibreTranslate URLs failed"
-
-
 class BingTranslateProvider(TranslationProvider):
     """Bing Translator (Free) - Microsoft's free translation service"""
     
     def __init__(self):
-        super().__init__("Bing Translator (Free)", True, False)
-        self.priority = 3
+        super().__init__("Bing Translator (Free)", True, True)  # Requires API key
+        self.priority = 2
         self.base_url = "https://api.cognitive.microsofttranslator.com/translate"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
         try:
             print(f"    🔗 Connecting to Bing Translator API...")
             
-            # Use a public endpoint that doesn't require API key
+            # Check if API key is provided
+            if not api_key or api_key == "your_api_key":
+                print(f"    ⏭️  Skipping Bing Translator - requires API key")
+                return False, "Bing Translator requires API key"
+            
             headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Content-Type': 'application/json',
+                'Ocp-Apim-Subscription-Key': api_key
             }
             
             params = {
@@ -651,6 +593,9 @@ class BingTranslateProvider(TranslationProvider):
                     return True, translated_text
                 print(f"    ❌ Bing Translator: Invalid response format")
                 return False, "Invalid response format"
+            elif response.status_code == 401:
+                print(f"    ❌ Bing Translator: Unauthorized (401) - Invalid API key")
+                return False, "Invalid API key"
             else:
                 print(f"    ❌ Bing Translator: HTTP {response.status_code}")
                 return False, f"HTTP error {response.status_code}"
@@ -660,49 +605,6 @@ class BingTranslateProvider(TranslationProvider):
             return False, f"Bing Translator error: {str(e)}"
 
 
-class MyMemoryProvider(TranslationProvider):
-    """MyMemory (Free) - Community translation"""
-    
-    def __init__(self):
-        super().__init__("MyMemory (Free)", True, False)
-        self.priority = 4
-        self.base_url = "https://api.mymemory.translated.net/get"
-    
-    def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
-        try:
-            print(f"    🔗 Connecting to MyMemory API...")
-            params = {
-                'q': text,
-                'langpair': f"{source_lang}|{target_lang}" if source_lang != "auto" else f"auto|{target_lang}"
-            }
-            
-            print(f"    📤 Sending request: {source_lang} -> {target_lang}")
-            response = requests.get(self.base_url, params=params, timeout=10)
-            print(f"    📥 Response status: {response.status_code}")
-            
-            # Don't raise for status, handle 403 and other errors gracefully
-            if response.status_code == 403:
-                print(f"    ❌ MyMemory: Rate limit exceeded (403)")
-                return False, "Rate limit exceeded"
-            elif response.status_code != 200:
-                print(f"    ❌ MyMemory: HTTP error {response.status_code}")
-                return False, f"HTTP error {response.status_code}"
-            
-            try:
-                result = response.json()
-                if result.get('responseStatus') == 200 and 'responseData' in result:
-                    translated_text = result['responseData']['translatedText']
-                    print(f"    ✅ MyMemory success: {len(translated_text)} characters")
-                    return True, translated_text
-                print(f"    ❌ MyMemory: Invalid response (Status: {result.get('responseStatus', 'Unknown')})")
-                return False, "Translation failed"
-            except ValueError as e:
-                print(f"    ❌ MyMemory: JSON parse error - {response.text[:100]}...")
-                return False, f"JSON parse error: {str(e)}"
-            
-        except Exception as e:
-            print(f"    ❌ MyMemory error: {str(e)}")
-            return False, f"MyMemory error: {str(e)}"
 
 
 class DeepLProvider(TranslationProvider):
@@ -802,8 +704,6 @@ class TextTranslatorAPI_UTK:
         self.providers = {
             "Google Translate (Free)": GoogleTranslateProvider(),
             "Bing Translator (Free)": BingTranslateProvider(),
-            "LibreTranslate (Free)": LibreTranslateProvider(),
-            "MyMemory (Free)": MyMemoryProvider(),
             "GLM-4 Flash (Free)": GLM4FlashProvider(),
             "Silicon Flow (Free)": SiliconFlowProvider(),
             "Baidu Translate (Free)": BaiduTranslateProvider(),
@@ -854,10 +754,8 @@ class TextTranslatorAPI_UTK:
             "auto",
             "--- Free Services ---",
             "Google Translate (Free)",
-            "Bing Translator (Free)",
-            "LibreTranslate (Free)", 
-            "MyMemory (Free)",
             "--- Require API Key ---",
+            "Bing Translator (Free)",
             "GLM-4 Flash (Free)",
             "Silicon Flow (Free)",
             "Baidu Translate (Free)",
