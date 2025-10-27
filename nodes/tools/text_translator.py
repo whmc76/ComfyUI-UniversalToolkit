@@ -246,8 +246,17 @@ class TextTranslator_UTK:
     RETURN_NAMES = ("translated_text", "provider_used", "status_message")
     FUNCTION = "translate_text"
     
-    def translate_text(self, text: str, target_language: str, source_language: str, provider: str, api_key: str = ""):
+    def translate_text(self, text, target_language: str, source_language: str, provider: str, api_key: str = ""):
         """Main translation function"""
+        
+        # Handle both string and list inputs
+        if isinstance(text, list):
+            if not text or len(text) == 0:
+                return ("", "", "Error: No text provided")
+            # Use the first item if it's a list
+            text = str(text[0])
+        else:
+            text = str(text)
         
         if not text.strip():
             return ("", "", "Error: No text provided")
