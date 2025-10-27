@@ -493,6 +493,7 @@ class GoogleTranslateProvider(TranslationProvider):
         super().__init__("Google Translate (Free)", True, False)
         self.priority = 1
         self.base_url = "https://translate.googleapis.com/translate_a/single"
+        self.backup_url = "https://clients5.google.com/translate_a/single"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
         try:
@@ -506,17 +507,41 @@ class GoogleTranslateProvider(TranslationProvider):
             }
             
             print(f"    📤 Sending request: {source_lang} -> {target_lang}")
-            response = requests.get(self.base_url, params=params, timeout=10)
-            print(f"    📥 Response status: {response.status_code}")
             
-            response.raise_for_status()
+            # Try primary URL first
+            try:
+                response = requests.get(self.base_url, params=params, timeout=10)
+                print(f"    📥 Response status: {response.status_code}")
+                
+                if response.status_code == 200:
+                    response.raise_for_status()
+                    result = response.json()
+                    if result and len(result) > 0 and result[0]:
+                        translated_text = ''.join([item[0] for item in result[0] if item[0]])
+                        print(f"    ✅ Google Translate success: {len(translated_text)} characters")
+                        return True, translated_text
+                
+            except Exception as e:
+                print(f"    ⚠️  Primary URL failed: {str(e)}")
             
-            result = response.json()
-            if result and len(result) > 0 and result[0]:
-                translated_text = ''.join([item[0] for item in result[0] if item[0]])
-                print(f"    ✅ Google Translate success: {len(translated_text)} characters")
-                return True, translated_text
-            print(f"    ❌ Google Translate: Invalid response format")
+            # Try backup URL
+            try:
+                print(f"    🔄 Trying backup URL...")
+                response = requests.get(self.backup_url, params=params, timeout=10)
+                print(f"    📥 Backup response status: {response.status_code}")
+                
+                if response.status_code == 200:
+                    response.raise_for_status()
+                    result = response.json()
+                    if result and len(result) > 0 and result[0]:
+                        translated_text = ''.join([item[0] for item in result[0] if item[0]])
+                        print(f"    ✅ Google Translate (backup) success: {len(translated_text)} characters")
+                        return True, translated_text
+                
+            except Exception as e:
+                print(f"    ❌ Backup URL also failed: {str(e)}")
+            
+            print(f"    ❌ Google Translate: All URLs failed")
             return False, "Translation failed"
             
         except Exception as e:
@@ -548,13 +573,22 @@ class LibreTranslateProvider(TranslationProvider):
             
             response.raise_for_status()
             
-            result = response.json()
-            if 'translatedText' in result:
-                translated_text = result['translatedText']
-                print(f"    ✅ LibreTranslate success: {len(translated_text)} characters")
-                return True, translated_text
-            print(f"    ❌ LibreTranslate: Invalid response format")
-            return False, "Translation failed"
+            # Check if response is empty or not JSON
+            if not response.text.strip():
+                print(f"    ❌ LibreTranslate: Empty response")
+                return False, "Empty response from LibreTranslate"
+            
+            try:
+                result = response.json()
+                if 'translatedText' in result:
+                    translated_text = result['translatedText']
+                    print(f"    ✅ LibreTranslate success: {len(translated_text)} characters")
+                    return True, translated_text
+                print(f"    ❌ LibreTranslate: Invalid response format - {result}")
+                return False, "Invalid response format"
+            except ValueError as e:
+                print(f"    ❌ LibreTranslate: JSON parse error - {response.text[:100]}...")
+                return False, f"JSON parse error: {str(e)}"
             
         except Exception as e:
             print(f"    ❌ LibreTranslate error: {str(e)}")
@@ -581,15 +615,25 @@ class MyMemoryProvider(TranslationProvider):
             response = requests.get(self.base_url, params=params, timeout=10)
             print(f"    📥 Response status: {response.status_code}")
             
-            response.raise_for_status()
+            # Don't raise for status, handle 403 and other errors gracefully
+            if response.status_code == 403:
+                print(f"    ❌ MyMemory: Rate limit exceeded (403)")
+                return False, "Rate limit exceeded"
+            elif response.status_code != 200:
+                print(f"    ❌ MyMemory: HTTP error {response.status_code}")
+                return False, f"HTTP error {response.status_code}"
             
-            result = response.json()
-            if result.get('responseStatus') == 200 and 'responseData' in result:
-                translated_text = result['responseData']['translatedText']
-                print(f"    ✅ MyMemory success: {len(translated_text)} characters")
-                return True, translated_text
-            print(f"    ❌ MyMemory: Invalid response (Status: {result.get('responseStatus', 'Unknown')})")
-            return False, "Translation failed"
+            try:
+                result = response.json()
+                if result.get('responseStatus') == 200 and 'responseData' in result:
+                    translated_text = result['responseData']['translatedText']
+                    print(f"    ✅ MyMemory success: {len(translated_text)} characters")
+                    return True, translated_text
+                print(f"    ❌ MyMemory: Invalid response (Status: {result.get('responseStatus', 'Unknown')})")
+                return False, "Translation failed"
+            except ValueError as e:
+                print(f"    ❌ MyMemory: JSON parse error - {response.text[:100]}...")
+                return False, f"JSON parse error: {str(e)}"
             
         except Exception as e:
             print(f"    ❌ MyMemory error: {str(e)}")
