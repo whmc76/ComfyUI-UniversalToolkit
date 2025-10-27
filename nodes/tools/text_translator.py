@@ -730,7 +730,7 @@ class AzureTranslatorProvider(TranslationProvider):
             return False, f"Azure Translator error: {str(e)}"
 
 
-class TextTranslator_UTK:
+class TextTranslatorAPI_UTK:
     CATEGORY = "UniversalToolkit/Tools"
     
     def __init__(self):
@@ -923,9 +923,9 @@ class TextTranslator_UTK:
 
 # Node mappings
 NODE_CLASS_MAPPINGS = {
-    "TextTranslator_UTK": TextTranslator_UTK,
+    "TextTranslatorAPI_UTK": TextTranslatorAPI_UTK,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "TextTranslator_UTK": "Text Translator (UTK)",
+    "TextTranslatorAPI_UTK": "Text Translator API (UTK)",
 }
