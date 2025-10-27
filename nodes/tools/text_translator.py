@@ -606,17 +606,41 @@ class TextTranslator_UTK:
             "DeepL (Paid)": DeepLProvider(),
             "Azure Translator (Paid)": AzureTranslatorProvider(),
         }
+        
+        # Language name to code mapping
+        self.lang_name_to_code = {
+            "auto": "auto", "English": "en", "中文": "zh", "日本語": "ja", "한국어": "ko",
+            "Français": "fr", "Deutsch": "de", "Español": "es", "Italiano": "it", 
+            "Português": "pt", "Русский": "ru", "العربية": "ar", "हिन्दी": "hi", 
+            "ไทย": "th", "Tiếng Việt": "vi", "Türkçe": "tr", "Polski": "pl", 
+            "Nederlands": "nl", "Svenska": "sv", "Dansk": "da", "Norsk": "no", 
+            "Suomi": "fi", "Čeština": "cs", "Magyar": "hu", "Română": "ro", 
+            "Български": "bg", "Hrvatski": "hr", "Slovenčina": "sk", "Slovenščina": "sl", 
+            "Eesti": "et", "Latviešu": "lv", "Lietuvių": "lt", "Ελληνικά": "el", 
+            "עברית": "he", "فارسی": "fa", "اردو": "ur", "বাংলা": "bn", 
+            "தமிழ்": "ta", "తెలుగు": "te", "മലയാളം": "ml", "ಕನ್ನಡ": "kn", 
+            "ગુજરાતી": "gu", "ਪੰਜਾਬੀ": "pa", "ଓଡ଼ିଆ": "or", "অসমীয়া": "as", 
+            "नेपाली": "ne", "සිංහල": "si", "မြန်မာ": "my", "ខ្មែរ": "km", 
+            "ລາວ": "lo", "ქართული": "ka", "አማርኛ": "am", "Kiswahili": "sw", 
+            "IsiZulu": "zu", "Afrikaans": "af", "Shqip": "sq", "Euskera": "eu", 
+            "Беларуская": "be", "Bosanski": "bs", "Català": "ca", "Cymraeg": "cy", 
+            "Esperanto": "eo", "Galego": "gl", "Íslenska": "is", "Македонски": "mk", 
+            "Malti": "mt", "Српски": "sr", "Українська": "uk", "O'zbek": "uz"
+        }
     
     @classmethod
     def INPUT_TYPES(cls):
-        # Language codes for common languages
+        # Language names in their native languages
         languages = [
-            "auto", "en", "zh", "zh-cn", "zh-tw", "ja", "ko", "fr", "de", "es", "it", 
-            "pt", "ru", "ar", "hi", "th", "vi", "tr", "pl", "nl", "sv", "da", "no", 
-            "fi", "cs", "hu", "ro", "bg", "hr", "sk", "sl", "et", "lv", "lt", "el", 
-            "he", "fa", "ur", "bn", "ta", "te", "ml", "kn", "gu", "pa", "or", "as", 
-            "ne", "si", "my", "km", "lo", "ka", "am", "sw", "zu", "af", "sq", "eu", 
-            "be", "bs", "ca", "cy", "eo", "gl", "is", "mk", "mt", "sr", "uk", "uz"
+            "auto", "English", "中文", "日本語", "한국어", "Français", "Deutsch", "Español", "Italiano", 
+            "Português", "Русский", "العربية", "हिन्दी", "ไทย", "Tiếng Việt", "Türkçe", "Polski", 
+            "Nederlands", "Svenska", "Dansk", "Norsk", "Suomi", "Čeština", "Magyar", "Română", 
+            "Български", "Hrvatski", "Slovenčina", "Slovenščina", "Eesti", "Latviešu", "Lietuvių", 
+            "Ελληνικά", "עברית", "فارسی", "اردو", "বাংলা", "தமிழ்", "తెలుగు", "മലയാളം", 
+            "ಕನ್ನಡ", "ગુજરાતી", "ਪੰਜਾਬੀ", "ଓଡ଼ିଆ", "অসমীয়া", "नेपाली", "සිංහල", "မြန်မာ", 
+            "ខ្មែរ", "ລາວ", "ქართული", "አማርኛ", "Kiswahili", "IsiZulu", "Afrikaans", "Shqip", 
+            "Euskera", "Беларуская", "Bosanski", "Català", "Cymraeg", "Esperanto", "Galego", 
+            "Íslenska", "Македонски", "Malti", "Српски", "Українська", "O'zbek"
         ]
         
         # Provider list with free/paid indicators
@@ -640,7 +664,7 @@ class TextTranslator_UTK:
                     "default": "Hello, world!",
                     "placeholder": "Enter text to translate..."
                 }),
-                "target_language": (languages, {"default": "zh"}),
+                "target_language": (languages, {"default": "中文"}),
                 "source_language": (languages, {"default": "auto"}),
                 "provider": (provider_list, {"default": "auto"}),
             },
@@ -659,10 +683,14 @@ class TextTranslator_UTK:
     def translate_text(self, text, target_language: str, source_language: str, provider: str, api_key: str = ""):
         """Main translation function"""
         
+        # Convert language names to codes
+        target_lang_code = self.lang_name_to_code.get(target_language, target_language)
+        source_lang_code = self.lang_name_to_code.get(source_language, source_language)
+        
         print(f"🌐 Text Translator (UTK) - Starting translation process")
         print(f"📝 Input text length: {len(str(text))} characters")
-        print(f"🎯 Target language: {target_language}")
-        print(f"🔍 Source language: {source_language}")
+        print(f"🎯 Target language: {target_language} ({target_lang_code})")
+        print(f"🔍 Source language: {source_language} ({source_lang_code})")
         print(f"🔧 Provider: {provider}")
         
         # Handle both string and list inputs
@@ -703,7 +731,7 @@ class TextTranslator_UTK:
                     continue
                 
                 print(f"🌐 Sending request to {provider_obj.name}...")
-                success, result = provider_obj.translate(text, target_language, source_language, api_key)
+                success, result = provider_obj.translate(text, target_lang_code, source_lang_code, api_key)
                 
                 if success:
                     print(f"✅ Success! Translation completed using {provider_obj.name}")
@@ -733,7 +761,7 @@ class TextTranslator_UTK:
                 return ("", "", f"Error: {provider} requires an API key")
             
             print(f"🌐 Sending request to {provider_obj.name}...")
-            success, result = provider_obj.translate(text, target_language, source_language, api_key)
+            success, result = provider_obj.translate(text, target_lang_code, source_lang_code, api_key)
             
             if success:
                 print(f"✅ Success! Translation completed using {provider_obj.name}")
