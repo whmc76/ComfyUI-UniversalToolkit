@@ -419,13 +419,18 @@ class MicrosoftTranslateProvider(TranslationProvider):
     """Microsoft Translator (Free) - Microsoft translation service"""
     
     def __init__(self):
-        super().__init__("Microsoft Translator (Free)", True, False)
-        self.priority = 1
+        super().__init__("Microsoft Translator (Free)", True, True)
+        self.priority = 4
         self.base_url = "https://api.cognitive.microsofttranslator.com/translate"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
         try:
             print(f"    🔗 Connecting to Microsoft Translator API...")
+            
+            # Skip if no API key provided for Microsoft Translator
+            if not api_key or api_key == "your_api_key":
+                print(f"    ⏭️  Skipping Microsoft Translator - requires API key")
+                return False, "Microsoft Translator requires API key"
             
             # Microsoft Translator language code mapping
             lang_map = {
@@ -449,7 +454,8 @@ class MicrosoftTranslateProvider(TranslationProvider):
             ms_target = lang_map.get(target_lang, "en")
             
             headers = {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Ocp-Apim-Subscription-Key': api_key
             }
             
             params = {
@@ -485,7 +491,7 @@ class GoogleTranslateProvider(TranslationProvider):
     
     def __init__(self):
         super().__init__("Google Translate (Free)", True, False)
-        self.priority = 2
+        self.priority = 1
         self.base_url = "https://translate.googleapis.com/translate_a/single"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -523,7 +529,7 @@ class LibreTranslateProvider(TranslationProvider):
     
     def __init__(self):
         super().__init__("LibreTranslate (Free)", True, False)
-        self.priority = 3
+        self.priority = 2
         self.base_url = "https://libretranslate.de/translate"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -560,7 +566,7 @@ class MyMemoryProvider(TranslationProvider):
     
     def __init__(self):
         super().__init__("MyMemory (Free)", True, False)
-        self.priority = 4
+        self.priority = 3
         self.base_url = "https://api.mymemory.translated.net/get"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -737,11 +743,11 @@ class TextTranslator_UTK:
         provider_list = [
             "auto",
             "--- Free Services ---",
-            "Microsoft Translator (Free)",
             "Google Translate (Free)",
             "LibreTranslate (Free)", 
             "MyMemory (Free)",
             "--- Require API Key ---",
+            "Microsoft Translator (Free)",
             "GLM-4 Flash (Free)",
             "Silicon Flow (Free)",
             "Baidu Translate (Free)",
