@@ -103,9 +103,14 @@ Single paragraph content
 ### Single paragraph Output:
 Direct translation without separators"""
 
+            # Skip if no API key provided for AI services
+            if not api_key or api_key == "your-api-key-here":
+                print(f"    ⏭️  Skipping GLM-4 Flash - requires API key")
+                return False, "GLM-4 Flash requires API key"
+            
             headers = {
                 'Content-Type': 'application/json',
-                'Authorization': f'Bearer {api_key}' if api_key else 'Bearer your-api-key-here'
+                'Authorization': f'Bearer {api_key}'
             }
             
             data = {
@@ -210,9 +215,14 @@ Single paragraph content
 ### Single paragraph Output:
 Direct translation without separators"""
 
+            # Skip if no API key provided for AI services
+            if not api_key or api_key == "your-api-key-here":
+                print(f"    ⏭️  Skipping Silicon Flow - requires API key")
+                return False, "Silicon Flow requires API key"
+            
             headers = {
                 'Content-Type': 'application/json',
-                'Authorization': f'Bearer {api_key}' if api_key else 'Bearer your-api-key-here'
+                'Authorization': f'Bearer {api_key}'
             }
             
             data = {
@@ -248,7 +258,7 @@ class BaiduTranslateProvider(TranslationProvider):
     """Baidu Translate (Free) - Baidu translation service"""
     
     def __init__(self):
-        super().__init__("Baidu Translate (Free)", True, False)
+        super().__init__("Baidu Translate (Free)", True, True)
         self.priority = 3
         self.base_url = "https://fanyi-api.baidu.com/api/trans/vip/translate"
     
@@ -277,12 +287,19 @@ class BaiduTranslateProvider(TranslationProvider):
             baidu_source = lang_map.get(source_lang, "auto")
             baidu_target = lang_map.get(target_lang, "en")
             
+            # Skip if no API key provided for Baidu
+            if not api_key or api_key == "your_app_id":
+                print(f"    ⏭️  Skipping Baidu Translate - requires API key")
+                return False, "Baidu Translate requires API key"
+            
             # Generate salt and sign for Baidu API
             import time
             import hashlib
             import random
             
-            appid = api_key if api_key else "your_app_id"
+            # For demo purposes, use a simple approach
+            # In real usage, user should provide both appid and secret_key
+            appid = api_key
             secret_key = "your_secret_key"  # This should be provided separately
             
             salt = str(int(time.time() * 1000) + random.randint(1, 1000))
@@ -321,7 +338,7 @@ class YoudaoTranslateProvider(TranslationProvider):
     """Youdao Translate (Free) - Youdao translation service"""
     
     def __init__(self):
-        super().__init__("Youdao Translate (Free)", True, False)
+        super().__init__("Youdao Translate (Free)", True, True)
         self.priority = 4
         self.base_url = "https://openapi.youdao.com/api"
     
@@ -350,12 +367,19 @@ class YoudaoTranslateProvider(TranslationProvider):
             youdao_source = lang_map.get(source_lang, "auto")
             youdao_target = lang_map.get(target_lang, "en")
             
+            # Skip if no API key provided for Youdao
+            if not api_key or api_key == "your_app_key":
+                print(f"    ⏭️  Skipping Youdao Translate - requires API key")
+                return False, "Youdao Translate requires API key"
+            
             # Generate salt and sign for Youdao API
             import time
             import hashlib
             import random
             
-            app_key = api_key if api_key else "your_app_key"
+            # For demo purposes, use a simple approach
+            # In real usage, user should provide both app_key and app_secret
+            app_key = api_key
             app_secret = "your_app_secret"  # This should be provided separately
             
             salt = str(int(time.time() * 1000) + random.randint(1, 1000))
