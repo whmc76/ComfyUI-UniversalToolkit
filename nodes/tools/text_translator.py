@@ -391,12 +391,77 @@ class YoudaoTranslateProvider(TranslationProvider):
             return False, f"Youdao Translate error: {str(e)}"
 
 
+class MicrosoftTranslateProvider(TranslationProvider):
+    """Microsoft Translator (Free) - Microsoft translation service"""
+    
+    def __init__(self):
+        super().__init__("Microsoft Translator (Free)", True, False)
+        self.priority = 5
+        self.base_url = "https://api.cognitive.microsofttranslator.com/translate"
+    
+    def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
+        try:
+            print(f"    🔗 Connecting to Microsoft Translator API...")
+            
+            # Microsoft Translator language code mapping
+            lang_map = {
+                "auto": "auto", "en": "en", "zh": "zh-Hans", "ja": "ja", "ko": "ko",
+                "fr": "fr", "de": "de", "es": "es", "it": "it", "pt": "pt",
+                "ru": "ru", "ar": "ar", "hi": "hi", "th": "th", "vi": "vi",
+                "tr": "tr", "pl": "pl", "nl": "nl", "sv": "sv", "da": "da",
+                "no": "no", "fi": "fi", "cs": "cs", "hu": "hu", "ro": "ro",
+                "bg": "bg", "hr": "hr", "sk": "sk", "sl": "sl", "et": "et",
+                "lv": "lv", "lt": "lt", "el": "el", "he": "he", "fa": "fa",
+                "ur": "ur", "bn": "bn", "ta": "ta", "te": "te", "ml": "ml",
+                "kn": "kn", "gu": "gu", "pa": "pa", "or": "or", "as": "as",
+                "ne": "ne", "si": "si", "my": "my", "km": "km", "lo": "lo",
+                "ka": "ka", "am": "am", "sw": "sw", "zu": "zu", "af": "af",
+                "sq": "sq", "eu": "eu", "be": "be", "bs": "bs", "ca": "ca",
+                "cy": "cy", "eo": "eo", "gl": "gl", "is": "is", "mk": "mk",
+                "mt": "mt", "sr": "sr", "uk": "uk", "uz": "uz"
+            }
+            
+            ms_source = lang_map.get(source_lang, "auto")
+            ms_target = lang_map.get(target_lang, "en")
+            
+            headers = {
+                'Content-Type': 'application/json'
+            }
+            
+            params = {
+                'api-version': '3.0',
+                'to': ms_target
+            }
+            if ms_source != "auto":
+                params['from'] = ms_source
+            
+            body = [{'text': text}]
+            
+            print(f"    📤 Sending request: {source_lang} -> {target_lang}")
+            response = requests.post(self.base_url, params=params, headers=headers, json=body, timeout=10)
+            print(f"    📥 Response status: {response.status_code}")
+            
+            response.raise_for_status()
+            
+            result = response.json()
+            if result and len(result) > 0 and 'translations' in result[0]:
+                translated_text = result[0]['translations'][0]['text']
+                print(f"    ✅ Microsoft Translator success: {len(translated_text)} characters")
+                return True, translated_text
+            print(f"    ❌ Microsoft Translator: Invalid response format")
+            return False, "Translation failed"
+            
+        except Exception as e:
+            print(f"    ❌ Microsoft Translator error: {str(e)}")
+            return False, f"Microsoft Translator error: {str(e)}"
+
+
 class GoogleTranslateProvider(TranslationProvider):
     """Google Translate (Free) - Using web interface"""
     
     def __init__(self):
         super().__init__("Google Translate (Free)", True, False)
-        self.priority = 5
+        self.priority = 6
         self.base_url = "https://translate.googleapis.com/translate_a/single"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -434,7 +499,7 @@ class LibreTranslateProvider(TranslationProvider):
     
     def __init__(self):
         super().__init__("LibreTranslate (Free)", True, False)
-        self.priority = 6
+        self.priority = 7
         self.base_url = "https://libretranslate.de/translate"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -471,7 +536,7 @@ class MyMemoryProvider(TranslationProvider):
     
     def __init__(self):
         super().__init__("MyMemory (Free)", True, False)
-        self.priority = 7
+        self.priority = 8
         self.base_url = "https://api.mymemory.translated.net/get"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -506,7 +571,7 @@ class DeepLProvider(TranslationProvider):
     
     def __init__(self):
         super().__init__("DeepL (Paid)", False, True)
-        self.priority = 8
+        self.priority = 9
         self.base_url = "https://api-free.deepl.com/v2/translate"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -548,7 +613,7 @@ class AzureTranslatorProvider(TranslationProvider):
     
     def __init__(self):
         super().__init__("Azure Translator (Paid)", False, True)
-        self.priority = 9
+        self.priority = 10
         self.base_url = "https://api.cognitive.microsofttranslator.com/translate"
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
@@ -600,6 +665,7 @@ class TextTranslator_UTK:
             "Silicon Flow (Free)": SiliconFlowProvider(),
             "Baidu Translate (Free)": BaiduTranslateProvider(),
             "Youdao Translate (Free)": YoudaoTranslateProvider(),
+            "Microsoft Translator (Free)": MicrosoftTranslateProvider(),
             "Google Translate (Free)": GoogleTranslateProvider(),
             "LibreTranslate (Free)": LibreTranslateProvider(),
             "MyMemory (Free)": MyMemoryProvider(),
@@ -650,6 +716,7 @@ class TextTranslator_UTK:
             "Silicon Flow (Free)",
             "Baidu Translate (Free)",
             "Youdao Translate (Free)",
+            "Microsoft Translator (Free)",
             "Google Translate (Free)",
             "LibreTranslate (Free)", 
             "MyMemory (Free)",
