@@ -870,10 +870,12 @@ class TextTranslatorAPI_UTK:
             provider_obj = self.providers[provider]
             print(f"📋 Provider details: {provider_obj.name} (Free: {provider_obj.is_free}, Requires Key: {provider_obj.requires_key})")
             
-            # Check API key requirement
+            # Check API key requirement - let the provider handle the error message with URL
             if provider_obj.requires_key and not api_key:
                 print(f"❌ Error: {provider} requires an API key but none provided")
-                return ("", "", f"Error: {provider} requires an API key")
+                # Call translate method to get detailed error message with URL
+                success, result = provider_obj.translate(text, target_lang_code, source_lang_code, api_key)
+                return ("", "", f"Error: {result}")
             
             print(f"🌐 Sending request to {provider_obj.name}...")
             success, result = provider_obj.translate(text, target_lang_code, source_lang_code, api_key)
