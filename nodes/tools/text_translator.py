@@ -40,6 +40,7 @@ class GoogleTranslateProvider(TranslationProvider):
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
         try:
+            print(f"    🔗 Connecting to Google Translate API...")
             params = {
                 'client': 'gtx',
                 'sl': source_lang,
@@ -48,16 +49,22 @@ class GoogleTranslateProvider(TranslationProvider):
                 'q': text
             }
             
+            print(f"    📤 Sending request: {source_lang} -> {target_lang}")
             response = requests.get(self.base_url, params=params, timeout=10)
+            print(f"    📥 Response status: {response.status_code}")
+            
             response.raise_for_status()
             
             result = response.json()
             if result and len(result) > 0 and result[0]:
                 translated_text = ''.join([item[0] for item in result[0] if item[0]])
+                print(f"    ✅ Google Translate success: {len(translated_text)} characters")
                 return True, translated_text
+            print(f"    ❌ Google Translate: Invalid response format")
             return False, "Translation failed"
             
         except Exception as e:
+            print(f"    ❌ Google Translate error: {str(e)}")
             return False, f"Google Translate error: {str(e)}"
 
 
@@ -71,6 +78,7 @@ class LibreTranslateProvider(TranslationProvider):
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
         try:
+            print(f"    🔗 Connecting to LibreTranslate API...")
             data = {
                 'q': text,
                 'source': source_lang if source_lang != "auto" else "en",
@@ -78,15 +86,22 @@ class LibreTranslateProvider(TranslationProvider):
                 'format': 'text'
             }
             
+            print(f"    📤 Sending request: {source_lang} -> {target_lang}")
             response = requests.post(self.base_url, data=data, timeout=10)
+            print(f"    📥 Response status: {response.status_code}")
+            
             response.raise_for_status()
             
             result = response.json()
             if 'translatedText' in result:
-                return True, result['translatedText']
+                translated_text = result['translatedText']
+                print(f"    ✅ LibreTranslate success: {len(translated_text)} characters")
+                return True, translated_text
+            print(f"    ❌ LibreTranslate: Invalid response format")
             return False, "Translation failed"
             
         except Exception as e:
+            print(f"    ❌ LibreTranslate error: {str(e)}")
             return False, f"LibreTranslate error: {str(e)}"
 
 
@@ -100,20 +115,28 @@ class MyMemoryProvider(TranslationProvider):
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
         try:
+            print(f"    🔗 Connecting to MyMemory API...")
             params = {
                 'q': text,
                 'langpair': f"{source_lang}|{target_lang}" if source_lang != "auto" else f"auto|{target_lang}"
             }
             
+            print(f"    📤 Sending request: {source_lang} -> {target_lang}")
             response = requests.get(self.base_url, params=params, timeout=10)
+            print(f"    📥 Response status: {response.status_code}")
+            
             response.raise_for_status()
             
             result = response.json()
             if result.get('responseStatus') == 200 and 'responseData' in result:
-                return True, result['responseData']['translatedText']
+                translated_text = result['responseData']['translatedText']
+                print(f"    ✅ MyMemory success: {len(translated_text)} characters")
+                return True, translated_text
+            print(f"    ❌ MyMemory: Invalid response (Status: {result.get('responseStatus', 'Unknown')})")
             return False, "Translation failed"
             
         except Exception as e:
+            print(f"    ❌ MyMemory error: {str(e)}")
             return False, f"MyMemory error: {str(e)}"
 
 
@@ -127,9 +150,11 @@ class DeepLProvider(TranslationProvider):
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
         if not api_key:
+            print(f"    ❌ DeepL requires API key but none provided")
             return False, "DeepL requires API key"
         
         try:
+            print(f"    🔗 Connecting to DeepL API...")
             data = {
                 'auth_key': api_key,
                 'text': text,
@@ -138,15 +163,22 @@ class DeepLProvider(TranslationProvider):
             if source_lang != "auto":
                 data['source_lang'] = source_lang.upper()
             
+            print(f"    📤 Sending request: {source_lang} -> {target_lang}")
             response = requests.post(self.base_url, data=data, timeout=10)
+            print(f"    📥 Response status: {response.status_code}")
+            
             response.raise_for_status()
             
             result = response.json()
             if 'translations' in result and len(result['translations']) > 0:
-                return True, result['translations'][0]['text']
+                translated_text = result['translations'][0]['text']
+                print(f"    ✅ DeepL success: {len(translated_text)} characters")
+                return True, translated_text
+            print(f"    ❌ DeepL: Invalid response format")
             return False, "Translation failed"
             
         except Exception as e:
+            print(f"    ❌ DeepL error: {str(e)}")
             return False, f"DeepL error: {str(e)}"
 
 
@@ -160,9 +192,11 @@ class AzureTranslatorProvider(TranslationProvider):
     
     def translate(self, text: str, target_lang: str, source_lang: str = "auto", api_key: str = None) -> Tuple[bool, str]:
         if not api_key:
+            print(f"    ❌ Azure Translator requires API key but none provided")
             return False, "Azure Translator requires API key"
         
         try:
+            print(f"    🔗 Connecting to Azure Translator API...")
             headers = {
                 'Ocp-Apim-Subscription-Key': api_key,
                 'Content-Type': 'application/json'
@@ -177,15 +211,22 @@ class AzureTranslatorProvider(TranslationProvider):
             
             body = [{'text': text}]
             
+            print(f"    📤 Sending request: {source_lang} -> {target_lang}")
             response = requests.post(self.base_url, params=params, headers=headers, json=body, timeout=10)
+            print(f"    📥 Response status: {response.status_code}")
+            
             response.raise_for_status()
             
             result = response.json()
             if result and len(result) > 0 and 'translations' in result[0]:
-                return True, result[0]['translations'][0]['text']
+                translated_text = result[0]['translations'][0]['text']
+                print(f"    ✅ Azure Translator success: {len(translated_text)} characters")
+                return True, translated_text
+            print(f"    ❌ Azure Translator: Invalid response format")
             return False, "Translation failed"
             
         except Exception as e:
+            print(f"    ❌ Azure Translator error: {str(e)}")
             return False, f"Azure Translator error: {str(e)}"
 
 
@@ -249,57 +290,88 @@ class TextTranslator_UTK:
     def translate_text(self, text, target_language: str, source_language: str, provider: str, api_key: str = ""):
         """Main translation function"""
         
+        print(f"🌐 Text Translator (UTK) - Starting translation process")
+        print(f"📝 Input text length: {len(str(text))} characters")
+        print(f"🎯 Target language: {target_language}")
+        print(f"🔍 Source language: {source_language}")
+        print(f"🔧 Provider: {provider}")
+        
         # Handle both string and list inputs
         if isinstance(text, list):
+            print(f"📋 Input is a list with {len(text)} items")
             if not text or len(text) == 0:
+                print("❌ Error: Empty list provided")
                 return ("", "", "Error: No text provided")
             # Use the first item if it's a list
             text = str(text[0])
+            print(f"📄 Using first item from list: {text[:50]}...")
         else:
             text = str(text)
+            print(f"📄 Input is a string: {text[:50]}...")
         
         if not text.strip():
+            print("❌ Error: Empty text after processing")
             return ("", "", "Error: No text provided")
         
         # Clean API key
         api_key = api_key.strip() if api_key else ""
+        if api_key:
+            print(f"🔑 API key provided: {api_key[:8]}...")
+        else:
+            print("🔓 No API key provided")
         
         if provider == "auto":
+            print("🔄 Auto mode: Trying providers in priority order")
             # Try providers in priority order
             sorted_providers = sorted(self.providers.values(), key=lambda x: x.priority)
             
-            for provider_obj in sorted_providers:
+            for i, provider_obj in enumerate(sorted_providers, 1):
+                print(f"🔍 [{i}/{len(sorted_providers)}] Trying {provider_obj.name}...")
+                
                 # Check if API key is required but not provided
                 if provider_obj.requires_key and not api_key:
+                    print(f"⏭️  Skipping {provider_obj.name} - requires API key but none provided")
                     continue
                 
+                print(f"🌐 Sending request to {provider_obj.name}...")
                 success, result = provider_obj.translate(text, target_language, source_language, api_key)
                 
                 if success:
+                    print(f"✅ Success! Translation completed using {provider_obj.name}")
+                    print(f"📤 Translated text: {result[:100]}...")
                     return (result, provider_obj.name, f"Successfully translated using {provider_obj.name}")
                 else:
                     # Log the error but continue to next provider
-                    print(f"Translation failed with {provider_obj.name}: {result}")
+                    print(f"❌ Translation failed with {provider_obj.name}: {result}")
                     continue
             
+            print("💥 All translation providers failed!")
             return ("", "", "Error: All translation providers failed")
         
         else:
             # Use specific provider
+            print(f"🎯 Using specific provider: {provider}")
             if provider not in self.providers:
+                print(f"❌ Error: Unknown provider '{provider}'")
                 return ("", "", f"Error: Unknown provider '{provider}'")
             
             provider_obj = self.providers[provider]
+            print(f"📋 Provider details: {provider_obj.name} (Free: {provider_obj.is_free}, Requires Key: {provider_obj.requires_key})")
             
             # Check API key requirement
             if provider_obj.requires_key and not api_key:
+                print(f"❌ Error: {provider} requires an API key but none provided")
                 return ("", "", f"Error: {provider} requires an API key")
             
+            print(f"🌐 Sending request to {provider_obj.name}...")
             success, result = provider_obj.translate(text, target_language, source_language, api_key)
             
             if success:
+                print(f"✅ Success! Translation completed using {provider_obj.name}")
+                print(f"📤 Translated text: {result[:100]}...")
                 return (result, provider_obj.name, f"Successfully translated using {provider_obj.name}")
             else:
+                print(f"❌ Translation failed with {provider_obj.name}: {result}")
                 return ("", "", f"Error: {result}")
 
 
