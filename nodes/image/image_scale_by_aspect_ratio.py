@@ -135,6 +135,7 @@ class ImageScaleByAspectRatio_UTK:
         "BOX",
         "INT",
         "INT",
+        "INT",
     )
     RETURN_NAMES = (
         "image",
@@ -142,6 +143,7 @@ class ImageScaleByAspectRatio_UTK:
         "original_size",
         "width",
         "height",
+        "batch_count",
     )
     FUNCTION = "image_scale_by_aspect_ratio"
 
@@ -200,6 +202,7 @@ class ImageScaleByAspectRatio_UTK:
                         None,
                         0,
                         0,
+                        0,
                     )
                 elif orig_width + orig_height == 0:
                     orig_width = _width
@@ -214,6 +217,7 @@ class ImageScaleByAspectRatio_UTK:
                 None,
                 None,
                 None,
+                0,
                 0,
                 0,
             )
@@ -325,6 +329,7 @@ class ImageScaleByAspectRatio_UTK:
                 [orig_width, orig_height],
                 target_width,
                 target_height,
+                len(ret_images),
             )
         elif len(ret_images) > 0 and len(ret_masks) == 0:
             log(
@@ -337,6 +342,7 @@ class ImageScaleByAspectRatio_UTK:
                 [orig_width, orig_height],
                 target_width,
                 target_height,
+                len(ret_images),
             )
         elif len(ret_images) == 0 and len(ret_masks) > 0:
             log(
@@ -349,6 +355,7 @@ class ImageScaleByAspectRatio_UTK:
                 [orig_width, orig_height],
                 target_width,
                 target_height,
+                len(ret_masks),
             )
         else:
             log(
@@ -359,6 +366,7 @@ class ImageScaleByAspectRatio_UTK:
                 None,
                 None,
                 None,
+                0,
                 0,
                 0,
             )
