@@ -8,13 +8,34 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.3.7"
+__version__ = "1.4.1"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.4.1": [
+        "修复翻译API节点错误处理和重命名：",
+        "- 重命名Text Translator节点为Text Translator API (UTK)，更准确反映功能定位",
+        "- 增强LibreTranslate错误处理：添加JSON解析验证和空响应检查",
+        "- 修复MyMemory 403速率限制错误处理，提供更友好的错误信息",
+        "- 为Google Translate添加备用URL，提高服务可靠性",
+        "- 改进所有翻译服务的错误消息，提供更详细的调试信息",
+        "- 增强翻译服务健壮性，提升用户体验",
+        "- 优化免费翻译服务的优先级排序和错误恢复机制",
+    ],
+    "1.4.0": [
+        "新增Text Translator API (UTK)节点：",
+        "- 支持多种翻译服务提供商：Google Translate、LibreTranslate、MyMemory等",
+        "- 支持自动模式：按优先级尝试多个免费API，失败时自动切换",
+        "- 支持付费API：DeepL、Azure Translator、GLM-4 Flash等",
+        "- 支持原生语言名称：中文、日本語、English等，提升用户体验",
+        "- 智能API密钥检测：自动检测服务商是否需要API密钥",
+        "- 详细日志输出：提供翻译过程的完整调试信息",
+        "- 错误处理机制：优雅处理API失败和网络错误",
+        "- 支持批量翻译和列表输入处理",
+    ],
     "1.3.7": [
         "新增Image Blend Advance节点和Crop By Mask功能增强：",
         "- 新增Image Blend Advance (UTK)节点：高级图像混合与变换功能",
