@@ -8,13 +8,24 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.4.3"
+__version__ = "1.4.4"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.4.4": [
+        "新增Get Image or Mask Range From Batch (UTK)节点：",
+        "- 支持从图像批次或遮罩批次中提取指定范围的元素",
+        "- 灵活的索引控制：支持正索引和-1（从末尾开始）",
+        "- 智能范围处理：自动处理超出范围的情况",
+        "- 双输入支持：可同时处理图像和遮罩批次",
+        "- 详细日志输出：显示提取的索引范围和数量",
+        "- 错误处理：提供清晰的错误信息指导用户",
+        "- 工具分类：归类到UniversalToolkit/tools分类下",
+        "- 提升批次处理工作流的灵活性和效率",
+    ],
     "1.4.3": [
         "修复翻译API节点错误消息显示问题：",
         "- 修复API密钥获取网址在错误消息中不显示的问题",
@@ -726,6 +737,15 @@ except ImportError:
     TEXT_TRANSLATOR_API_MAPPINGS = {}
     TEXT_TRANSLATOR_API_DISPLAY = {}
 
+try:
+    from .nodes.tools.get_image_range_from_batch import \
+        NODE_CLASS_MAPPINGS as GET_IMAGE_RANGE_MAPPINGS
+    from .nodes.tools.get_image_range_from_batch import \
+        NODE_DISPLAY_NAME_MAPPINGS as GET_IMAGE_RANGE_DISPLAY
+except ImportError:
+    GET_IMAGE_RANGE_MAPPINGS = {}
+    GET_IMAGE_RANGE_DISPLAY = {}
+
 
 # 合并所有节点映射
 NODE_CLASS_MAPPINGS = {}
@@ -765,6 +785,7 @@ NODE_CLASS_MAPPINGS.update(PROMPT_HELPER_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(COLOR_TO_MASK_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(LAZY_SWITCH_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(TEXT_TRANSLATOR_API_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(GET_IMAGE_RANGE_MAPPINGS)
 
 # 合并显示名称映射
 NODE_DISPLAY_NAME_MAPPINGS = {}
@@ -804,6 +825,7 @@ NODE_DISPLAY_NAME_MAPPINGS.update(PROMPT_HELPER_DISPLAY_MAPPINGS)
 NODE_DISPLAY_NAME_MAPPINGS.update(COLOR_TO_MASK_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(LAZY_SWITCH_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(TEXT_TRANSLATOR_API_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(GET_IMAGE_RANGE_DISPLAY)
 
 NODE_CATEGORIES = {
     "UniversalToolkit": [
@@ -844,6 +866,7 @@ NODE_CATEGORIES = {
         "LazySwitchKJ_UTK",
         "APIImageGenerator_UTK",
         "TextTranslatorAPI_UTK",
+        "GetImageRangeFromBatch_UTK",
     ]
 }
 
