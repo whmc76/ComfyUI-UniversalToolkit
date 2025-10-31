@@ -1,0 +1,338 @@
+[1mdiff --git a/README.md b/README.md[m
+[1mindex e0ec9b9..2a0873a 100644[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -1,6 +1,6 @@[m
+ # ComfyUI-UniversalToolkit[m
+ [m
+[31m-[![Version](https://img.shields.io/badge/version-1.3.2-blue.svg)](https://github.com/whmc76/ComfyUI-UniversalToolkit)[m
+[32m+[m[32m[![Version](https://img.shields.io/badge/version-1.4.7-blue.svg)](https://github.com/whmc76/ComfyUI-UniversalToolkit)[m
+ [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)[m
+ [![ComfyUI](https://img.shields.io/badge/ComfyUI-v3+-orange.svg)](https://github.com/comfyanonymous/ComfyUI)[m
+ [m
+[36m@@ -52,9 +52,10 @@[m [mtqdm[m
+ - **ImageConcatenate_UTK**：水平或垂直拼接两张图像[m
+ - **ImageConcatenateMulti_UTK**：智能拼接多张图像，支持2-4图自动布局[m
+ [m
+[31m-#### 图像变换与调整[m
+[31m-- **ImageScaleByAspectRatio_UTK**：按指定宽高比缩放图像[m
+[31m-- **ImageMaskScaleAs_UTK**：按参考图像尺寸缩放图像[m
+[32m+[m[32m- #### 图像变换与调整[m
+[32m+[m[32m- **ResizeImageVerKJ_UTK**：KJ v2 风格的高兼容缩放，支持 stretch/resize/pad/pad_edge/pad_edge_pixel/crop/pillarbox_blur/total_pixels 与 `crop_position`[m
+[32m+[m[32m- **ImageScaleByAspectRatio_UTK**：按指定宽高比缩放图像（已支持与 KJ v2 一致的 fit 模式与 `crop_position`，背景色为预设清单）[m
+[32m+[m[32m- **ImageMaskScaleAs_UTK**：按参考图像尺寸缩放图像（已支持与 KJ v2 一致的 fit 模式与 `crop_position`，pad_color 为预设清单）[m
+ - **ImageScaleRestore_UTK**：将图像恢复到原始尺寸[m
+ - **ImageRemoveAlpha_UTK**：移除图像的Alpha通道[m
+ - **ImageCombineAlpha_UTK**：合并Alpha通道到图像[m
+[36m@@ -81,6 +82,7 @@[m [mtqdm[m
+ - **MaskAnd_UTK**：掩码与运算[m
+ - **MaskSub_UTK**：掩码减法运算[m
+ - **MaskAdd_UTK**：掩码加法运算[m
+[32m+[m[32m- **BlockifyMask_UTK**：将掩码按 block_size 马赛克化（支持 cpu/cuda；可选二值化）[m
+ [m
+ ### 🛠️ 工具节点[m
+ [m
+[36m@@ -91,6 +93,7 @@[m [mtqdm[m
+ [m
+ #### 数学与逻辑[m
+ - **MathExpression_UTK**：数学表达式计算，支持复杂公式和函数[m
+[32m+[m[32m- **BestContextWindow_UTK**：最佳滑动窗口帧数计算（满足 4n+1，最小化补帧；输出 best_window/padding/padded_total/segments）[m
+ [m
+ #### 系统工具[m
+ - **PurgeVRAM_UTK**：显存清理，支持选择性清理缓存和模型[m
+[36m@@ -176,7 +179,22 @@[m [mAudioCropProcess_UTK[m
+ [m
+ ## 📋 版本历史[m
+ [m
+[31m-### v1.3.2 (最新)[m
+[32m+[m[32m### v1.4.7 (最新)[m
+[32m+[m[32m- 修复 resize 与 pad 方法表现相同的问题：[m
+[32m+[m[32m  - ResizeImageVerKJ (UTK)：resize 模式只等比缩放不填充，pad 模式填充到目标尺寸[m
+[32m+[m[32m  - ImageMaskScaleAs (UTK)：resize 返回实际缩放尺寸，pad 填充到目标尺寸并正确输出尺寸[m
+[32m+[m[32m  - ImageScaleByAspectRatio (UTK)：resize 返回实际缩放尺寸，pad 填充到目标尺寸并正确输出尺寸[m
+[32m+[m[32m  - resize：等比缩放，输出尺寸 = 缩放后尺寸（可能小于目标尺寸）[m
+[32m+[m[32m  - pad：等比缩放 + 背景填充，输出尺寸 = 目标尺寸（固定尺寸）[m
+[32m+[m
+[32m+[m[32m### v1.4.6[m
+[32m+[m[32m- 新增 `Resize Image ver KJ (UTK)`，完整对齐 KJ v2 调整模式，支持 `crop_position` 与 mask 同步缩放；pad_edge/pad_edge_pixel 行为与 KJ 对齐[m
+[32m+[m[32m- 升级 `Image Mask Scale As (UTK)` 与 `Image Scale By Aspect Ratio (UTK)`：支持同样的 fit 模式、`crop_position`，并将背景色改为预设清单[m
+[32m+[m[32m- 新增 `Blockify Mask (UTK)`：掩码块化，支持二值化[m
+[32m+[m[32m- 新增 `Best Context Window (UTK)`：计算满足 4n+1 的最佳窗口，最小化补帧[m
+[32m+[m[32m- 统一分类命名：`UniversalToolkit/Tools`[m
+[32m+[m
+[32m+[m[32m### v1.3.2[m
+ - 新增电商应用类，重新组织预设分类结构[m
+ - 创建专门的电商应用类，包含6个专业电商功能：[m
+   - Ecommerce-Professional Product Photography (专业产品图)[m
+[1mdiff --git a/__init__.py b/__init__.py[m
+[1mindex a72fc01..2b6dda9 100644[m
+[1m--- a/__init__.py[m
+[1m+++ b/__init__.py[m
+[36m@@ -8,13 +8,43 @@[m [mA comprehensive toolkit for ComfyUI that provides various utility nodes for imag[m
+ :license: MIT, see LICENSE for more details.[m
+ """[m
+ [m
+[31m-__version__ = "1.4.4"[m
+[32m+[m[32m__version__ = "1.4.7"[m
+ __author__ = "CyberDickLang"[m
+ __email__ = "286878701@qq.com"[m
+ __url__ = "https://github.com/whmc76"[m
+ [m
+ # 更新日志[m
+ CHANGELOG = {[m
+[32m+[m[32m    "1.4.7": [[m
+[32m+[m[32m        "修复 resize 与 pad 方法表现相同的问题：",[m
+[32m+[m[32m        "- ResizeImageVerKJ (UTK)：resize 模式只等比缩放不填充，pad 模式填充到目标尺寸",[m
+[32m+[m[32m        "- ImageMaskScaleAs (UTK)：resize 返回实际缩放尺寸，pad 填充到目标尺寸并正确输出尺寸",[m
+[32m+[m[32m        "- ImageScaleByAspectRatio (UTK)：resize 返回实际缩放尺寸，pad 填充到目标尺寸并正确输出尺寸",[m
+[32m+[m[32m        "- resize：等比缩放，输出尺寸 = 缩放后尺寸（可能小于目标尺寸）",[m
+[32m+[m[32m        "- pad：等比缩放 + 背景填充，输出尺寸 = 目标尺寸（固定尺寸）",[m
+[32m+[m[32m    ],[m
+[32m+[m[32m    "1.4.6": [[m
+[32m+[m[32m        "新增 Resize Image ver KJ (UTK)：",[m
+[32m+[m[32m        "- 复刻 KJ v2 的调整模式：stretch/resize/pad/pad_edge/pad_edge_pixel/crop/pillarbox_blur/total_pixels",[m
+[32m+[m[32m        "- 支持 mask 同步缩放与对齐，pad_edge/pad_edge_pixel 行为与 KJ 对齐",[m
+[32m+[m[32m        "升级 Image Mask Scale As (UTK)：",[m
+[32m+[m[32m        "- fit 与 KJ v2 对齐，新增 crop_position，支持预设 pad_color",[m
+[32m+[m[32m        "升级 Image Scale By Aspect Ratio (UTK)：",[m
+[32m+[m[32m        "- fit 与 KJ v2 对齐，新增 crop_position，background_color 改为预设清单",[m
+[32m+[m[32m        "修正 pad_edge 与 pad_edge_pixel 的边缘与角点处理逻辑，匹配 KJ 视觉表现",[m
+[32m+[m[32m    ],[m
+[32m+[m[32m    "1.4.5": [[m
+[32m+[m[32m        "新增Best Context Window (UTK)节点：",[m
+[32m+[m[32m        "- 计算满足4n+1且位于[min,max]区间的最佳窗口，以最小化补帧",[m
+[32m+[m[32m        "- 输出best_window、padding、padded_total、segments",[m
+[32m+[m[32m        "- 分类：UniversalToolkit/Tools",[m
+[32m+[m[32m        "新增Blockify Mask (UTK)节点：",[m
+[32m+[m[32m        "- 将掩码按block_size块化，支持cpu/cuda",[m
+[32m+[m[32m        "- 可选二值化binarize与threshold",[m
+[32m+[m[32m        "- 分类：UniversalToolkit/Mask",[m
+[32m+[m[32m        "统一分类命名：将UniversalToolkit/tools合并为UniversalToolkit/Tools",[m
+[32m+[m[32m        "修复：Get Image or Mask Range From Batch (UTK) 分类名不一致问题",[m
+[32m+[m[32m    ],[m
+     "1.4.4": [[m
+         "新增Get Image or Mask Range From Batch (UTK)节点：",[m
+         "- 支持从图像批次或遮罩批次中提取指定范围的元素",[m
+[36m@@ -742,9 +772,27 @@[m [mtry:[m
+         NODE_CLASS_MAPPINGS as GET_IMAGE_RANGE_MAPPINGS[m
+     from .nodes.tools.get_image_range_from_batch import \[m
+         NODE_DISPLAY_NAME_MAPPINGS as GET_IMAGE_RANGE_DISPLAY[m
+[32m+[m[32m    from .nodes.tools.optimal_context_window_node import \[m
+[32m+[m[32m        NODE_CLASS_MAPPINGS as BEST_CONTEXT_WINDOW_MAPPINGS[m
+[32m+[m[32m    from .nodes.tools.optimal_context_window_node import \[m
+[32m+[m[32m        NODE_DISPLAY_NAME_MAPPINGS as BEST_CONTEXT_WINDOW_DISPLAY[m
+[32m+[m[32m    from .nodes.mask.blockify_mask import \[m
+[32m+[m[32m        NODE_CLASS_MAPPINGS as BLOCKIFY_MASK_MAPPINGS[m
+[32m+[m[32m    from .nodes.mask.blockify_mask import \[m
+[32m+[m[32m        NODE_DISPLAY_NAME_MAPPINGS as BLOCKIFY_MASK_DISPLAY[m
+[32m+[m[32m    from .nodes.image.resize_image_ver_kj import \[m
+[32m+[m[32m        NODE_CLASS_MAPPINGS as RESIZE_VER_KJ_MAPPINGS[m
+[32m+[m[32m    from .nodes.image.resize_image_ver_kj import \[m
+[32m+[m[32m        NODE_DISPLAY_NAME_MAPPINGS as RESIZE_VER_KJ_DISPLAY[m
+ except ImportError:[m
+     GET_IMAGE_RANGE_MAPPINGS = {}[m
+     GET_IMAGE_RANGE_DISPLAY = {}[m
+[32m+[m[32m    BEST_CONTEXT_WINDOW_MAPPINGS = {}[m
+[32m+[m[32m    BEST_CONTEXT_WINDOW_DISPLAY = {}[m
+[32m+[m[32m    BLOCKIFY_MASK_MAPPINGS = {}[m
+[32m+[m[32m    BLOCKIFY_MASK_DISPLAY = {}[m
+[32m+[m[32m    RESIZE_VER_KJ_MAPPINGS = {}[m
+[32m+[m[32m    RESIZE_VER_KJ_DISPLAY = {}[m
+ [m
+ [m
+ # 合并所有节点映射[m
+[36m@@ -786,6 +834,9 @@[m [mNODE_CLASS_MAPPINGS.update(COLOR_TO_MASK_MAPPINGS)[m
+ NODE_CLASS_MAPPINGS.update(LAZY_SWITCH_MAPPINGS)[m
+ NODE_CLASS_MAPPINGS.update(TEXT_TRANSLATOR_API_MAPPINGS)[m
+ NODE_CLASS_MAPPINGS.update(GET_IMAGE_RANGE_MAPPINGS)[m
+[32m+[m[32mNODE_CLASS_MAPPINGS.update(BEST_CONTEXT_WINDOW_MAPPINGS)[m
+[32m+[m[32mNODE_CLASS_MAPPINGS.update(BLOCKIFY_MASK_MAPPINGS)[m
+[32m+[m[32mNODE_CLASS_MAPPINGS.update(RESIZE_VER_KJ_MAPPINGS)[m
+ [m
+ # 合并显示名称映射[m
+ NODE_DISPLAY_NAME_MAPPINGS = {}[m
+[36m@@ -826,6 +877,9 @@[m [mNODE_DISPLAY_NAME_MAPPINGS.update(COLOR_TO_MASK_DISPLAY)[m
+ NODE_DISPLAY_NAME_MAPPINGS.update(LAZY_SWITCH_DISPLAY)[m
+ NODE_DISPLAY_NAME_MAPPINGS.update(TEXT_TRANSLATOR_API_DISPLAY)[m
+ NODE_DISPLAY_NAME_MAPPINGS.update(GET_IMAGE_RANGE_DISPLAY)[m
+[32m+[m[32mNODE_DISPLAY_NAME_MAPPINGS.update(BEST_CONTEXT_WINDOW_DISPLAY)[m
+[32m+[m[32mNODE_DISPLAY_NAME_MAPPINGS.update(BLOCKIFY_MASK_DISPLAY)[m
+[32m+[m[32mNODE_DISPLAY_NAME_MAPPINGS.update(RESIZE_VER_KJ_DISPLAY)[m
+ [m
+ NODE_CATEGORIES = {[m
+     "UniversalToolkit": [[m
+[36m@@ -867,6 +921,9 @@[m [mNODE_CATEGORIES = {[m
+         "APIImageGenerator_UTK",[m
+         "TextTranslatorAPI_UTK",[m
+         "GetImageRangeFromBatch_UTK",[m
+[32m+[m[32m        "BestContextWindow_UTK",[m
+[32m+[m[32m        "BlockifyMask_UTK",[m
+[32m+[m[32m        "ResizeImageVerKJ_UTK",[m
+     ][m
+ }[m
+ [m
+[1mdiff --git a/nodes/image/image_mask_scale_as.py b/nodes/image/image_mask_scale_as.py[m
+[1mindex 7debdaa..46af644 100644[m
+[1m--- a/nodes/image/image_mask_scale_as.py[m
+[1m+++ b/nodes/image/image_mask_scale_as.py[m
+[36m@@ -9,7 +9,7 @@[m [mScales images and masks to match the dimensions of a reference image.[m
+ """[m
+ [m
+ import torch[m
+[31m-from PIL import Image[m
+[32m+[m[32mfrom PIL import Image, ImageFilter[m
+ [m
+ from ..image_utils import image2mask, pil2tensor, tensor2pil[m
+ [m
+[36m@@ -32,10 +32,18 @@[m [mdef fit_resize_image([m
+     target_height,[m
+     fit_mode,[m
+     resize_sampler,[m
+[31m-    background_color="#000000",[m
+[32m+[m[32m    background_color="black",[m
+[32m+[m[32m    crop_position="center",[m
+ ):[m
+     """Resize image according to fit mode"""[m
+[31m-    if fit_mode == "letterbox":[m
+[32m+[m[32m    if fit_mode == "resize":[m
+[32m+[m[32m        # resize: 只等比缩放，不填充，直接返回缩放后的图像[m
+[32m+[m[32m        scale = min(target_width / image.width, target_height / image.height)[m
+[32m+[m[32m        new_width = int(image.width * scale)[m
+[32m+[m[32m        new_height = int(image.height * scale)[m
+[32m+[m[32m        return image.resize((new_width, new_height), resize_sampler)[m
+[32m+[m[41m    [m
+[32m+[m[32m    if fit_mode in ["letterbox", "pad", "pad_edge", "pad_edge_pixel", "pillarbox_blur"]:[m
+         # Calculate scaling factor to fit within target dimensions[m
+         scale = min(target_width / image.width, target_height / image.height)[m
+         new_width = int(image.width * scale)[m
+[36m@@ -44,13 +52,164 @@[m [mdef fit_resize_image([m
+         # Resize image[m
+         resized = image.resize((new_width, new_height), resize_sampler)[m
+ [m
+[31m-        # Create new image with target dimensions and paste resized image[m
+[31m-        if image.mode == "RGB":[m
+[31m-            result = Image.new("RGB", (target_width, target_height), background_color)[m
+[32m+[m[32m        # Create background[m
+[32m+[m[32m        if fit_mode == "pillarbox_blur":[m
+[32m+[m[32m            # create scaled background then blur and dim[m
+[32m+[m[32m            scale_fill = max(target_width / max(1, image.width), target_height / max(1, image.height))[m
+[32m+[m[32m            bg_w = max(1, int(round(image.width * scale_fill)))[m
+[32m+[m[32m            bg_h = max(1, int(round(image.height * scale_fill)))[m
+[32m+[m[32m            bg = image.resize((bg_w, bg_h), Image.BILINEAR)[m
+[32m+[m[32m            # center crop to canvas[m
+[32m+[m[32m            x0 = max(0, (bg_w - target_width) // 2)[m
+[32m+[m[32m            y0 = max(0, (bg_h - target_height) // 2)[m
+[32m+[m[32m            bg = bg.crop((x0, y0, x0 + target_width, y0 + target_height))[m
+[32m+[m[32m            sigma = max(1.0, 0.006 * float(min(target_width, target_height)))[m
+[32m+[m[32m            bg = bg.filter(ImageFilter.GaussianBlur(radius=sigma))[m
+[32m+[m[32m            # desaturate slightly if RGB[m
+[32m+[m[32m            if bg.mode == "RGB":[m
+[32m+[m[32m                r, g, b = bg.split()[m
+[32m+[m[32m                # simple luminance[m
+[32m+[m[32m                l = r.point(lambda v: int(0.2126 * v))[m
+[32m+[m[32m                l = Image.merge("RGB", (l, l, l))[m
+[32m+[m[32m                def mix(a, b, t=0.2):[m
+[32m+[m[32m                    return Image.blend(a, b, t)[m
+[32m+[m[32m                bg = mix(bg, l)[m
+[32m+[m[32m            # dim[m
+[32m+[m[32m            bg = bg.point(lambda v: int(v * 0.35))[m
+[32m+[m[32m            result = bg[m
+[32m+[m[32m        elif fit_mode in ["pad_edge", "pad_edge_pixel"]:[m
+[32m+[m[32m            # start with empty canvas[m
+[32m+[m[32m            result = Image.new("RGB" if image.mode == "RGB" else "L", (target_width, target_height))[m
+         else:[m
+[31m-            result = Image.new("L", (target_width, target_height), 0)[m
+[31m-        paste_x = (target_width - new_width) // 2[m
+[31m-        paste_y = (target_height - new_height) // 2[m
+[32m+[m[32m            if image.mode == "RGB":[m
+[32m+[m[32m                # preset color names[m
+[32m+[m[32m                preset_colors = {[m
+[32m+[m[32m                    "black": "#000000",[m
+[32m+[m[32m                    "white": "#FFFFFF",[m
+[32m+[m[32m                    "gray": "#808080",[m
+[32m+[m[32m                    "red": "#FF0000",[m
+[32m+[m[32m                    "green": "#00FF00",[m
+[32m+[m[32m                    "blue": "#0000FF",[m
+[32m+[m[32m                    "yellow": "#FFFF00",[m
+[32m+[m[32m                    "cyan": "#00FFFF",[m
+[32m+[m[32m                    "magenta": "#FF00FF",[m
+[32m+[m[32m                }[m
+[32m+[m[32m                fill_color = preset_colors.get(str(background_color).lower(), background_color)[m
+[32m+[m[32m                result = Image.new("RGB", (target_width, target_height), fill_color)[m
+[32m+[m[32m            else:[m
+[32m+[m[32m                result = Image.new("L", (target_width, target_height), 0)[m
+[32m+[m
+[32m+[m[32m        # paste location[m
+[32m+[m[32m        if crop_position == "center":[m
+[32m+[m[32m            paste_x = (target_width - new_width) // 2[m
+[32m+[m[32m            paste_y = (target_height - new_height) // 2[m
+[32m+[m[32m        elif crop_position == "top":[m
+[32m+[m[32m            paste_x = (target_width - new_width) // 2[m
+[32m+[m[32m            paste_y = 0[m
+[32m+[m[32m        elif crop_position == "bottom":[m
+[32m+[m[32m            paste_x = (target_width - new_width) // 2[m
+[32m+[m[32m            paste_y = target_height - new_height[m
+[32m+[m[32m        elif crop_position == "left":[m
+[32m+[m[32m            paste_x = 0[m
+[32m+[m[32m            paste_y = (target_height - new_height) // 2[m
+[32m+[m[32m        elif crop_position == "right":[m
+[32m+[m[32m            paste_x = target_width - new_width[m
+[32m+[m[32m            paste_y = (target_height - new_height) // 2[m
+[32m+[m[32m        else:[m
+[32m+[m[32m            paste_x = (target_width - new_width) // 2[m
+[32m+[m[32m            paste_y = (target_height - new_height) // 2[m
+[32m+[m[32m        # specialized edge padding behaviors[m
+[32m+[m[32m        if fit_mode == "pad_edge" or fit_mode == "pad_edge_pixel":[m
+[32m+[m[32m            left_pad = paste_x[m
+[32m+[m[32m            right_pad = target_width - (paste_x + new_width)[m
+[32m+[m[32m            top_pad = paste_y[m
+[32m+[m[32m            bottom_pad = target_height - (paste_y + new_height)[m
+[32m+[m
+[32m+[m[32m            # left/right stripes from image columns[m
+[32m+[m[32m            if left_pad > 0:[m
+[32m+[m[32m                col = resized.crop((0, 0, 1, new_height))[m
+[32m+[m[32m                if fit_mode == "pad_edge_pixel":[m
+[32m+[m[32m                    col = col.resize((left_pad, new_height), Image.NEAREST)[m
+[32m+[m[32m                    result.paste(col, (0, paste_y))[m
+[32m+[m[32m                else:[m
+[32m+[m[32m                    # mean color of left edge[m
+[32m+[m[32m                    if col.mode == "RGB":[m
+[32m+[m[32m                        pixels = list(col.getdata())[m
+[32m+[m[32m                        r = sum(p[0] for p in pixels) // len(pixels)[m
+[32m+[m[32m                        g = sum(p[1] for p in pixels) // len(pixels)[m
+[32m+[m[32m                        b = sum(p[2] for p in pixels) // len(pixels)[m
+[32m+[m[32m                        fill = (r, g, b)[m
+[32m+[m[32m                    else:[m
+[32m+[m[32m                        v = sum(col.getdata()) // len(col.getdata())[m
+[32m+[m[32m                        fill = v[m
+[32m+[m[32m                    Image.Image.paste(result, Image.new(result.mode, (left_pad, new_height), fill), (0, paste_y))[m
+[32m+[m
+[32m+[m[32m            if right_pad > 0:[m
+[32m+[m[32m                col = resized.crop((new_width - 1, 0, new_width, new_height))[m
+[32m+[m[32m                if fit_mode == "pad_edge_pixel":[m
+[32m+[m[32m                    col = col.resize((right_pad, new_height), Image.NEAREST)[m
+[32m+[m[32m                    result.paste(col, (paste_x + new_width, paste_y))[m
+[32m+[m[32m                else:[m
+[32m+[m[32m                    if col.mode == "RGB":[m
+[32m+[m[32m                        pixels = list(col.getdata())[m
+[32m+[m[32m                        r = sum(p[0] for p in pixels) // len(pixels)[m
+[32m+[m[32m                        g = sum(p[1] for p in pixels) // len(pixels)[m
+[32m+[m[32m                        b = sum(p[2] for p in pixels) // len(pixels)[m
+[32m+[m[32m                        fill = (r, g, b)[m
+[32m+[m[32m                    else:[m
+[32m+[m[32m                        v = sum(col.getdata()) // len(col.getdata())[m
+[32m+[m[32m                        fill = v[m
+[32m+[m[32m                    Image.Image.paste(result, Image.new(result.mode, (right_pad, new_height), fill), (paste_x + new_width, paste_y))[m
+[32m+[m
+[32m+[m[32m            # top/bottom stripes from image rows[m
+[32m+[m[32m            if top_pad > 0:[m
+[32m+[m[32m                row = resized.crop((0, 0, new_width, 1))[m
+[32m+[m[32m                if fit_mode == "pad_edge_pixel":[m
+[32m+[m[32m                    row = row.resize((new_width, top_pad), Image.NEAREST)[m
+[32m+[m[32m                    result.paste(row, (paste_x, 0))[m
+[32m+[m[32m                    # corners by corner pixels[m
+[32m+[m[32m                    if left_pad > 0:[m
+[32m+[m[32m                        c = resized.getpixel((0, 0))[m
+[32m+[m[32m                        Image.Image.paste(result, Image.new(result.mode, (left_pad, top_pad), c), (0, 0))[m
+[32m+[m[32m                    if right_pad > 0:[m
+[32m+[m[32m                        c = resized.getpixel((new_width - 1, 0

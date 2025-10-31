@@ -1,6 +1,6 @@
 # ComfyUI-UniversalToolkit
 
-[![Version](https://img.shields.io/badge/version-1.3.2-blue.svg)](https://github.com/whmc76/ComfyUI-UniversalToolkit)
+[![Version](https://img.shields.io/badge/version-1.4.8-blue.svg)](https://github.com/whmc76/ComfyUI-UniversalToolkit)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![ComfyUI](https://img.shields.io/badge/ComfyUI-v3+-orange.svg)](https://github.com/comfyanonymous/ComfyUI)
 
@@ -52,9 +52,10 @@ tqdm
 - **ImageConcatenate_UTK**：水平或垂直拼接两张图像
 - **ImageConcatenateMulti_UTK**：智能拼接多张图像，支持2-4图自动布局
 
-#### 图像变换与调整
-- **ImageScaleByAspectRatio_UTK**：按指定宽高比缩放图像
-- **ImageMaskScaleAs_UTK**：按参考图像尺寸缩放图像
+- #### 图像变换与调整
+- **ResizeImageVerKJ_UTK**：KJ v2 风格的高兼容缩放，支持 stretch/resize/pad/pad_edge/pad_edge_pixel/crop/pillarbox_blur/total_pixels 与 `crop_position`
+- **ImageScaleByAspectRatio_UTK**：按指定宽高比缩放图像（已支持与 KJ v2 一致的 fit 模式与 `crop_position`，背景色为预设清单）
+- **ImageMaskScaleAs_UTK**：按参考图像尺寸缩放图像（已支持与 KJ v2 一致的 fit 模式与 `crop_position`，pad_color 为预设清单）
 - **ImageScaleRestore_UTK**：将图像恢复到原始尺寸
 - **ImageRemoveAlpha_UTK**：移除图像的Alpha通道
 - **ImageCombineAlpha_UTK**：合并Alpha通道到图像
@@ -81,6 +82,7 @@ tqdm
 - **MaskAnd_UTK**：掩码与运算
 - **MaskSub_UTK**：掩码减法运算
 - **MaskAdd_UTK**：掩码加法运算
+- **BlockifyMask_UTK**：将掩码按 block_size 马赛克化（支持 cpu/cuda；可选二值化）
 
 ### 🛠️ 工具节点
 
@@ -91,6 +93,7 @@ tqdm
 
 #### 数学与逻辑
 - **MathExpression_UTK**：数学表达式计算，支持复杂公式和函数
+- **BestContextWindow_UTK**：最佳滑动窗口帧数计算（满足 4n+1，最小化补帧；输出 best_window/padding/padded_total/segments）
 
 #### 系统工具
 - **PurgeVRAM_UTK**：显存清理，支持选择性清理缓存和模型
@@ -176,7 +179,22 @@ AudioCropProcess_UTK
 
 ## 📋 版本历史
 
-### v1.3.2 (最新)
+### v1.4.7 (最新)
+- 修复 resize 与 pad 方法表现相同的问题：
+  - ResizeImageVerKJ (UTK)：resize 模式只等比缩放不填充，pad 模式填充到目标尺寸
+  - ImageMaskScaleAs (UTK)：resize 返回实际缩放尺寸，pad 填充到目标尺寸并正确输出尺寸
+  - ImageScaleByAspectRatio (UTK)：resize 返回实际缩放尺寸，pad 填充到目标尺寸并正确输出尺寸
+  - resize：等比缩放，输出尺寸 = 缩放后尺寸（可能小于目标尺寸）
+  - pad：等比缩放 + 背景填充，输出尺寸 = 目标尺寸（固定尺寸）
+
+### v1.4.6
+- 新增 `Resize Image ver KJ (UTK)`，完整对齐 KJ v2 调整模式，支持 `crop_position` 与 mask 同步缩放；pad_edge/pad_edge_pixel 行为与 KJ 对齐
+- 升级 `Image Mask Scale As (UTK)` 与 `Image Scale By Aspect Ratio (UTK)`：支持同样的 fit 模式、`crop_position`，并将背景色改为预设清单
+- 新增 `Blockify Mask (UTK)`：掩码块化，支持二值化
+- 新增 `Best Context Window (UTK)`：计算满足 4n+1 的最佳窗口，最小化补帧
+- 统一分类命名：`UniversalToolkit/Tools`
+
+### v1.3.2
 - 新增电商应用类，重新组织预设分类结构
 - 创建专门的电商应用类，包含6个专业电商功能：
   - Ecommerce-Professional Product Photography (专业产品图)

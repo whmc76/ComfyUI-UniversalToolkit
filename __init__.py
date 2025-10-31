@@ -8,13 +8,48 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.4.4"
+__version__ = "1.4.8"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.4.8": [
+        "版本更新和代码优化：",
+        "- 更新插件版本号为 1.4.8",
+        "- 代码优化和稳定性改进",
+    ],
+    "1.4.7": [
+        "修复 resize 与 pad 方法表现相同的问题：",
+        "- ResizeImageVerKJ (UTK)：resize 模式只等比缩放不填充，pad 模式填充到目标尺寸",
+        "- ImageMaskScaleAs (UTK)：resize 返回实际缩放尺寸，pad 填充到目标尺寸并正确输出尺寸",
+        "- ImageScaleByAspectRatio (UTK)：resize 返回实际缩放尺寸，pad 填充到目标尺寸并正确输出尺寸",
+        "- resize：等比缩放，输出尺寸 = 缩放后尺寸（可能小于目标尺寸）",
+        "- pad：等比缩放 + 背景填充，输出尺寸 = 目标尺寸（固定尺寸）",
+    ],
+    "1.4.6": [
+        "新增 Resize Image ver KJ (UTK)：",
+        "- 复刻 KJ v2 的调整模式：stretch/resize/pad/pad_edge/pad_edge_pixel/crop/pillarbox_blur/total_pixels",
+        "- 支持 mask 同步缩放与对齐，pad_edge/pad_edge_pixel 行为与 KJ 对齐",
+        "升级 Image Mask Scale As (UTK)：",
+        "- fit 与 KJ v2 对齐，新增 crop_position，支持预设 pad_color",
+        "升级 Image Scale By Aspect Ratio (UTK)：",
+        "- fit 与 KJ v2 对齐，新增 crop_position，background_color 改为预设清单",
+        "修正 pad_edge 与 pad_edge_pixel 的边缘与角点处理逻辑，匹配 KJ 视觉表现",
+    ],
+    "1.4.5": [
+        "新增Best Context Window (UTK)节点：",
+        "- 计算满足4n+1且位于[min,max]区间的最佳窗口，以最小化补帧",
+        "- 输出best_window、padding、padded_total、segments",
+        "- 分类：UniversalToolkit/Tools",
+        "新增Blockify Mask (UTK)节点：",
+        "- 将掩码按block_size块化，支持cpu/cuda",
+        "- 可选二值化binarize与threshold",
+        "- 分类：UniversalToolkit/Mask",
+        "统一分类命名：将UniversalToolkit/tools合并为UniversalToolkit/Tools",
+        "修复：Get Image or Mask Range From Batch (UTK) 分类名不一致问题",
+    ],
     "1.4.4": [
         "新增Get Image or Mask Range From Batch (UTK)节点：",
         "- 支持从图像批次或遮罩批次中提取指定范围的元素",
@@ -742,9 +777,27 @@ try:
         NODE_CLASS_MAPPINGS as GET_IMAGE_RANGE_MAPPINGS
     from .nodes.tools.get_image_range_from_batch import \
         NODE_DISPLAY_NAME_MAPPINGS as GET_IMAGE_RANGE_DISPLAY
+    from .nodes.tools.optimal_context_window_node import \
+        NODE_CLASS_MAPPINGS as BEST_CONTEXT_WINDOW_MAPPINGS
+    from .nodes.tools.optimal_context_window_node import \
+        NODE_DISPLAY_NAME_MAPPINGS as BEST_CONTEXT_WINDOW_DISPLAY
+    from .nodes.mask.blockify_mask import \
+        NODE_CLASS_MAPPINGS as BLOCKIFY_MASK_MAPPINGS
+    from .nodes.mask.blockify_mask import \
+        NODE_DISPLAY_NAME_MAPPINGS as BLOCKIFY_MASK_DISPLAY
+    from .nodes.image.resize_image_ver_kj import \
+        NODE_CLASS_MAPPINGS as RESIZE_VER_KJ_MAPPINGS
+    from .nodes.image.resize_image_ver_kj import \
+        NODE_DISPLAY_NAME_MAPPINGS as RESIZE_VER_KJ_DISPLAY
 except ImportError:
     GET_IMAGE_RANGE_MAPPINGS = {}
     GET_IMAGE_RANGE_DISPLAY = {}
+    BEST_CONTEXT_WINDOW_MAPPINGS = {}
+    BEST_CONTEXT_WINDOW_DISPLAY = {}
+    BLOCKIFY_MASK_MAPPINGS = {}
+    BLOCKIFY_MASK_DISPLAY = {}
+    RESIZE_VER_KJ_MAPPINGS = {}
+    RESIZE_VER_KJ_DISPLAY = {}
 
 
 # 合并所有节点映射
@@ -786,6 +839,9 @@ NODE_CLASS_MAPPINGS.update(COLOR_TO_MASK_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(LAZY_SWITCH_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(TEXT_TRANSLATOR_API_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(GET_IMAGE_RANGE_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(BEST_CONTEXT_WINDOW_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(BLOCKIFY_MASK_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(RESIZE_VER_KJ_MAPPINGS)
 
 # 合并显示名称映射
 NODE_DISPLAY_NAME_MAPPINGS = {}
@@ -826,6 +882,9 @@ NODE_DISPLAY_NAME_MAPPINGS.update(COLOR_TO_MASK_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(LAZY_SWITCH_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(TEXT_TRANSLATOR_API_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(GET_IMAGE_RANGE_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(BEST_CONTEXT_WINDOW_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(BLOCKIFY_MASK_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(RESIZE_VER_KJ_DISPLAY)
 
 NODE_CATEGORIES = {
     "UniversalToolkit": [
@@ -867,6 +926,9 @@ NODE_CATEGORIES = {
         "APIImageGenerator_UTK",
         "TextTranslatorAPI_UTK",
         "GetImageRangeFromBatch_UTK",
+        "BestContextWindow_UTK",
+        "BlockifyMask_UTK",
+        "ResizeImageVerKJ_UTK",
     ]
 }
 

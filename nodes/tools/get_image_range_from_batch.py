@@ -11,7 +11,7 @@ class GetImageRangeFromBatch_UTK:
     RETURN_TYPES = ("IMAGE", "MASK")
     RETURN_NAMES = ("image", "mask")
     FUNCTION = "get_range_from_batch"
-    CATEGORY = "UniversalToolkit/tools"
+    CATEGORY = "UniversalToolkit/Tools"
     
     @classmethod
     def INPUT_TYPES(cls):

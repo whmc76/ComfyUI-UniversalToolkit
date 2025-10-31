@@ -11,7 +11,7 @@ Scales images to specific aspect ratios with various fitting modes.
 import math
 
 import torch
-from PIL import Image
+from PIL import Image, ImageFilter
 
 from ..image_utils import (fit_resize_image, image2mask, is_valid_mask, log,
                            num_round_up_to_multiple, pil2tensor, tensor2pil)
@@ -35,10 +35,23 @@ def num_round_up_to_multiple(num, multiple):
 
 
 def fit_resize_image(
-    image, target_width, target_height, fit_mode, resize_sampler, background_color
+    image,
+    target_width,
+    target_height,
+    fit_mode,
+    resize_sampler,
+    background_color,
+    crop_position="center",
 ):
     """Resize image according to fit mode"""
-    if fit_mode == "letterbox":
+    if fit_mode == "resize":
+        # resize: 只等比缩放，不填充，直接返回缩放后的图像
+        scale = min(target_width / image.width, target_height / image.height)
+        new_width = int(image.width * scale)
+        new_height = int(image.height * scale)
+        return image.resize((new_width, new_height), resize_sampler)
+    
+    if fit_mode in ["letterbox", "pad", "pad_edge", "pad_edge_pixel", "pillarbox_blur"]:
         # Calculate scaling factor to fit within target dimensions
         scale = min(target_width / image.width, target_height / image.height)
         new_width = int(image.width * scale)
@@ -47,10 +60,127 @@ def fit_resize_image(
         # Resize image
         resized = image.resize((new_width, new_height), resize_sampler)
 
-        # Create new image with target dimensions and paste resized image
-        result = Image.new(image.mode, (target_width, target_height), background_color)
-        paste_x = (target_width - new_width) // 2
-        paste_y = (target_height - new_height) // 2
+        # Create background
+        if fit_mode == "pillarbox_blur":
+            scale_fill = max(target_width / max(1, image.width), target_height / max(1, image.height))
+            bg_w = max(1, int(round(image.width * scale_fill)))
+            bg_h = max(1, int(round(image.height * scale_fill)))
+            bg = image.resize((bg_w, bg_h), Image.BILINEAR)
+            x0 = max(0, (bg_w - target_width) // 2)
+            y0 = max(0, (bg_h - target_height) // 2)
+            bg = bg.crop((x0, y0, x0 + target_width, y0 + target_height))
+            sigma = max(1.0, 0.006 * float(min(target_width, target_height)))
+            bg = bg.filter(ImageFilter.GaussianBlur(radius=sigma))
+            if bg.mode == "RGB":
+                r, g, b = bg.split()
+                l = r.point(lambda v: int(0.2126 * v))
+                l = Image.merge("RGB", (l, l, l))
+                bg = Image.blend(bg, l, 0.2)
+            bg = bg.point(lambda v: int(v * 0.35))
+            result = bg
+        else:
+            result = Image.new(image.mode, (target_width, target_height), background_color)
+
+        # paste position
+        if crop_position == "center":
+            paste_x = (target_width - new_width) // 2
+            paste_y = (target_height - new_height) // 2
+        elif crop_position == "top":
+            paste_x = (target_width - new_width) // 2
+            paste_y = 0
+        elif crop_position == "bottom":
+            paste_x = (target_width - new_width) // 2
+            paste_y = target_height - new_height
+        elif crop_position == "left":
+            paste_x = 0
+            paste_y = (target_height - new_height) // 2
+        elif crop_position == "right":
+            paste_x = target_width - new_width
+            paste_y = (target_height - new_height) // 2
+        else:
+            paste_x = (target_width - new_width) // 2
+            paste_y = (target_height - new_height) // 2
+
+        # Apply pad_edge / pad_edge_pixel stripes
+        if fit_mode in ["pad_edge", "pad_edge_pixel"]:
+            left_pad = paste_x
+            right_pad = target_width - (paste_x + new_width)
+            top_pad = paste_y
+            bottom_pad = target_height - (paste_y + new_height)
+
+            if left_pad > 0:
+                col = resized.crop((0, 0, 1, new_height))
+                if fit_mode == "pad_edge_pixel":
+                    result.paste(col.resize((left_pad, new_height), Image.NEAREST), (0, paste_y))
+                else:
+                    if col.mode == "RGB":
+                        pixels = list(col.getdata())
+                        r = sum(p[0] for p in pixels) // len(pixels)
+                        g = sum(p[1] for p in pixels) // len(pixels)
+                        b = sum(p[2] for p in pixels) // len(pixels)
+                        fill = (r, g, b)
+                    else:
+                        v = sum(col.getdata()) // len(col.getdata())
+                        fill = v
+                    Image.Image.paste(result, Image.new(result.mode, (left_pad, new_height), fill), (0, paste_y))
+            if right_pad > 0:
+                col = resized.crop((new_width - 1, 0, new_width, new_height))
+                if fit_mode == "pad_edge_pixel":
+                    result.paste(col.resize((right_pad, new_height), Image.NEAREST), (paste_x + new_width, paste_y))
+                else:
+                    if col.mode == "RGB":
+                        pixels = list(col.getdata())
+                        r = sum(p[0] for p in pixels) // len(pixels)
+                        g = sum(p[1] for p in pixels) // len(pixels)
+                        b = sum(p[2] for p in pixels) // len(pixels)
+                        fill = (r, g, b)
+                    else:
+                        v = sum(col.getdata()) // len(col.getdata())
+                        fill = v
+                    Image.Image.paste(result, Image.new(result.mode, (right_pad, new_height), fill), (paste_x + new_width, paste_y))
+            if top_pad > 0:
+                row = resized.crop((0, 0, new_width, 1))
+                if fit_mode == "pad_edge_pixel":
+                    result.paste(row.resize((new_width, top_pad), Image.NEAREST), (paste_x, 0))
+                    if left_pad > 0:
+                        c = resized.getpixel((0, 0))
+                        Image.Image.paste(result, Image.new(result.mode, (left_pad, top_pad), c), (0, 0))
+                    if right_pad > 0:
+                        c = resized.getpixel((new_width - 1, 0))
+                        Image.Image.paste(result, Image.new(result.mode, (right_pad, top_pad), c), (paste_x + new_width, 0))
+                else:
+                    if row.mode == "RGB":
+                        pixels = list(row.getdata())
+                        r = sum(p[0] for p in pixels) // len(pixels)
+                        g = sum(p[1] for p in pixels) // len(pixels)
+                        b = sum(p[2] for p in pixels) // len(pixels)
+                        fill = (r, g, b)
+                    else:
+                        v = sum(row.getdata()) // len(row.getdata())
+                        fill = v
+                    Image.Image.paste(result, Image.new(result.mode, (target_width, top_pad), fill), (0, 0))
+            if bottom_pad > 0:
+                row = resized.crop((0, new_height - 1, new_width, new_height))
+                if fit_mode == "pad_edge_pixel":
+                    result.paste(row.resize((new_width, bottom_pad), Image.NEAREST), (paste_x, paste_y + new_height))
+                    if left_pad > 0:
+                        c = resized.getpixel((0, new_height - 1))
+                        Image.Image.paste(result, Image.new(result.mode, (left_pad, bottom_pad), c), (0, paste_y + new_height))
+                    if right_pad > 0:
+                        c = resized.getpixel((new_width - 1, new_height - 1))
+                        Image.Image.paste(result, Image.new(result.mode, (right_pad, bottom_pad), c), (paste_x + new_width, paste_y + new_height))
+                else:
+                    if row.mode == "RGB":
+                        pixels = list(row.getdata())
+                        r = sum(p[0] for p in pixels) // len(pixels)
+                        g = sum(p[1] for p in pixels) // len(pixels)
+                        b = sum(p[2] for p in pixels) // len(pixels)
+                        fill = (r, g, b)
+                    else:
+                        v = sum(row.getdata()) // len(row.getdata())
+                        fill = v
+                    Image.Image.paste(result, Image.new(result.mode, (target_width, bottom_pad), fill), (0, paste_y + new_height))
+
         result.paste(resized, (paste_x, paste_y))
         return result
 
@@ -64,8 +194,24 @@ def fit_resize_image(
         resized = image.resize((new_width, new_height), resize_sampler)
 
         # Crop to target dimensions
-        crop_x = (new_width - target_width) // 2
-        crop_y = (new_height - target_height) // 2
+        if crop_position == "center":
+            crop_x = (new_width - target_width) // 2
+            crop_y = (new_height - target_height) // 2
+        elif crop_position == "top":
+            crop_x = (new_width - target_width) // 2
+            crop_y = 0
+        elif crop_position == "bottom":
+            crop_x = (new_width - target_width) // 2
+            crop_y = new_height - target_height
+        elif crop_position == "left":
+            crop_x = 0
+            crop_y = (new_height - target_height) // 2
+        elif crop_position == "right":
+            crop_x = new_width - target_width
+            crop_y = (new_height - target_height) // 2
+        else:
+            crop_x = (new_width - target_width) // 2
+            crop_y = (new_height - target_height) // 2
         return resized.crop(
             (crop_x, crop_y, crop_x + target_width, crop_y + target_height)
         )
@@ -91,7 +237,15 @@ class ImageScaleByAspectRatio_UTK:
             "3:4",
             "9:16",
         ]
-        fit_mode = ["letterbox", "crop", "fill"]
+        fit_mode = [
+            "stretch",
+            "resize",
+            "pad",
+            "pad_edge",
+            "pad_edge_pixel",
+            "crop",
+            "pillarbox_blur",
+        ]
         method_mode = ["lanczos", "bicubic", "hamming", "bilinear", "box", "nearest"]
         multiple_list = ["8", "16", "32", "64", "128", "256", "512", "None"]
         scale_to_list = [
@@ -121,7 +275,18 @@ class ImageScaleByAspectRatio_UTK:
                     "INT",
                     {"default": 1024, "min": 4, "max": 1e8, "step": 1},
                 ),
-                "background_color": ("STRING", {"default": "#000000"}),
+                "background_color": ([
+                    "black",
+                    "white",
+                    "gray",
+                    "red",
+                    "green",
+                    "blue",
+                    "yellow",
+                    "cyan",
+                    "magenta",
+                ], {"default": "black"}),
+                "crop_position": (["center", "top", "bottom", "left", "right"], {"default": "center"}),
             },
             "optional": {
                 "image": ("IMAGE",),
@@ -158,6 +323,7 @@ class ImageScaleByAspectRatio_UTK:
         scale_to_side,
         scale_to_length,
         background_color,
+        crop_position,
         image=None,
         mask=None,
     ):
@@ -294,6 +460,9 @@ class ImageScaleByAspectRatio_UTK:
         elif method == "nearest":
             resize_sampler = Image.NEAREST
 
+        output_width = target_width
+        output_height = target_height
+        
         if len(orig_images) > 0:
             for i in orig_images:
                 _image = tensor2pil(i).convert("RGB")
@@ -304,7 +473,11 @@ class ImageScaleByAspectRatio_UTK:
                     fit,
                     resize_sampler,
                     background_color,
+                    crop_position,
                 )
+                # For resize mode, use actual image size instead of target size
+                if fit == "resize":
+                    output_width, output_height = _image.size
                 ret_images.append(pil2tensor(_image))
         if len(orig_masks) > 0:
             for m in orig_masks:
@@ -315,8 +488,12 @@ class ImageScaleByAspectRatio_UTK:
                     target_height,
                     fit,
                     resize_sampler,
-                    background_color,
+                    "black",
+                    crop_position,
                 ).convert("L")
+                # For resize mode, use actual mask size instead of target size
+                if fit == "resize":
+                    output_width, output_height = _mask.size
                 ret_masks.append(image2mask(_mask))
         if len(ret_images) > 0 and len(ret_masks) > 0:
             log(
@@ -327,8 +504,8 @@ class ImageScaleByAspectRatio_UTK:
                 torch.cat(ret_images, dim=0),
                 torch.cat(ret_masks, dim=0),
                 [orig_width, orig_height],
-                target_width,
-                target_height,
+                output_width,
+                output_height,
                 len(ret_images),
             )
         elif len(ret_images) > 0 and len(ret_masks) == 0:
@@ -340,8 +517,8 @@ class ImageScaleByAspectRatio_UTK:
                 torch.cat(ret_images, dim=0),
                 None,
                 [orig_width, orig_height],
-                target_width,
-                target_height,
+                output_width,
+                output_height,
                 len(ret_images),
             )
         elif len(ret_images) == 0 and len(ret_masks) > 0:
@@ -353,8 +530,8 @@ class ImageScaleByAspectRatio_UTK:
                 None,
                 torch.cat(ret_masks, dim=0),
                 [orig_width, orig_height],
-                target_width,
-                target_height,
+                output_width,
+                output_height,
                 len(ret_masks),
             )
         else:
