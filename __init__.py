@@ -8,13 +8,22 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.4.8"
+__version__ = "1.4.9"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.4.9": [
+        "新增Show Any (UTK)节点：",
+        "- 参考comfyui-easy-use的showAnything节点实现",
+        "- 支持显示任意类型的数据（string、int、float、json、list、torch.Tensor等）",
+        "- 在节点内部文本框中显示数据类型和内容",
+        "- 支持数据透传，不做任何修改",
+        "- 支持工作流保存和加载时恢复显示内容",
+        "- 分类：UniversalToolkit/Tools",
+    ],
     "1.4.8": [
         "版本更新和代码优化：",
         "- 更新插件版本号为 1.4.8",
@@ -777,6 +786,14 @@ try:
         NODE_CLASS_MAPPINGS as GET_IMAGE_RANGE_MAPPINGS
     from .nodes.tools.get_image_range_from_batch import \
         NODE_DISPLAY_NAME_MAPPINGS as GET_IMAGE_RANGE_DISPLAY
+    from .nodes.tools.load_video_frames import \
+        NODE_CLASS_MAPPINGS as EXTRACT_VIDEO_FRAMES_MAPPINGS
+    from .nodes.tools.load_video_frames import \
+        NODE_DISPLAY_NAME_MAPPINGS as EXTRACT_VIDEO_FRAMES_DISPLAY
+    from .nodes.tools.show_any import \
+        NODE_CLASS_MAPPINGS as SHOW_ANY_MAPPINGS
+    from .nodes.tools.show_any import \
+        NODE_DISPLAY_NAME_MAPPINGS as SHOW_ANY_DISPLAY
     from .nodes.tools.optimal_context_window_node import \
         NODE_CLASS_MAPPINGS as BEST_CONTEXT_WINDOW_MAPPINGS
     from .nodes.tools.optimal_context_window_node import \
@@ -789,9 +806,14 @@ try:
         NODE_CLASS_MAPPINGS as RESIZE_VER_KJ_MAPPINGS
     from .nodes.image.resize_image_ver_kj import \
         NODE_DISPLAY_NAME_MAPPINGS as RESIZE_VER_KJ_DISPLAY
-except ImportError:
+except ImportError as e:
+    print(f"[UniversalToolkit] 导入错误: {e}")
     GET_IMAGE_RANGE_MAPPINGS = {}
     GET_IMAGE_RANGE_DISPLAY = {}
+    EXTRACT_VIDEO_FRAMES_MAPPINGS = {}
+    EXTRACT_VIDEO_FRAMES_DISPLAY = {}
+    SHOW_ANY_MAPPINGS = {}
+    SHOW_ANY_DISPLAY = {}
     BEST_CONTEXT_WINDOW_MAPPINGS = {}
     BEST_CONTEXT_WINDOW_DISPLAY = {}
     BLOCKIFY_MASK_MAPPINGS = {}
@@ -839,6 +861,8 @@ NODE_CLASS_MAPPINGS.update(COLOR_TO_MASK_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(LAZY_SWITCH_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(TEXT_TRANSLATOR_API_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(GET_IMAGE_RANGE_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(EXTRACT_VIDEO_FRAMES_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(SHOW_ANY_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(BEST_CONTEXT_WINDOW_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(BLOCKIFY_MASK_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(RESIZE_VER_KJ_MAPPINGS)
@@ -882,6 +906,8 @@ NODE_DISPLAY_NAME_MAPPINGS.update(COLOR_TO_MASK_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(LAZY_SWITCH_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(TEXT_TRANSLATOR_API_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(GET_IMAGE_RANGE_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(EXTRACT_VIDEO_FRAMES_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(SHOW_ANY_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(BEST_CONTEXT_WINDOW_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(BLOCKIFY_MASK_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(RESIZE_VER_KJ_DISPLAY)
@@ -926,16 +952,23 @@ NODE_CATEGORIES = {
         "APIImageGenerator_UTK",
         "TextTranslatorAPI_UTK",
         "GetImageRangeFromBatch_UTK",
+        "Extract_Video_Frames_UTK",
+        "ShowAny_UTK",
         "BestContextWindow_UTK",
         "BlockifyMask_UTK",
         "ResizeImageVerKJ_UTK",
     ]
 }
 
+# 导出WEB_DIRECTORY以便ComfyUI加载JavaScript文件
+import os
+WEB_DIRECTORY = os.path.join(os.path.dirname(__file__), "web")
+
 __all__ = [
     "NODE_CLASS_MAPPINGS",
     "NODE_DISPLAY_NAME_MAPPINGS",
     "NODE_CATEGORIES",
+    "WEB_DIRECTORY",
     "__version__",
     "__author__",
     "__email__",
