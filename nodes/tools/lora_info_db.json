@@ -66,5 +66,12 @@
         "examplePrompt": null,
         "baseModel": "Flux.1 Kontext",
         "metaInfo": "{\n  \"name\": \"HDR360\",\n  \"sshs_legacy_hash\": \"6bb22ed6\",\n  \"format\": \"pt\",\n  \"training_info\": \"{\\\"step\\\": 5500, \\\"epoch\\\": 56}\",\n  \"sshs_model_hash\": \"d904a130eb54877361ec4cd9ebd82c3f937c1128a56ea68115c5db0ba1291638\",\n  \"version\": \"1.0\",\n  \"ss_base_model_version\": \"sd_1.5\",\n  \"ss_output_name\": \"HDR360\",\n  \"software\": \"{\\\"name\\\": \\\"ai-toolkit\\\", \\\"repo\\\": \\\"https://github.com/ostris/ai-toolkit\\\", \\\"version\\\": \\\"0.3.3\\\"}\"\n}"
+    },
+    "zimage\\ysy zbase alpha\\ysy zbase alpha_000003000.safetensors": {
+        "output": "",
+        "trainedWords": "",
+        "examplePrompt": null,
+        "baseModel": "",
+        "metaInfo": "{\n  \"name\": \"ysy zbase alpha\",\n  \"training_info\": \"{\\\"step\\\": 3000, \\\"epoch\\\": 40}\",\n  \"version\": \"1.0\",\n  \"ss_tag_frequency\": \"{\\\"1_Tagaysy\\\": {\\\"Tagaysy\\\": 1}}\",\n  \"format\": \"pt\",\n  \"sshs_legacy_hash\": \"7d24986a\",\n  \"ss_base_model_version\": \"zimage\",\n  \"ss_output_name\": \"ysy zbase alpha\",\n  \"sshs_model_hash\": \"17b842123ec61768345a3e0d7a8d84625ec9f9a7f0a4d97336c4f72f84cd0228\",\n  \"software\": \"{\\\"name\\\": \\\"ai-toolkit\\\", \\\"repo\\\": \\\"https://github.com/ostris/ai-toolkit\\\", \\\"version\\\": \\\"0.7.22\\\"}\"\n}"
     }
 }

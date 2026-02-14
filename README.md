@@ -375,6 +375,19 @@ AudioCropProcess_UTK
 - **操作系统**：Windows, macOS, Linux
 - **GPU支持**：NVIDIA CUDA (推荐)
 
+## 界面设置与 Nodes 2.0 说明
+
+### 启用上下文菜单自动嵌套子目录
+
+在 ComfyUI 设置中可开启「启用上下文菜单自动嵌套子目录」。开启后，在模型/文件选择等带路径的 combo 下拉中，选项会按子目录折叠为层级菜单，便于在子目录较多的场景下选择。
+
+**关于 Nodes 2.0**：该功能通过修补 LiteGraph 的 `ContextMenu` 实现。若使用 **Nodes 2.0**（官方 Vue 前端），combo 下拉可能不再经过 `ContextMenu`，导致本功能不生效。此时可：
+
+- 在 ComfyUI 菜单中切换回 **LiteGraph Canvas**（关闭 Nodes 2.0）以使用本功能，或
+- 关注 ComfyUI 后续是否提供 combo 选项转换的扩展 API。
+
+验证方式：开启本设置后，点击任意模型/文件类节点的下拉，若浏览器控制台出现 `UniversalToolkit contextMenu nest patch applied` 日志，说明补丁已生效；若无该日志，则当前前端未使用 ContextMenu，本功能在该界面下不可用。
+
 ## 📁 项目结构
 
 ```

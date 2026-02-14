@@ -1,4 +1,5 @@
 import { app } from "../../scripts/app.js";
+import "./context_menu_nest.js";
 
 app.registerExtension({
     name: "ComfyUI.UniversalToolkit",
