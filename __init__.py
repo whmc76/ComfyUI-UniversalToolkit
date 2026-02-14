@@ -8,13 +8,20 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.4.9"
+__version__ = "1.4.10"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.4.10": [
+        "新增 Image Batch Extend With Overlap (UTK) 节点：",
+        "- 自 comfyui-kjnodes 移植，用于视频/图像序列扩展与重叠混合",
+        "- 输出：source_images、start_images、extended_images",
+        "- 支持 overlap_side（source/new_images）与多种 overlap_mode：cut、linear_blend、ease_in_out、filmic_crossfade、perceptual_crossfade（需可选 kornia）",
+        "- 分类：UniversalToolkit/Image",
+    ],
     "1.4.9": [
         "新增Show Any (UTK)节点：",
         "- 参考comfyui-easy-use的showAnything节点实现",
@@ -806,6 +813,10 @@ try:
         NODE_CLASS_MAPPINGS as RESIZE_VER_KJ_MAPPINGS
     from .nodes.image.resize_image_ver_kj import \
         NODE_DISPLAY_NAME_MAPPINGS as RESIZE_VER_KJ_DISPLAY
+    from .nodes.image.image_batch_extend_with_overlap import \
+        NODE_CLASS_MAPPINGS as IMAGE_BATCH_EXTEND_MAPPINGS
+    from .nodes.image.image_batch_extend_with_overlap import \
+        NODE_DISPLAY_NAME_MAPPINGS as IMAGE_BATCH_EXTEND_DISPLAY
 except ImportError as e:
     print(f"[UniversalToolkit] 导入错误: {e}")
     GET_IMAGE_RANGE_MAPPINGS = {}
@@ -820,6 +831,8 @@ except ImportError as e:
     BLOCKIFY_MASK_DISPLAY = {}
     RESIZE_VER_KJ_MAPPINGS = {}
     RESIZE_VER_KJ_DISPLAY = {}
+    IMAGE_BATCH_EXTEND_MAPPINGS = {}
+    IMAGE_BATCH_EXTEND_DISPLAY = {}
 
 
 # 合并所有节点映射
@@ -866,6 +879,7 @@ NODE_CLASS_MAPPINGS.update(SHOW_ANY_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(BEST_CONTEXT_WINDOW_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(BLOCKIFY_MASK_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(RESIZE_VER_KJ_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(IMAGE_BATCH_EXTEND_MAPPINGS)
 
 # 合并显示名称映射
 NODE_DISPLAY_NAME_MAPPINGS = {}
@@ -911,6 +925,7 @@ NODE_DISPLAY_NAME_MAPPINGS.update(SHOW_ANY_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(BEST_CONTEXT_WINDOW_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(BLOCKIFY_MASK_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(RESIZE_VER_KJ_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(IMAGE_BATCH_EXTEND_DISPLAY)
 
 NODE_CATEGORIES = {
     "UniversalToolkit": [
@@ -957,6 +972,7 @@ NODE_CATEGORIES = {
         "BestContextWindow_UTK",
         "BlockifyMask_UTK",
         "ResizeImageVerKJ_UTK",
+        "ImageBatchExtendWithOverlap_UTK",
     ]
 }
 
