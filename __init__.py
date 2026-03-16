@@ -8,13 +8,25 @@ A comprehensive toolkit for ComfyUI that provides various utility nodes for imag
 :license: MIT, see LICENSE for more details.
 """
 
-__version__ = "1.4.10"
+__version__ = "1.4.11"
 __author__ = "CyberDickLang"
 __email__ = "286878701@qq.com"
 __url__ = "https://github.com/whmc76"
 
 # 更新日志
 CHANGELOG = {
+    "1.4.11": [
+        "新增 Save Image Plus (UTK) 节点：",
+        "- 支持 PNG、JPEG、TIFF、WebP 四种格式输出",
+        "- 支持自定义 DPI 元数据嵌入（默认 300 DPI，用于印刷质量输出）",
+        "- PNG：嵌入 pHYs 分辨率块 + ComfyUI 工作流 + 文本元数据",
+        "- JPEG：支持 DPI 与可选 EXIF（需 piexif）",
+        "- TIFF：LZW 压缩、DPI + Artist/ImageDescription 标签 + 工作流 JSON",
+        "- WebP：支持质量控制与可选 EXIF DPI（需 piexif）",
+        "- 支持 author、description 可选元数据字段",
+        "- 支持子目录命名（filename_prefix 使用 '/' 分隔）",
+        "- 分类：UniversalToolkit/Image",
+    ],
     "1.4.10": [
         "新增 Image Batch Extend With Overlap (UTK) 节点：",
         "- 自 comfyui-kjnodes 移植，用于视频/图像序列扩展与重叠混合",
@@ -817,6 +829,10 @@ try:
         NODE_CLASS_MAPPINGS as IMAGE_BATCH_EXTEND_MAPPINGS
     from .nodes.image.image_batch_extend_with_overlap import \
         NODE_DISPLAY_NAME_MAPPINGS as IMAGE_BATCH_EXTEND_DISPLAY
+    from .nodes.image.save_image_plus import \
+        NODE_CLASS_MAPPINGS as SAVE_IMAGE_PLUS_MAPPINGS
+    from .nodes.image.save_image_plus import \
+        NODE_DISPLAY_NAME_MAPPINGS as SAVE_IMAGE_PLUS_DISPLAY
 except ImportError as e:
     print(f"[UniversalToolkit] 导入错误: {e}")
     GET_IMAGE_RANGE_MAPPINGS = {}
@@ -833,6 +849,8 @@ except ImportError as e:
     RESIZE_VER_KJ_DISPLAY = {}
     IMAGE_BATCH_EXTEND_MAPPINGS = {}
     IMAGE_BATCH_EXTEND_DISPLAY = {}
+    SAVE_IMAGE_PLUS_MAPPINGS = {}
+    SAVE_IMAGE_PLUS_DISPLAY = {}
 
 
 # 合并所有节点映射
@@ -880,6 +898,7 @@ NODE_CLASS_MAPPINGS.update(BEST_CONTEXT_WINDOW_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(BLOCKIFY_MASK_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(RESIZE_VER_KJ_MAPPINGS)
 NODE_CLASS_MAPPINGS.update(IMAGE_BATCH_EXTEND_MAPPINGS)
+NODE_CLASS_MAPPINGS.update(SAVE_IMAGE_PLUS_MAPPINGS)
 
 # 合并显示名称映射
 NODE_DISPLAY_NAME_MAPPINGS = {}
@@ -926,6 +945,7 @@ NODE_DISPLAY_NAME_MAPPINGS.update(BEST_CONTEXT_WINDOW_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(BLOCKIFY_MASK_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(RESIZE_VER_KJ_DISPLAY)
 NODE_DISPLAY_NAME_MAPPINGS.update(IMAGE_BATCH_EXTEND_DISPLAY)
+NODE_DISPLAY_NAME_MAPPINGS.update(SAVE_IMAGE_PLUS_DISPLAY)
 
 NODE_CATEGORIES = {
     "UniversalToolkit": [
@@ -973,6 +993,7 @@ NODE_CATEGORIES = {
         "BlockifyMask_UTK",
         "ResizeImageVerKJ_UTK",
         "ImageBatchExtendWithOverlap_UTK",
+        "SaveImagePlus_UTK",
     ]
 }
 
